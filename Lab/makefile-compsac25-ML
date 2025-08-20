@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+#
+# Copyright (c) 2025, Taiyo Hirayama
+# All rights reserved.
+#
+
+graph=$1
+trial=500
+
+file="N500-$graph-n100-A50-ML.org"
+
+./rw-attack-defense.py -a SRW -g $graph -n 100 -N $trial -s 1 > $file
+
+echo "# [a: ML , r: ML" >> $file
+./rw-attack.py -a SRW -g $graph -n 100 -N $trial -A 50 -y 1 -z 1 -s 1 >> $file
+
+# Add initial command
+echo "# 三角法 = y = 1、始点法 = y =2、クラスター法 = y =3" >> $file
+echo "# ハブ次数減少法 = z = 1、進路遮断法 = z = 2, 分断法 = z = 3" >> $file
+echo "#####################################################################################" >> $file
+
+# Edge add
+for y in 1 2 3; do
+
+    if [ $y -eq 1 ]; then
+	edge_add="三角法"
+    elif [ $y -eq 2 ]; then
+	edge_add="始点法"
+    elif [ $y -eq 3 ]; then
+	edge_add="クラスター法"
+    else
+	edge_add="lolipop"
+    fi
+
+    # Edge remove
+    for z in 1 2 3; do
+        if [ $z -eq 1 ]; then
+            edge_remove="ハブ次数減少法"
+        elif [ $z -eq 2 ]; then
+            edge_remove="進路遮断法"
+        elif [ $z -eq 3 ]; then
+            edge_remove="分断法"
+	else
+	    edge_remove="lolipop"
+        fi
+
+	
+        # Add header to output
+        echo "# [a: $edge_add , r: $edge_remove]" >> $file
+	./rw-attack-defense.py -g $graph -n 100 -N $trial -a SRW -A 50 -y $y -z $z -s 1 >> $file
+	#./rw-attack-defense.py -g $graph -n 100 -N $trial -a SRW -A 35 -y $y -z $z -D 35 -b 1 -c 1 -s 1 >> $file
+	#./rw-attack-defense.py -g $graph -n 100 -N $trial -a SRW -A 35 -y $y -z $z -D 35 -b 1 -c 2 -s 1 >> $file
+
+	# for k in 4 5 6; do
+	#     echo "k = $k" >> $file 
+	#     ./rw-attack-defense.py -g $graph -n 100 -N $trial -a SRW -A 50 -y $y -z $z -k $k -s 1 >> $file
+	#     ./rw-attack-defense.py -g $graph -n 100 -N $trial -a SRW -A 50 -y $y -z $z -D True -k $k -s 1 >> $file
+	# done
+    done
+done
