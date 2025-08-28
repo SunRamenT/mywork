@@ -1,4 +1,5 @@
 #!/bin/bash
+# ミーティングの画面を録画する用
 set -euo pipefail
 
 if [ $# -lt 1 ]; then
