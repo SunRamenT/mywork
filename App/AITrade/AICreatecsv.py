@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # データ取得
 target = "9279.T"
-data = yf.download(target, period="30d", interval="1d")##ここのperiodのdをかえたら取得範囲もかわる
+data = yf.download(target, period="3mo", interval="1d")##ここのperiodのdをかえたら取得範囲もかわる
 
 # マルチインデックスを解除
 if isinstance(data.columns, pd.MultiIndex):
