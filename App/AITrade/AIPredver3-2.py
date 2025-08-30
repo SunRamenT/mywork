@@ -22,7 +22,11 @@ END_DATE = "2024-08-01"
 # --- 1. TOPIX100銘柄コード取得 ---
 print("--- TOPIX100の銘柄コードを取得しています ---")
 try:
+    # ★★★★★★★★★★★★★★★★ ここが修正点 ★★★★★★★★★★★★★★★★
+    # 正しいURLに修正しました
     url = "https://search.sbisec.co.jp/v2/popwin/info/stock/pop690_topix100.html"
+    # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    
     response = requests.get(url, timeout=15)
     response.raise_for_status()
     soup = BeautifulSoup(response.content, "html.parser")
@@ -45,13 +49,36 @@ raw_data.columns.names = ['feature', 'code']
 df = raw_data.stack(level='code').reset_index()
 df['code'] = df['code'].str.replace('.T', '', regex=False)
 
-# --- 3. 基本的な特徴量の計算 ---
-print("\n--- 基本的な特徴量を計算しています ---")
+# --- 3. 特徴量の計算 ---
+print("\n--- 特徴量を計算しています ---")
 df = df.sort_values(['code', 'Date'])
+
 df['前日比'] = df.groupby('code')['Close'].pct_change(1) * 100
 df['寄り引け変動率'] = (df['Close'] - df['Open']) / df['Open'] * 100
 df['SMA_25'] = df.groupby('code')['Close'].transform(lambda x: x.rolling(window=25, min_periods=25).mean())
 df['乖離率(25日)'] = ((df['Close'] - df['SMA_25']) / df['SMA_25']) * 100
+
+# RSIの計算
+def rsi(series, period=14):
+    delta = series.diff(1)
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=period, min_periods=period).mean()
+    avg_loss = loss.rolling(window=period, min_periods=period).mean()
+    rs = avg_gain / avg_loss
+    return 100 - (100 / (1 + rs))
+df['RSI'] = df.groupby('code')['Close'].transform(lambda x: rsi(x))
+
+# ボリンジャーバンドの計算
+df['SMA_20'] = df.groupby('code')['Close'].transform(lambda x: x.rolling(window=20).mean())
+df['STD_20'] = df.groupby('code')['Close'].transform(lambda x: x.rolling(window=20).std())
+df['BB_UP'] = df['SMA_20'] + 2 * df['STD_20']
+df['BB_LOW'] = df['SMA_20'] - 2 * df['STD_20']
+df['BB_Width'] = (df['BB_UP'] - df['BB_LOW']) / df['SMA_20']
+
+# 出来高の計算
+df['Volume_SMA_25'] = df.groupby('code')['Volume'].transform(lambda x: x.rolling(window=25).mean())
+df['Volume_Ratio'] = df['Volume'] / df['Volume_SMA_25']
 
 # --- 4. S&P500データの準備とマージ ---
 print("\n--- S&P500のデータを取得し、マージしています ---")
@@ -68,22 +95,22 @@ df_merge = pd.merge_asof(
     direction="backward"
 )
 
-# ★★★★★★★★★★★★★★★★ ここからが最重要修正点 ★★★★★★★★★★★★★★★★
-# --- 5. 予測のための特徴量エンジニアリング（未来の情報漏洩を完全に防ぐ） ---
-print("\n--- 予測に使うための特徴量を作成しています（未来の情報漏洩を防止）---")
-target = "寄り引け変動率"
-features_to_shift = ['前日比', '寄り引け変動率', '乖離率(25日)', 'S&P500前日比']
+# --- 5. 予測のための特徴量とターゲットの作成 ---
+print("\n--- 予測に使うための特徴量とターゲットを作成しています ---")
 
-# 全ての特徴量を1日ずらす（昨日の情報を使って今日を予測するため）
+df_merge['target_sign'] = (df_merge['寄り引け変動率'] > 0).astype(int)
+
+features_to_shift = [
+    '前日比', '寄り引け変動率', '乖離率(25日)', 'S&P500前日比',
+    'RSI', 'BB_Width', 'Volume_Ratio'
+]
 for feature in features_to_shift:
     df_merge[f'{feature}_lag1'] = df_merge.groupby('code')[feature].shift(1)
 
-# 新しく作成したラグ特徴量とターゲットを定義
 features = [f'{col}_lag1' for col in features_to_shift]
+target = 'target_sign'
 
-# NaNを含む行（シフトによって発生）を削除
 df_final = df_merge.dropna(subset=features + [target]).copy()
-# ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
 # --- 7. 学習データ準備 ---
 print("\n--- モデル学習の準備をしています ---")
@@ -95,8 +122,9 @@ print(f"学習データ期間: {df_train['Date'].min().date()} ～ {df_train['Da
 print(f"検証データ期間: {df_valid['Date'].min().date()} ～ {df_valid['Date'].max().date()}")
 dtrain = lgb.Dataset(df_train[features], df_train[target])
 dvalid = lgb.Dataset(df_valid[features], df_valid[target], reference=dtrain)
+
 params = {
-    "objective": "regression_l1", "metric": "rmse", "learning_rate": 0.01,
+    "objective": "binary", "metric": "auc", "learning_rate": 0.01,
     "verbosity": -1, "seed": 42, "feature_fraction": 0.8,
     "bagging_fraction": 0.8, "bagging_freq": 1,
 }
@@ -126,7 +154,7 @@ df_eval["position"] = 0
 df_eval.loc[df_eval["rank"] <= (df_eval.groupby("Date")["rank"].transform("max") * 0.2), "position"] = 1
 df_eval.loc[df_eval["rank"] >= (df_eval.groupby("Date")["rank"].transform("max") * 0.8), "position"] = -1
 df_eval = df_eval[df_eval["position"] != 0]
-df_eval["return"] = df_eval[target] * df_eval["position"]
+df_eval["return"] = df_eval["寄り引け変動率"] * df_eval["position"]
 
 # --- 11. 累積リターンの計算 ---
 daily_return = df_eval.groupby("Date")["return"].mean()
