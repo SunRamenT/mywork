@@ -1,112 +1,89 @@
 import yfinance as yf
 import pandas as pd
-from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup
 import os
-import time
 import warnings
 
 # --- 初期設定 ---
-# 不要な警告を非表示にする
 warnings.filterwarnings('ignore')
+
+# データ取得期間を固定
+START_DATE = "2023-08-01"
+END_DATE = "2024-08-01"
 
 # --- 1. TOPIX100銘柄コード取得 ---
 print("--- TOPIX100の銘柄コードを取得しています ---")
 try:
     url = "https://search.sbisec.co.jp/v2/popwin/info/stock/pop690_topix100.html"
-    response = requests.get(url, timeout=10)
+    response = requests.get(url, timeout=15)
     response.raise_for_status()
     soup = BeautifulSoup(response.content, "html.parser")
 
-    topix_100 = []
-    for row in soup.select("table tr"):
-        cols = row.find_all("td")
-        if len(cols) > 1 and cols[0].text.strip().isdigit():
-            code = cols[0].text.strip()
-            topix_100.append(code)
+    topix_100 = [
+        cols[0].text.strip()
+        for row in soup.select("table tr")
+        if (cols := row.find_all("td")) and len(cols) > 1 and cols[0].text.strip().isdigit()
+    ]
     
     if not topix_100:
         raise ValueError("銘柄コードの取得に失敗しました。")
     print(f"TOPIX100銘柄数: {len(topix_100)}")
 
-except requests.exceptions.RequestException as e:
-    print(f"❌ ネットワークエラー: {e}")
-    exit()
 except Exception as e:
     print(f"❌ 銘柄コードの取得中にエラーが発生しました: {e}")
     exit()
 
-# --- 2. 各銘柄の株価取得と特徴量作成 ---
-print("\n--- 各銘柄の株価データを取得し、特徴量を作成しています ---")
-data_list = []
-for code in tqdm(topix_100, desc="銘柄データ取得中"):
-    ticker = f"{code}.T"
-    try:
-        time.sleep(0.2) # APIへの負荷を軽減
-        tmp = yf.download(ticker, period="1y", auto_adjust=True, progress=False)
-        
-        if tmp.empty or len(tmp) < 2:
-            continue
-            
-        tmp.reset_index(inplace=True)
-        tmp["code"] = code
+# --- 2. 全銘柄の株価データを一括取得 ---
+print(f"\n--- 全銘柄の株価データを一括で取得しています（期間: {START_DATE} ～ {END_DATE}）---")
+tickers_with_suffix = [f"{code}.T" for code in topix_100]
+raw_data = yf.download(tickers_with_suffix, start=START_DATE, end=END_DATE, auto_adjust=True)
 
-        tmp["寄り引け変動率"] = (tmp["Close"] - tmp["Open"]) / tmp["Open"] * 100
-        tmp["前日比"] = tmp["Close"].pct_change(1) * 100
-        tmp.dropna(inplace=True)
+print("\n--- 取得したデータを分析しやすい形式に変換しています ---")
+raw_data.columns.names = ['feature', 'code']
+df = raw_data.stack(level='code').reset_index()
+df['code'] = df['code'].str.replace('.T', '', regex=False)
 
-        if tmp.empty:
-            continue
-
-        tmp = tmp[["Date", "code", "Open", "Close", "High", "Low", "寄り引け変動率", "前日比"]]
-        data_list.append(tmp)
-        
-    except Exception:
-        continue
-
-if not data_list:
-    raise ValueError("有効な株価データが1件も取得できませんでした。")
-
-# --- 日本株データの準備 ---
-df = pd.concat(data_list, ignore_index=True)
-# タイムゾーン情報を削除し、日付でソートする（merge_asofの必須要件）
+# --- 3. 特徴量の計算 ---
+print("\n--- 特徴量を計算しています ---")
+df = df.sort_values(['code', 'Date'])
+df['前日比'] = df.groupby('code')['Close'].pct_change(1) * 100
+df['寄り引け変動率'] = (df['Close'] - df['Open']) / df['Open'] * 100
+df.dropna(subset=['前日比', '寄り引け変動率'], inplace=True)
+df = df[["Date", "code", "Open", "Close", "High", "Low", "寄り引け変動率", "前日比"]]
 df["Date"] = pd.to_datetime(df["Date"]).dt.tz_localize(None)
-df.sort_values("Date", inplace=True)
 
 
-# --- 3. S&P500データの準備 ---
-print("\n--- S&P500のデータを取得しています ---")
-df_sp500 = yf.download("^GSPC", period="1y", auto_adjust=True, progress=False)
+# --- 4. S&P500データの準備とマージ ---
+print("\n--- S&P500のデータを取得し、マージしています ---")
+raw_sp500 = yf.download("^GSPC", start=START_DATE, end=END_DATE, auto_adjust=True, progress=False)
+
+# ★★★★★★★★★★★★★★★★★ 最終解決策 ★★★★★★★★★★★★★★★★★
+# yfinanceが返す可能性のある複雑な列構造（MultiIndex）を強制的に単純化する
+# 必要な'Close'列だけを持つ新しいDataFrameを作成し、列構造を保証する
+df_sp500 = pd.DataFrame(index=raw_sp500.index)
+df_sp500['Close'] = raw_sp500['Close']
 df_sp500.reset_index(inplace=True)
-# こちらも同様にタイムゾーン情報を削除し、日付でソート
+# ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
 df_sp500["Date"] = pd.to_datetime(df_sp500["Date"]).dt.tz_localize(None)
 df_sp500["S&P500前日比"] = df_sp500["Close"].pct_change() * 100
 df_sp500.sort_values("Date", inplace=True)
 df_sp500_for_merge = df_sp500[["Date", "S&P500前日比"]]
 
-
-# --- 4. merge_asof を使った高度なマージ ---
-print("\n--- 日米の営業日を考慮してデータをマージしています ---")
-# ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-# 解決策: merge_asof を使用
-# 各日本株の行(左のdf)に対して、その日付以前で最も近い
-# S&P500のデータ(右のdf_sp500_for_merge)を自動で探して結合する。
-# これにより、日米の祝日や週末の違いが吸収される。
-# ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+# merge_asof を使い、各日本株の営業日に直近のS&P500データを結合
 df_merge = pd.merge_asof(
-    df, 
-    df_sp500_for_merge, 
+    df.sort_values('Date'), 
+    df_sp500_for_merge.dropna(), 
     on="Date", 
-    direction="backward" # backwardは「その日以前で直近の」を探すオプション
+    direction="backward"
 )
-# マージによって発生したNaN（主にデータ期間の最初の方）を削除
 df_merge.dropna(inplace=True)
 
 if df_merge.empty:
-    raise ValueError("マージ後、DataFrameが空になりました。データ期間や取得状況を確認してください。")
+    raise ValueError("マージ後、DataFrameが空になりました。")
 
-# --- 5. 年列とS&P上昇フラグの作成 ---
+# --- 5. 最終的な列の追加 ---
 df_merge["year"] = df_merge["Date"].dt.year
 df_merge["S&P_up"] = (df_merge["S&P500前日比"] > 0).astype(int)
 
