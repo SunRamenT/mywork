@@ -3,9 +3,7 @@ import pandas as pd
 from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup
-import lightgbm as lgb
-import datetime
-
+import os
 # --- 1. SBI証券TOPIX100銘柄コード取得 ---
 url = "https://search.sbisec.co.jp/v2/popwin/info/stock/pop690_topix100.html"
 response = requests.get(url)
@@ -44,7 +42,6 @@ for code in tqdm(topix_100):
 df = pd.concat(data_list, ignore_index=True)
 df["Date"] = pd.to_datetime(df["Date"])
 
-
 # --- 3. S&P500データ取得 ---
 df_sp500 = yf.download("^GSPC", period="1y", auto_adjust=True, progress=False)
 df_sp500.reset_index(inplace=True)
@@ -61,51 +58,10 @@ df_merge["year"] = df_merge["Date"].dt.year
 df_merge.loc[df_merge["S&P500前日比"] > 0, "S&P_up"] = 1
 df_merge.loc[df_merge["S&P500前日比"] < 0, "S&P_up"] = 0
 
-# --- 6. 保存（機械学習用に使える形） ---
-df_merge.to_csv("topix100_features.csv", index=False, encoding="utf-8-sig")
 
-print("✅ データ保存完了: topix100_features.csv")
+# --- 6. CSV保存（スクリプトと同じフォルダに出力） ---
+output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "topix100_features_SMA5.csv")
+df_merge.to_csv(output_path, index=False, encoding="utf-8-sig")
 
-target = "寄り引け変動率"
-features = ['前日比','始値_終値','25日乖離率','S&P前日比'] #ほかにも特徴量は増やしたい
-
-train_idx = df_merge.index < datetime.datetime(2025,1,1)
-valid_idx = df_merge.set_index > datetime.datetime(2025,1,1)
-
-df_train = df_merge.loc[train_idx,:]
-df_valid = df_merge.loc[valid_idx,:]
-
-params = [
-    "learning_rate" : 0.01,
-    "speed" : 1,
-    "verbosity" : -1,
-]
-
-dtrain = lgb.Dataset(
-    df_train[features],
-    df_train[target],
-)
-dvalid = lgb.Dataset(
-    df_valid[features],
-    df_valid[target],
-)
-
-evals_result = []
-
-model = lgb.train(
-    params,
-    dtrain,
-    num_boost_roumd = 1000,
-    valid_set=[dtrain,dvalid],
-    valid_names=["train","valid"],
-    early_stopping_rounds=100,
-    evals_result=evals_result,
-)
-
-df_importance = pd.DataFrame()
-df_importance["特徴量"] = model.feature_name()
-df_importance["重要度"] = model.feature_importance(
-    importance_type="gain"
-)
-
-print(df_importance.sort_values("重要度",ascending=False))
+print(f"✅ データ保存完了: {output_path}")
+print(df_merge.head())
