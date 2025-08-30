@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI株価予測</title>
+    <!-- iPhoneでアプリのように表示するための設定 -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="AI株価予測" />
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon.png') }}" />
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI株価予測</h1>
+            <p>翌営業日の推奨取引銘柄を予測します。</p>
+        </header>
+        <main>
+            <button id="predict-button">予測を開始</button>
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>予測モデルを学習・実行中... (数分かかることがあります)</p>
+            </div>
+            <div id="results-container" class="hidden">
+                <h2 id="result-title"></h2>
+                <div class="recommendations">
+                    <div class="buy-section">
+                        <h3>買い推奨 (上昇確率 上位10銘柄)</h3>
+                        <table id="buy-table"></table>
+                    </div>
+                    <div class="sell-section">
+                        <h3>売り推奨 (上昇確率 下位10銘柄)</h3>
+                        <table id="sell-table"></table>
+                    </div>
+                </div>
+            </div>
+             <div id="error-container" class="hidden">
+                <p id="error-message"></p>
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2025 AI Stock Predictor</p>
+        </footer>
+    </div>
+
+    <script>
+        // JavaScriptコードをHTML内に直接埋め込むことで、
+        // ファイル読み込みの問題を回避し、アプリケーションの安定性を高める。
+        document.addEventListener('DOMContentLoaded', () => {
+            const predictButton = document.getElementById('predict-button');
+            const loadingDiv = document.getElementById('loading');
+            const resultsContainer = document.getElementById('results-container');
+            const errorContainer = document.getElementById('error-container');
+            const errorMessage = document.getElementById('error-message');
+
+            predictButton.addEventListener('click', async () => {
+                predictButton.classList.add('hidden');
+                resultsContainer.classList.add('hidden');
+                errorContainer.classList.add('hidden');
+                loadingDiv.classList.remove('hidden');
+
+                try {
+                    const response = await fetch('/predict', {
+                        method: 'POST',
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'サーバーで不明なエラーが発生しました。');
+                    }
+                    const data = await response.json();
+                    displayResults(data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError(error.message);
+                } finally {
+                    loadingDiv.classList.add('hidden');
+                }
+            });
+
+            function displayResults(data) {
+                resultsContainer.classList.remove('hidden');
+                document.getElementById('result-title').textContent = 
+                    `${data.latest_data_date} のデータに基づく翌営業日の予測`;
+                populateTable('buy-table', data.buy_recommendations);
+                populateTable('sell-table', data.sell_recommendations);
+            }
+            
+            function populateTable(tableId, recommendations) {
+                const table = document.getElementById(tableId);
+                table.innerHTML = '<tr><th>銘柄コード</th><th>上昇確率</th></tr>';
+                recommendations.forEach(item => {
+                    const row = table.insertRow();
+                    const cellCode = row.insertCell(0);
+                    const cellPred = row.insertCell(1);
+                    cellCode.textContent = item.code;
+                    cellPred.textContent = (item.prediction * 100).toFixed(2) + '%';
+                });
+            }
+
+            function showError(message) {
+                errorMessage.textContent = `エラー: ${message}`;
+                errorContainer.classList.remove('hidden');
+                predictButton.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
+

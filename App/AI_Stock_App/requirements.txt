@@ -1,0 +1,11 @@
+Flask
+flask-cors
+pandas
+numpy
+yfinance
+requests
+beautifulsoup4
+lightgbm
+matplotlib
+japanize-matplotlib
+gunicorn
