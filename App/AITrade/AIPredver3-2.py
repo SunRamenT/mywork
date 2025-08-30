@@ -94,7 +94,7 @@ def get_topix100_codes():
         print(f"TOPIX100銘柄数: {len(codes)}")
         return codes
     except Exception as e:
-        print(f"❌ 銘柄コード取得中のエラー: {e}")
+        print(f"X 銘柄コード取得中のエラー: {e}")
         exit()
 
 def download_data(start_date, end_date, topix_100):
