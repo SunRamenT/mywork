@@ -1,10 +1,12 @@
 Flask
 flask-cors
-pandas
+pandas>=1.0.0
 numpy
 yfinance
 requests
 beautifulsoup4
 lightgbm
+matplotlib
+japanize-matplotlib
 gunicorn
 joblib
