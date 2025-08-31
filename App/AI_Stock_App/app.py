@@ -1,3 +1,9 @@
+"""
+AI株価予測 Webアプリケーション バックエンド (Flask)
+
+このサーバーは、事前に学習・保存されたAIモデルを読み込み、
+リクエストに応じて高速に予測結果を返すことに専念する。
+"""
 import yfinance as yf
 import pandas as pd
 import requests
@@ -18,7 +24,7 @@ warnings.filterwarnings('ignore')
 # 1. 設定エリア (CONFIG)
 # ==============================================================================
 CONFIG = {
-    # 予測に必要な過去データの日数を定義 (余裕を持って設定)
+    # 予測に必要な最小限の過去データの日数を定義 (余裕を持って設定)
     "data_fetch_days": 60,
     "features": [
         '前日比', '寄り引け変動率', '乖離率(25日)',
@@ -33,19 +39,22 @@ CONFIG = {
 # ==============================================================================
 # 2. モデルの読み込み
 # ==============================================================================
-# アプリ起動時に一度だけ、保存されたモデルを読み込む
+# アプリケーション起動時に一度だけ、保存されたモデルを読み込む
 try:
-    model = joblib.load('model.lgb')
-    print("--- 事前学習済みモデル'model.lgb'の読み込み完了 ---")
+    # スクリプト自身の場所を基準に、モデルファイルのパスを構築
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(script_dir, 'model.lgb')
+    model = joblib.load(model_path)
+    print(f"--- 事前学習済みモデル'{model_path}'の読み込み完了 ---")
 except FileNotFoundError:
-    print("エラー: 'model.lgb'が見つかりません。先にtrain_model.pyを実行してください。")
+    print("❌ エラー: 'model.lgb'が見つかりません。先にtrain_model.pyを実行し、モデルファイルを生成してください。")
     model = None
 
 # ==============================================================================
 # 3. 予測パイプライン関数（軽量版）
 # ==============================================================================
-# (train_model.pyから必要な関数をコピー＆軽量化)
 def get_topix100_codes():
+    """TOPIX100構成銘柄の証券コード取得"""
     url = "https://search.sbisec.co.jp/v2/popwin/info/stock/pop690_topix100.html"
     response = requests.get(url, timeout=15)
     response.raise_for_status()
@@ -59,12 +68,14 @@ def get_topix100_codes():
     return codes
 
 def download_prediction_data(start_date, end_date, topix_100):
+    """予測に必要な最小限のデータをダウンロード"""
     tickers_jp = [f"{code}.T" for code in topix_100]
     raw_jp_data = yf.download(tickers_jp, start=start_date, end=end_date, auto_adjust=True, progress=False)
     raw_us_indices = yf.download(["^GSPC", "^IXIC"], start=start_date, end=end_date, auto_adjust=True, progress=False)
     return raw_jp_data, raw_us_indices
-# (calculate_features と prepare_final_dataframeの軽量版も同様に定義)
+
 def calculate_features(df):
+    """各種テクニカル指標（特徴量）の計算"""
     df = df.sort_values(['code', 'Date'])
     df['前日比'] = df.groupby('code')['Close'].pct_change(1) * 100
     df['寄り引け変動率'] = (df['Close'] - df['Open']) / df['Open'] * 100
@@ -85,7 +96,9 @@ def calculate_features(df):
     df['Volume_SMA_25'] = df.groupby('code')['Volume'].transform(lambda x: x.rolling(window=25).mean())
     df['Volume_Ratio'] = df['Volume'] / df['Volume_SMA_25']
     return df
+
 def prepare_prediction_dataframe(raw_jp_data, raw_us_indices, config):
+    """予測用にデータを整形する"""
     raw_jp_data.columns.names = ['feature', 'code']
     df_jp = raw_jp_data.stack(level='code').reset_index()
     df_jp['code'] = df_jp['code'].str.replace('.T', '', regex=False)
@@ -97,10 +110,10 @@ def prepare_prediction_dataframe(raw_jp_data, raw_us_indices, config):
     df_us["Date"] = pd.to_datetime(df_us["Date"]).dt.tz_localize(None)
     df_us["S&P500前日比"] = df_us['S&P500_Close'].pct_change() * 100
     df_us["Nasdaq前日比"] = df_us['Nasdaq_Close'].pct_change() * 100
-    df_merged = pd.merge_as_of(
-        df_jp_featured.sort_values('Date'), 
-        df_us[["Date", "S&P500前日比", "Nasdaq前日比"]].dropna(), 
-        on="Date", 
+    df_merged = pd.merge_asof(
+        df_jp_featured.sort_values('Date'),
+        df_us[["Date", "S&P500前日比", "Nasdaq前日比"]].dropna(),
+        on="Date",
         direction="backward"
     )
     features_to_shift = config["features"]
@@ -122,15 +135,15 @@ def run_prediction_pipeline():
     start_date = end_date - datetime.timedelta(days=CONFIG["data_fetch_days"])
     
     topix_100_codes = get_topix100_codes()
-    jp_data, us_data = download_prediction_data(start_date, end_date, topix_100_codes)
+    jp_data, us_data = download_prediction_data(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"), topix_100_codes)
     final_df, feature_names = prepare_prediction_dataframe(jp_data, us_data, CONFIG)
 
-    print("\n--- 予測のための最新データを準備 ---")
+    print("--- 予測のための最新データを準備 ---")
     latest_data = final_df.loc[final_df.groupby('code')['Date'].idxmax()]
     if latest_data.empty: raise ValueError("予測に使用できる最新データが見つからない。")
     print(f"最新データの日付: {latest_data['Date'].min().date()}")
 
-    print("\n--- 翌営業日の上昇確率を予測 ---")
+    print("--- 翌営業日の上昇確率を予測 ---")
     predictions = model.predict(latest_data[feature_names])
     
     df_prediction = pd.DataFrame({'code': latest_data['code'], 'prediction': predictions})
@@ -149,7 +162,8 @@ def run_prediction_pipeline():
 # ==============================================================================
 # 4. Flask Webサーバーエリア
 # ==============================================================================
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
+CORS(app)
 
 @app.route('/')
 def index():
@@ -161,7 +175,8 @@ def predict():
         result = run_prediction_pipeline()
         return jsonify(result)
     except Exception as e:
-        print(f"エラー発生: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

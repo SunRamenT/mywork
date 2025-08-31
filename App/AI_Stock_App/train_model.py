@@ -133,13 +133,12 @@ if __name__ == '__main__':
     d_full_train = lgb.Dataset(final_df[feature_names], final_df[target_name])
     final_model = lgb.train(CONFIG["lgbm_params"], d_full_train, num_boost_round=100)
 
-    # スクリプト自身の場所を基準に、保存先パスを構築する
+    # スクリプト自身の場所を基準に、保存先パスを構築
     script_dir = os.path.dirname(os.path.abspath(__file__))
     save_path = os.path.join(script_dir, 'model.lgb')
     
     # モデルを指定したパスに保存
     joblib.dump(final_model, save_path)
     print(f"\n--- モデルを'{save_path}'として保存完了 ---")
-    
     print("次に、このプロジェクトをGitHubにアップロードし、VPSにデプロイしてください。")
 

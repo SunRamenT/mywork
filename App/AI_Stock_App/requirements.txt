@@ -10,3 +10,4 @@ matplotlib
 japanize-matplotlib
 gunicorn
 joblib
+scikit-learn
