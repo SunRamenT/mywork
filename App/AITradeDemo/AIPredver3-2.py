@@ -97,7 +97,7 @@ def get_topix100_codes():
         print(f"TOPIX100銘柄数: {len(codes)}")
         return codes
     except Exception as e:
-        print(f"❌ 銘柄コード取得中のエラー: {e}")
+        print(f"X 銘柄コード取得中のエラー: {e}")
         exit()
 
 def download_data(start_date, end_date, topix_100):
@@ -296,7 +296,6 @@ def display_results(df_eval, model):
     plt.tight_layout()
     plt.show()
 
-# ★★★★★★★★★★★★★★★★ ここからが新しく追加した機能 ★★★★★★★★★★★★★★★★
 def predict_next_day_trades(df_final, features, target, config):
     """全データでモデルを再学習し、翌営業日の推奨銘柄を予測・出力する。"""
     print("\n\n==================================================")
@@ -325,7 +324,7 @@ def predict_next_day_trades(df_final, features, target, config):
     
     # 予測に使用する特徴量が存在するか確認
     if latest_data.empty:
-        print("❌ 予測に使用できる最新データが見つからない。")
+        print("X 予測に使用できる最新データが見つからない。")
         return
         
     print(f"最新データの日付: {latest_data['Date'].min().date()}")

@@ -8,23 +8,3 @@ beautifulsoup4
 lightgbm
 gunicorn
 joblib
-
-
-#### 3. 新しいデプロイ手順
-
-1.  **【PCで一度だけ】AIモデルを学習させ、保存する**
-    * PowerShellで`AI_Stock_App`フォルダーに移動し、以下のコマンドを実行します。
-    ```powershell
-    python train_model.py
-    ```
-    * これにより、フォルダー内に`model.lgb`というファイルが作成されます。
-
-2.  **【PCで】全てのファイルをGitHubにアップロードする**
-    * 新しく作成した`train_model.py`と`model.lgb`、そして更新した`app.py`など、全てのファイルをGitHubにアップロード（push）してください。
-
-3.  **【VPSで】最新版アプリをデプロイする**
-    * VPSにSSH接続し、`AI_Stock_App`フォルダーに移動します。
-    ```bash
-    cd AI_Stock_App
-    git pull # GitHubから最新のコード（model.lgbも含む）を取得
-    sudo docker compose up -d --build # 変更を反映して再起動

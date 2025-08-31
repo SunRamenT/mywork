@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="AI株価予測" />
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon.png') }}" />
-    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -66,9 +66,14 @@
                 loadingDiv.classList.remove('hidden');
 
                 try {
-                    const response = await fetch('/predict', {
+                    // ★★★★★★★★★★★★★★★★ ここが修正点 ★★★★★★★★★★★★★★★★
+                    // 相対パス '/predict' から、サーバーの完全なURLを動的に生成する方式に変更
+                    const predictUrl = `${window.location.origin}/predict`;
+                    const response = await fetch(predictUrl, {
                         method: 'POST',
                     });
+                    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.error || 'サーバーで不明なエラーが発生しました。');
@@ -85,12 +90,12 @@
 
             function displayResults(data) {
                 resultsContainer.classList.remove('hidden');
-                document.getElementById('result-title').textContent = 
+                document.getElementById('result-title').textContent =
                     `${data.latest_data_date} のデータに基づく翌営業日の予測`;
                 populateTable('buy-table', data.buy_recommendations);
                 populateTable('sell-table', data.sell_recommendations);
             }
-            
+
             function populateTable(tableId, recommendations) {
                 const table = document.getElementById(tableId);
                 table.innerHTML = '<tr><th>銘柄コード</th><th>上昇確率</th></tr>';
@@ -112,4 +117,3 @@
     </script>
 </body>
 </html>
-
