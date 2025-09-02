@@ -51,7 +51,7 @@ CONFIG = {
     },
     "strategy_specific_settings": {
         "SingleStock": {
-            "symbol": '7203.JP',
+            "symbol": '7203.T', # .JPから.Tに変更
             "features": ['Close', 'High', 'Low', 'Open', 'Volume', 'SMA5', 'SMA20', 'MACD', 'RSI', 'Upper', 'Lower', 'OBV', 'ATR', 'DayOfWeek'],
             "models": { "RandomForest": RandomForestClassifier(random_state=42), "LightGBM": lgb.LGBMClassifier(objective='multiclass', random_state=42, verbosity=-1) },
             "param_grids": { "RandomForest": {'n_estimators': [100, 200], 'max_depth': [5, 10]}, "LightGBM": {'n_estimators': [100, 200], 'max_depth': [5, 10], 'learning_rate': [0.1, 0.05]} },
@@ -67,7 +67,7 @@ CONFIG = {
 }
 
 # ==============================================================================
-# 2. 分析ロジッククラスエリア (変更なし)
+# 2. 分析ロジッククラスエリア (変更あり)
 # ==============================================================================
 class DataLoader:
     def get_topix100_codes(self):
@@ -78,10 +78,16 @@ class DataLoader:
             if not codes: raise ValueError("銘柄コード取得失敗")
             print(f"TOPIX100銘柄数: {len(codes)}"); return codes
         except Exception as e: print(f"X 銘柄コード取得エラー: {e}"); return []
+
     def download_market_data(self, symbols, start_date, end_date):
         print(f"\n--- マーケットデータ取得（期間: {start_date} ～ {end_date}）---")
+        # yfinanceは.T形式を推奨するため、.JPを.Tに置換
         tickers = [s.replace('.JP', '.T') if isinstance(s, str) and s.endswith('.JP') else (f"{s}.T" if isinstance(s, int) or s.isdigit() else s) for s in symbols]
-        return yf.download(tickers, start=start_date, end=end_date, auto_adjust=True)
+        
+        # ★★★ 変更点: progress=False を追加してプログレスバーを非表示に ★★★
+        df = yf.download(tickers, start=start_date, end=end_date, auto_adjust=True, progress=False)
+        print("データ取得完了。")
+        return df
 
 class FeatureEngineer:
     def calculate_for_single_stock(self, df):
@@ -114,7 +120,7 @@ class SingleStockStrategy(Strategy):
     def prepare_data(self):
         print(f"\n===== 単一銘柄戦略 ({self.specific_config['symbol']}) 開始 ====="); df_raw = self.data_loader.download_market_data([self.specific_config['symbol']], self.common_config['start_date'], self.common_config['end_date'])
         if df_raw.empty: print(f"エラー: {self.specific_config['symbol']} データ取得失敗"); exit()
-        if isinstance(df_raw.columns, pd.MultiIndex): df_raw.columns = df_raw.columns.droplevel(1)
+        if isinstance(df_raw.columns, pd.MultiIndex): df_raw.columns = df_raw.columns.droplevel(0) # droplevel(1)から(0)へ修正
         self.df = self.feature_engineer.calculate_for_single_stock(df_raw); self.df.dropna(inplace=True); self.le = LabelEncoder(); self.df['Correct_label'] = self.le.fit_transform(self.df['Correct'])
         validation_start_dt = pd.to_datetime(self.common_config['validation_start_date']); train_df = self.df[self.df.index < validation_start_dt]; valid_df = self.df[self.df.index >= validation_start_dt]
         if train_df.empty: print("エラー: 学習データが空です。"); exit()
@@ -176,7 +182,14 @@ class MultiStockRankingStrategy(Strategy):
             sharpe_ratio = (daily_return.mean() / daily_return.std()) * np.sqrt(252) if daily_return.std() != 0 else 0; print(f"シャープレシオ（年率換算）: {sharpe_ratio:.2f}")
             win_rate = (daily_return > 0).sum() / len(daily_return) if len(daily_return) > 0 else 0; print(f"勝率: {win_rate:.2%}")
             max_drawdown = (cumulative_return.cummax() - cumulative_return).max(); print(f"最大ドローダウン: {max_drawdown:.2f}%")
-        plt.figure(figsize=(12, 6)); cumulative_return.plot(); plt.title("バックテスト累積リターン（検証期間）"); plt.xlabel("日付"); plt.ylabel("累積リターン (%)"); plt.grid(); plt.tight_layout(); plt.show()
+            
+            # ★★★ 変更点: グラフを画面表示せずファイルに保存 ★★★
+            plt.figure(figsize=(12, 6)); cumulative_return.plot(); plt.title("バックテスト累積リターン（検証期間）"); plt.xlabel("日付"); plt.ylabel("累積リターン (%)"); plt.grid(); plt.tight_layout()
+            save_path = "cumulative_return.png"
+            plt.savefig(save_path)
+            plt.close() # メモリ解放のためプロットを閉じる
+            print(f"\n✅ 累積リターングラフを {save_path} に保存しました。")
+
     def predict_tomorrow(self):
         print("\n\n" + "="*50 + "\n=== 翌営業日の取引銘柄予測を開始 ===" + "\n" + "="*50)
         d_full_train = lgb.Dataset(self.df[self.final_features], self.df[self.target]); final_model = lgb.train(self.specific_config["lgbm_params"], d_full_train, num_boost_round=self.model.best_iteration)
@@ -205,7 +218,7 @@ class StockPredGUI:
         self.strategy_var = tk.StringVar(value="SingleStock")
         ttk.Radiobutton(control_frame, text="単一銘柄戦略", variable=self.strategy_var, value="SingleStock", command=self.toggle_controls).pack(anchor=tk.W)
         symbol_frame = ttk.Frame(control_frame); symbol_frame.pack(anchor=tk.W, fill=tk.X, padx=20)
-        self.symbol_label = ttk.Label(symbol_frame, text="銘柄コード:"); self.symbol_label.pack(side=tk.LEFT, padx=5)
+        self.symbol_label = ttk.Label(symbol_frame, text="銘柄コード (例: 7203.T):"); self.symbol_label.pack(side=tk.LEFT, padx=5)
         self.symbol_entry = ttk.Entry(symbol_frame, width=20); self.symbol_entry.insert(0, CONFIG['strategy_specific_settings']['SingleStock']['symbol']); self.symbol_entry.pack(side=tk.LEFT)
         ttk.Radiobutton(control_frame, text="複数銘柄ランキング戦略", variable=self.strategy_var, value="MultiStockRanking", command=self.toggle_controls).pack(anchor=tk.W)
         

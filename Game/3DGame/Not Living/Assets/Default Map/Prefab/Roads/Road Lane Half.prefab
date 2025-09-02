@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2300000}
   - component: {fileID: 4309084287517580722}
   - component: {fileID: 1854765996462044304}
+  - component: {fileID: 709716575126040904}
   m_Layer: 0
   m_Name: Road Lane Half
   m_TagString: Untagged
@@ -130,3 +131,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.9914312, y: 0.20000045, z: 10}
   m_Center: {x: -8.504284, y: 0.1, z: 1.1250064e-16}
+--- !u!114 &709716575126040904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_Size: {x: 13.95463, y: 2.7374141, z: 9.259699}
+  m_Center: {x: 0.25808716, y: 0.86870706, z: -0.2933128}
+  m_Area: 1
+  m_AffectedAgents: 00000000

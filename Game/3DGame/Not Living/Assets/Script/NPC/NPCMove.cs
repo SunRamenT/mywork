@@ -1,25 +1,34 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-
+[RequireComponent(typeof(NavMeshAgent))]
 public class NPCMove : MonoBehaviour
 {
-    [SerializeField] private NavMeshAgent _navMeshAgent; //AIがつくエージェント
+    public Transform target;            // 通常追跡対象
+    private NavMeshAgent agent;
 
-    [SerializeField] private Transform target;//追いかける対象
+    [Header("乗っ取り判定")]
+    public bool isNottoried = false;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-
-
-    void Start()
+    private void Awake()
     {
-
+        agent = GetComponent<NavMeshAgent>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        _navMeshAgent.SetDestination(target.position);
-
+        if (isNottoried)
+        {
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+                agent.isStopped = true;
+        }
+        else
+        {
+            if (target != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                agent.isStopped = false;
+                agent.SetDestination(target.position);
+            }
+        }
     }
 }

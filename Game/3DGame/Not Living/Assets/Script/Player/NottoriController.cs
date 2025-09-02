@@ -1,72 +1,94 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class NottoriController : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [SerializeField] private GameObject ControleTarget; //今操作しているキャラ
-    [SerializeField] private GameObject NottoriTarget; //これからのっとるキャラ
+    [Header("Settings")]
+    public GameObject ghost;
+    public LayerMask targetLayer;
+    public float rayDistance = 10f;
 
-    private GameObject OldChara; //キャラ保持
+    [Header("Release Settings")]
+    public float releaseForwardDistance = 2f;
+    public float releaseHeight = 1f;
 
-    private bool Nottori; //のっとり判定
+    [HideInInspector] public bool isPossessing = false;
 
+    private GameObject currentNPC;
+    private Renderer[] ghostRenderers;
+    private PlayerController playerController;
+    private NPCMove npcMove;
 
-    public List<Transform> NotList = new List<Transform>();
-
-    void Start()
+    private void Awake()
     {
+        if (!ghost) ghost = gameObject;
+        ghostRenderers = ghost.GetComponentsInChildren<Renderer>();
 
+        playerController = GetComponent<PlayerController>();
+        if (!playerController)
+            playerController = gameObject.AddComponent<PlayerController>();
+
+        playerController.SetGhostReference(ghost);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (Input.GetButtonDown("Interact"))
         {
-            if (Nottori == true)
-            {
-
-                Nottori = false;
-            }
-
-            else if (Nottori == false && NottoriTarget != false)
-            {
-
-                Nottori = true;
-            }
-        }
-
-        for(int i = 0; i < NotList.Count; i++)
-        {
-            for (int k = i + 1; k < NotList.Count; k++)
-            {
-                if(NotList[i] == NotList[k])
-                {
-                    NotList.RemoveAt(k);
-                }
-            }
-
-            if(!NotList[i])
-            {
-                NotList.RemoveAt(i);
-            }
+            if (isPossessing) ReleaseNPC();
+            else TryPossess();
         }
     }
 
-    private void OnTriggerStay(Collider collider)
+    private void TryPossess()
     {
-        if (collider.gameObject.tag == "NPC")//NPC相手か判定
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, targetLayer))
         {
-            NottoriTarget = collider.gameObject;
+            GameObject npc = hit.collider.gameObject;
+            if (npc != null && npc != ghost)
+            {
+                StartPossess(npc);
+            }
         }
     }
 
-    private void ChangeTarget()
+    private void StartPossess(GameObject npc)
     {
-        OldChara = ControleTarget;
-        ControleTarget = NottoriTarget;
+        currentNPC = npc;
+        SetGhostVisible(false);
+
+        // NPCMove 停止
+        npcMove = currentNPC.GetComponent<NPCMove>();
+        if (npcMove != null) npcMove.isNottoried = true;
+
+        // PlayerController に NPC を設定
+        playerController.SetTargetNPC(currentNPC);
+        isPossessing = true;
+
+        // NPC Collider を isTrigger 解除
+        var col = currentNPC.GetComponent<Collider>();
+        if (col != null) col.isTrigger = false;
     }
 
+    private void ReleaseNPC()
+    {
+        if (!currentNPC) return;
+
+        // NPCMove 再開
+        if (npcMove != null) npcMove.isNottoried = false;
+
+        // Ghost を NPC 前方に出現
+        Vector3 offset = currentNPC.transform.forward * releaseForwardDistance + Vector3.up * releaseHeight;
+        ghost.transform.position = currentNPC.transform.position + offset;
+        SetGhostVisible(true);
+
+        currentNPC = null;
+        playerController.SetTargetNPC(null);
+        isPossessing = false;
+    }
+
+    private void SetGhostVisible(bool visible)
+    {
+        foreach (var rend in ghostRenderers) rend.enabled = visible;
+    }
 }

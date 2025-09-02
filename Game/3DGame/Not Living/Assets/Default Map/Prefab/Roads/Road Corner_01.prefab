@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4438710402536220530}
   - component: {fileID: 186560912250675094}
   - component: {fileID: 7048947334193078035}
+  - component: {fileID: 8409050526762521045}
   m_Layer: 0
   m_Name: Road Corner_01
   m_TagString: Untagged
@@ -152,3 +153,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.0780544, y: 0.20000085, z: 3.052102}
   m_Center: {x: -8.460973, y: 0.099999994, z: 8.473949}
+--- !u!114 &8409050526762521045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_Size: {x: 13.929666, y: 2.7399414, z: 13.695021}
+  m_Center: {x: 1.1554694, y: 0.8699707, z: -0.7948656}
+  m_Area: 1
+  m_AffectedAgents: 00000000

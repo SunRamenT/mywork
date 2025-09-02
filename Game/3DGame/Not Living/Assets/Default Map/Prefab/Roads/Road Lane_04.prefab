@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4483782587518904893}
   - component: {fileID: 7062563003183072671}
   - component: {fileID: 2766883109092079855}
+  - component: {fileID: 3379755969492430831}
   m_Layer: 0
   m_Name: Road Lane_04
   m_TagString: Untagged
@@ -152,3 +153,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 20, y: 0.20000087, z: 3.0706453}
   m_Center: {x: 0, y: 0.1, z: 8.464678}
+--- !u!114 &3379755969492430831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_Size: {x: 13.173203, y: 3, z: 16.588547}
+  m_Center: {x: 0.077068806, y: 1, z: -1.8075402}
+  m_Area: 1
+  m_AffectedAgents: 00000000

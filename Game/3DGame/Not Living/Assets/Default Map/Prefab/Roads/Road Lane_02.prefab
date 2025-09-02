@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 4948186183853239475}
   - component: {fileID: 2163113581153902400}
   - component: {fileID: 4122760621047820690}
+  - component: {fileID: 8574455774604270157}
+  - component: {fileID: 2182990718196472274}
   m_Layer: 0
   m_Name: Road Lane_02
   m_TagString: Untagged
@@ -152,3 +154,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.0946999, y: 0.20000087, z: 20}
   m_Center: {x: 8.45265, y: 0.1, z: 1.1250064e-16}
+--- !u!114 &8574455774604270157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_Size: {x: 13.489956, y: 3, z: 20.200462}
+  m_Center: {x: 0.44797325, y: 1, z: -0.6001682}
+  m_Area: 1
+  m_AffectedAgents: 00000000
+--- !u!114 &2182990718196472274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_Size: {x: 3.8032837, y: 3, z: 13.039069}
+  m_Center: {x: -8.079441, y: 1, z: 0.23443556}
+  m_Area: 1
+  m_AffectedAgents: 00000000

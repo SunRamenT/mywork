@@ -3,70 +3,86 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    // 移動・回転設定
     [Header("Movement Settings")]
-    [SerializeField, Min(0f)] private float moveSpeed = 5f;        // 移動速度
-    [SerializeField, Min(0f)] private float jumpPower = 5f;        // ジャンプ力
-    [SerializeField, Min(0f)] private float rotationSpeed = 10f;   // 回転速度
+    public float moveSpeed = 5f;
+    public float rotationSpeed = 10f;
+    public float jumpPower = 5f;
 
-    [Header("Ground Settings")]
-    [SerializeField] private LayerMask groundLayer;               // 地面判定用レイヤー
+    private CharacterController controller;    // Ghost用
+    private CharacterController targetController; // 乗っ取りNPC用
+    private Vector3 velocity;
 
-    private CharacterController characterController;             // キャラクターコントローラ
-    private Vector3 velocity;                                     // 移動速度
-
-    // キャラクターの前方向を外部から参照可能
-    public Vector3 Forward => transform.forward;
-
-    private NottoriController                                                                     NotList;
+    private GameObject targetNPC;  // 乗っ取り対象
+    private GameObject ghost;      // Ghostオブジェクト
 
     private void Awake()
     {
-        characterController = GetComponent<CharacterController>();
+        controller = GetComponent<CharacterController>();
+        if (!ghost) ghost = gameObject;
+    }
+
+    public void SetGhostReference(GameObject ghostObj)
+    {
+        ghost = ghostObj;
+    }
+
+    public void SetTargetNPC(GameObject npc)
+    {
+        targetNPC = npc;
+
+        if (targetNPC != null)
+        {
+            targetController = targetNPC.GetComponent<CharacterController>();
+            if (targetController == null)
+            {
+                targetController = targetNPC.AddComponent<CharacterController>();
+                targetController.height = 2f;
+                targetController.radius = 0.5f;
+            }
+        }
+        else
+        {
+            targetController = null;
+        }
     }
 
     private void Update()
     {
-        HandleRotation();   // カメラ方向にキャラクター回転
-        HandleMovement();   // 移動
-        HandleJump();       // ジャンプ
-    }
+        GameObject objToMove = targetNPC != null ? targetNPC : ghost;
+        CharacterController controllerToUse = targetNPC != null ? targetController : controller;
 
-    // キャラクターをカメラ方向に回転
-    private void HandleRotation()
-    {
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+
+        // 回転（カメラ方向）
         Vector3 lookDir = Camera.main.transform.forward;
-        lookDir.y = 0; // 水平方向のみ
-        if (lookDir.sqrMagnitude < 0.001f) return;
+        lookDir.y = 0;
+        if (lookDir.sqrMagnitude > 0.001f)
+            objToMove.transform.rotation = Quaternion.Slerp(objToMove.transform.rotation,
+                Quaternion.LookRotation(lookDir), rotationSpeed * Time.deltaTime);
 
-        Quaternion targetRotation = Quaternion.LookRotation(lookDir);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-    }
+        // 移動
+        Vector3 move = objToMove.transform.forward * v + objToMove.transform.right * h;
+        move = move.normalized * moveSpeed;
 
-    // 前後左右の移動
-    private void HandleMovement()
-    {
-        float horizontal = Input.GetAxis("Horizontal"); // A/D
-        float vertical = Input.GetAxis("Vertical");     // W/S
-
-        Vector3 moveInput = transform.forward * vertical + transform.right * horizontal;
-        moveInput = moveInput.normalized;
-
-        velocity.x = moveInput.x * moveSpeed;
-        velocity.z = moveInput.z * moveSpeed;
-
-        if (!characterController.isGrounded)
+        // 重力
+        if (!controllerToUse.isGrounded)
             velocity.y += Physics.gravity.y * Time.deltaTime;
-
-        characterController.Move(velocity * Time.deltaTime);
-    }
-
-    // ジャンプ処理
-    private void HandleJump()
-    {
-        if (characterController.isGrounded && Input.GetButtonDown("Jump"))
-            velocity.y = jumpPower;
-        else if (characterController.isGrounded)
+        else
+        {
             velocity.y = 0;
+            if (Input.GetButtonDown("Jump"))
+                velocity.y = jumpPower;
+        }
+
+        Vector3 finalMove = move + new Vector3(0, velocity.y, 0);
+        controllerToUse.Move(finalMove * Time.deltaTime);
+
+        // GhostをNPCに重ねる
+        if (targetNPC != null && ghost != null)
+        {
+            ghost.transform.position = targetNPC.transform.position;
+            ghost.transform.rotation = targetNPC.transform.rotation;
+        }
     }
 }

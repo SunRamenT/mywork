@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 765103065069703401}
   - component: {fileID: 8176844790061110423}
   - component: {fileID: 4771771372121456931}
+  - component: {fileID: 4885040180476400902}
   m_Layer: 0
   m_Name: Road Intersection_01
   m_TagString: Untagged
@@ -174,3 +175,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.2285523, y: 0.20000087, z: 3.1985416}
   m_Center: {x: -8.385724, y: 0.1, z: 8.400729}
+--- !u!114 &4885040180476400902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_Size: {x: 12.900942, y: 3, z: 12.504433}
+  m_Center: {x: 0.27547646, y: 1, z: -0.94321346}
+  m_Area: 1
+  m_AffectedAgents: 00000000

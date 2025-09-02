@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6932060154857520508}
   - component: {fileID: 3030694264107601316}
   - component: {fileID: 6349630752011072252}
+  - component: {fileID: 8620767068394363182}
   m_Layer: 0
   m_Name: Road Lane Bus Stop
   m_TagString: Untagged
@@ -174,3 +175,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.197358, y: 0.20000176, z: 4.7488594}
   m_Center: {x: -8.4418125, y: 0.1, z: -17.62557}
+--- !u!114 &8620767068394363182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_Size: {x: 12.8619995, y: 3, z: 38.911655}
+  m_Center: {x: 0.4132614, y: 1, z: 0.17140007}
+  m_Area: 1
+  m_AffectedAgents: 00000000
