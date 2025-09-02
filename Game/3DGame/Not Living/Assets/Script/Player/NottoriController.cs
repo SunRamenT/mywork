@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI; // NavMeshAgentを使用するために追加
 
 public class NottoriController : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class NottoriController : MonoBehaviour
     private Renderer[] ghostRenderers;
     private PlayerController playerController;
     private NPCMove npcMove;
+    private NavMeshAgent npcAgent; // NPCのNavMeshAgentを保持
 
     private void Awake()
     {
@@ -61,18 +63,30 @@ public class NottoriController : MonoBehaviour
         npcMove = currentNPC.GetComponent<NPCMove>();
         if (npcMove != null) npcMove.isNottoried = true;
 
+        // NavMeshAgentを無効化
+        npcAgent = currentNPC.GetComponent<NavMeshAgent>();
+        if (npcAgent != null) npcAgent.enabled = false;
+
         // PlayerController に NPC を設定
         playerController.SetTargetNPC(currentNPC);
         isPossessing = true;
-
-        // NPC Collider を isTrigger 解除
-        var col = currentNPC.GetComponent<Collider>();
-        if (col != null) col.isTrigger = false;
     }
 
     private void ReleaseNPC()
     {
         if (!currentNPC) return;
+
+        // NPCをNavMesh上の最も近い点に移動させてからAgentを有効にする
+        if (NavMesh.SamplePosition(currentNPC.transform.position, out NavMeshHit hit, 10.0f, NavMesh.AllAreas))
+        {
+            currentNPC.transform.position = hit.position;
+        }
+
+        // NavMeshAgentを再度有効化
+        if (npcAgent != null)
+        {
+            npcAgent.enabled = true;
+        }
 
         // NPCMove 再開
         if (npcMove != null) npcMove.isNottoried = false;
