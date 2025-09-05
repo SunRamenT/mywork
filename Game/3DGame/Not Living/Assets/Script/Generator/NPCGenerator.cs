@@ -1,61 +1,130 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using System; // Serializable属性のために必要
+
+// ▼▼▼ NPCの種類と出現条件をまとめるための新しいクラスを追加 ▼▼▼
+[Serializable]
+public class SpawnableNPC
+{
+    public string description = "NPC Type";
+    public GameObject npcPrefab;
+    [Range(0, 50)]
+    public int spawnCount = 10;
+    [Tooltip("この時間（時）から出現を開始")]
+    [Range(0, 23)]
+    public int startHour = 7; // 朝7時
+    [Tooltip("この時間（時）まで出現")]
+    [Range(0, 23)]
+    public int endHour = 19; // 夜19時
+}
 
 /// <summary>
-/// NPCをNavMesh上の高さ制限付きでランダム生成するクラス
+/// 時間帯や種類に応じてNPCの出現数を変えるクラス
 /// </summary>
 public class NPCGenerator : MonoBehaviour
 {
     [Header("NPC Settings")]
-    public GameObject npcPrefab;           // 生成するNPCのPrefab
-    public int maxNPCCount = 10;           // 最大NPC数
-    public float spawnRadius = 20f;        // NPC生成の水平範囲
-    public float maxSpawnHeight = 5f;      // 高さ制限
+    [Tooltip("生成したいNPCの種類と条件をリストで設定")]
+    public List<SpawnableNPC> spawnableNpcs; // ▼▼▼ 複数のNPCを登録できるリストに変更 ▼▼▼
 
+    [Header("Generator Settings")]
+    public float spawnRadius = 20f;
+    public float maxSpawnHeight = 5f;
+    
     [Header("NavMesh Sampling")]
-    public float sampleDistance = 15f;     // NavMeshサンプル距離
-    public int maxAttempts = 10;           // 生成失敗時の最大再試行回数
+    [Tooltip("どのAgent TypeのNavMeshに生成するか、インデックス番号を指定")]
+    public int agentTypeIndex = 0;
+    public float sampleDistance = 15f;
+    public int maxAttempts = 10;
 
     private List<GameObject> npcList = new List<GameObject>();
+    private int agentTypeID;
+
+    void Start()
+    {
+        if (agentTypeIndex >= NavMesh.GetSettingsCount())
+        {
+            Debug.LogError($"'{agentTypeIndex}' というインデックスのAgentTypeは存在しません。");
+            return;
+        }
+        agentTypeID = NavMesh.GetSettingsByIndex(agentTypeIndex).agentTypeID;
+    }
 
     void Update()
     {
-        // 不要になったNPCをリストから削除（メモリリーク防止）
+        // 不要になったNPCをリストから削除
         npcList.RemoveAll(npc => npc == null);
 
-        // NPCが足りない場合に生成
-        if (npcList.Count < maxNPCCount)
+        // 現在の時刻を取得
+        if (GameTimeManager.Instance == null) return;
+        int currentHour = GameTimeManager.Instance.currentHour;
+
+        // 現在の時間帯に適したNPCを探し、数を調整する
+        foreach (var npcType in spawnableNpcs)
         {
-            SpawnNPC();
+            bool shouldBeActive = IsTimeInRange(currentHour, npcType.startHour, npcType.endHour);
+
+            if (shouldBeActive)
+            {
+                // 現在の時間帯なので、指定された数になるまで補充する
+                int currentCount = CountNpcsOfType(npcType.npcPrefab.name);
+                if (currentCount < npcType.spawnCount)
+                {
+                    SpawnNPC(npcType.npcPrefab);
+                }
+            }
         }
     }
 
-    /// <summary>
-    /// NavMesh上の高さ制限付きでNPCを1体生成
-    /// </summary>
-    private void SpawnNPC()
+    // 指定されたプレハブのNPCを1体生成
+    private void SpawnNPC(GameObject prefabToSpawn)
     {
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            // ランダムな水平座標を決定
             Vector3 randomPos = transform.position + new Vector3(
-                Random.Range(-spawnRadius, spawnRadius),
-                10f, // 上空から落とすイメージ
-                Random.Range(-spawnRadius, spawnRadius)
+                UnityEngine.Random.Range(-spawnRadius, spawnRadius), 10f, UnityEngine.Random.Range(-spawnRadius, spawnRadius)
             );
 
-            // NavMesh上の有効位置をサンプル
-            if (NavMesh.SamplePosition(randomPos, out NavMeshHit hit, sampleDistance, NavMesh.AllAreas))
+            NavMeshQueryFilter filter = new NavMeshQueryFilter { agentTypeID = this.agentTypeID, areaMask = NavMesh.AllAreas };
+
+            if (NavMesh.SamplePosition(randomPos, out NavMeshHit hit, sampleDistance, filter))
             {
-                // 高さ制限チェック
                 if (hit.position.y <= maxSpawnHeight)
                 {
-                    GameObject newNPC = Instantiate(npcPrefab, hit.position, Quaternion.identity, transform);
+                    GameObject newNPC = Instantiate(prefabToSpawn, hit.position, Quaternion.identity, transform);
                     npcList.Add(newNPC);
-                    break; // 生成成功でループ終了
+                    break;
                 }
             }
+        }
+    }
+
+    // 特定の種類のNPCが現在何体いるか数える
+    private int CountNpcsOfType(string prefabName)
+    {
+        int count = 0;
+        foreach (var npc in npcList)
+        {
+            if (npc.name.StartsWith(prefabName))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    // 現在の時間が指定された範囲内にあるかチェックする
+    private bool IsTimeInRange(int time, int startTime, int endTime)
+    {
+        // 夜をまたぐ時間帯（例: 22時～翌5時）に対応
+        if (startTime > endTime)
+        {
+            return time >= startTime || time < endTime;
+        }
+        else
+        {
+            return time >= startTime && time < endTime;
         }
     }
 }
