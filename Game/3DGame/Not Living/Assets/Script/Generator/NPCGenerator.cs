@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using System; // Serializable属性のために必要
+using System;
 
-// ▼▼▼ NPCの種類と出現条件をまとめるための新しいクラスを追加 ▼▼▼
 [Serializable]
 public class SpawnableNPC
 {
@@ -13,20 +12,17 @@ public class SpawnableNPC
     public int spawnCount = 10;
     [Tooltip("この時間（時）から出現を開始")]
     [Range(0, 23)]
-    public int startHour = 7; // 朝7時
+    public int startHour = 7;
     [Tooltip("この時間（時）まで出現")]
     [Range(0, 23)]
-    public int endHour = 19; // 夜19時
+    public int endHour = 19;
 }
 
-/// <summary>
-/// 時間帯や種類に応じてNPCの出現数を変えるクラス
-/// </summary>
 public class NPCGenerator : MonoBehaviour
 {
     [Header("NPC Settings")]
     [Tooltip("生成したいNPCの種類と条件をリストで設定")]
-    public List<SpawnableNPC> spawnableNpcs; // ▼▼▼ 複数のNPCを登録できるリストに変更 ▼▼▼
+    public List<SpawnableNPC> spawnableNpcs;
 
     [Header("Generator Settings")]
     public float spawnRadius = 20f;
@@ -53,31 +49,45 @@ public class NPCGenerator : MonoBehaviour
 
     void Update()
     {
-        // 不要になったNPCをリストから削除
         npcList.RemoveAll(npc => npc == null);
 
-        // 現在の時刻を取得
         if (GameTimeManager.Instance == null) return;
         int currentHour = GameTimeManager.Instance.currentHour;
 
-        // 現在の時間帯に適したNPCを探し、数を調整する
         foreach (var npcType in spawnableNpcs)
         {
-            bool shouldBeActive = IsTimeInRange(currentHour, npcType.startHour, npcType.endHour);
+            ManageNpcCount(npcType, currentHour);
+        }
+    }
 
-            if (shouldBeActive)
+    private void ManageNpcCount(SpawnableNPC npcType, int currentHour)
+    {
+        bool shouldBeActive = IsTimeInRange(currentHour, npcType.startHour, npcType.endHour);
+        int currentCount = CountNpcsOfType(npcType.npcPrefab.name);
+
+        if (shouldBeActive)
+        {
+            // 【補充】
+            if (currentCount < npcType.spawnCount)
             {
-                // 現在の時間帯なので、指定された数になるまで補充する
-                int currentCount = CountNpcsOfType(npcType.npcPrefab.name);
-                if (currentCount < npcType.spawnCount)
-                {
-                    SpawnNPC(npcType.npcPrefab);
-                }
+                SpawnNPC(npcType.npcPrefab);
+            }
+            // 【超過分を消去】
+            else if (currentCount > npcType.spawnCount)
+            {
+                DestroyNpcsOfType(npcType.npcPrefab.name, npcType.spawnCount);
+            }
+        }
+        else
+        {
+            // 【時間外は全員消去】
+            if (currentCount > 0)
+            {
+                DestroyNpcsOfType(npcType.npcPrefab.name, 0);
             }
         }
     }
 
-    // 指定されたプレハブのNPCを1体生成
     private void SpawnNPC(GameObject prefabToSpawn)
     {
         for (int attempt = 0; attempt < maxAttempts; attempt++)
@@ -100,13 +110,12 @@ public class NPCGenerator : MonoBehaviour
         }
     }
 
-    // 特定の種類のNPCが現在何体いるか数える
     private int CountNpcsOfType(string prefabName)
     {
         int count = 0;
         foreach (var npc in npcList)
         {
-            if (npc.name.StartsWith(prefabName))
+            if (npc != null && npc.name.StartsWith(prefabName))
             {
                 count++;
             }
@@ -114,10 +123,32 @@ public class NPCGenerator : MonoBehaviour
         return count;
     }
 
-    // 現在の時間が指定された範囲内にあるかチェックする
+    private void DestroyNpcsOfType(string prefabName, int targetCount)
+    {
+        List<GameObject> candidates = new List<GameObject>();
+        foreach (var npc in npcList)
+        {
+            if (npc != null && npc.name.StartsWith(prefabName))
+            {
+                candidates.Add(npc);
+            }
+        }
+
+        int amountToDestroy = candidates.Count - targetCount;
+
+        for (int i = 0; i < amountToDestroy; i++)
+        {
+            GameObject npcToDestroy = candidates[i];
+            if (npcToDestroy != null)
+            {
+                npcList.Remove(npcToDestroy);
+                Destroy(npcToDestroy);
+            }
+        }
+    }
+
     private bool IsTimeInRange(int time, int startTime, int endTime)
     {
-        // 夜をまたぐ時間帯（例: 22時～翌5時）に対応
         if (startTime > endTime)
         {
             return time >= startTime || time < endTime;

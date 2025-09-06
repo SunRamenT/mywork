@@ -72,6 +72,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 46f311046d2104da8b56be3d0a49a119, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3322320824352670294}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 46f311046d2104da8b56be3d0a49a119, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6237456058571172974}
   m_SourcePrefab: {fileID: 100100000, guid: 46f311046d2104da8b56be3d0a49a119, type: 3}
 --- !u!1 &19588385245968726 stripped
 GameObject:
@@ -118,6 +121,8 @@ MonoBehaviour:
   moveSpeed: 5
   rotationSpeed: 10
   jumpPower: 3
+  attackTriggerName: Attack
+  jumpBoolName: isJump
 --- !u!95 &2069234913439815857
 Animator:
   serializedVersion: 7
@@ -153,9 +158,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 0}
-  rayDistance: 10
   targetLayer:
     serializedVersion: 2
     m_Bits: 0
+  rayDistance: 10
   releaseForwardDistance: 2
-  releaseHeight: 1
+  possessionBoolName: Nottori
+  jumpBoolName: isJump
+  horizontalFloatName: Hor
+  verticalFloatName: Vert
+  isPossessing: 0
+--- !u!114 &6237456058571172974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 19588385245968726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 449f0c5b373f9b84299aba04900f48b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxSpirit: 100
+  currentSpirit: 0
+  baseDrainSpeed: 1
+  phasingDrainMultiplier: 2
+  spiritBar: {fileID: 2075469718233517996, guid: bc9b3a9681d710b45ad0f60ba59df177, type: 3}
