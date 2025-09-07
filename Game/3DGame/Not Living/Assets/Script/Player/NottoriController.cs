@@ -12,13 +12,9 @@ public class NottoriController : MonoBehaviour
     public float releaseForwardDistance = 2f;
     
     [Header("Animator Settings")]
-    [Tooltip("Animatorで乗っ取り状態を管理するBoolパラメータ名")]
     public string possessionBoolName = "Nottori";
-    [Tooltip("NPCのジャンプBool名")]
     public string jumpBoolName = "isJump";
-    [Tooltip("NPCの水平移動Float名")]
     public string horizontalFloatName = "Hor";
-    [Tooltip("NPCの垂直移動Float名")]
     public string verticalFloatName = "Vert";
 
 
@@ -90,17 +86,17 @@ public class NottoriController : MonoBehaviour
     private void ReleaseNPC()
     {
         if (!currentNPC) return;
-
-        // ▼▼▼ ここから修正 ▼▼▼
+        
         // NPCのAnimatorを取得し、プレイヤー操作用のアニメーションパラメータをリセットする
         Animator npcAnimator = currentNPC.GetComponent<Animator>();
         if (npcAnimator != null)
         {
-            npcAnimator.SetBool(jumpBoolName, false);
+            // ▼▼▼ この行をコメントアウトまたは削除 ▼▼▼
+            // npcAnimator.SetBool(jumpBoolName, false); 
+            
             npcAnimator.SetFloat(horizontalFloatName, 0f);
             npcAnimator.SetFloat(verticalFloatName, 0f);
         }
-        // ▲▲▲ ここまで修正 ▲▲▲
 
         if (ghostAnimator != null)
         {

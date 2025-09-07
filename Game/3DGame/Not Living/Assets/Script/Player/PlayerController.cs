@@ -5,25 +5,30 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
+    [Tooltip("Ghost状態の時の移動速度")]
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
     public float jumpPower = 5f;
 
     [Header("Animator Settings")]
     public string attackTriggerName = "Attack";
-    public string jumpTriggerName = "Jump"; // ▼▼▼ BoolからTriggerの名前に変更 ▼▼▼
+    public string jumpTriggerName = "Jump";
 
-    // ... (他の変数は変更なし) ...
+    // --- 現在操作している対象の情報を保持する変数 ---
     private CharacterController currentController;
     private Animator currentAnimator;
     private GameObject currentCharacter;
+
+    // --- GhostとNPCの情報を個別に保持 ---
     private CharacterController ghostController;
     private Animator ghostAnimator;
     private GameObject ghost;
+    
     private CharacterController npcController;
     private Animator npcAnimator;
     private GameObject targetNPC; 
-    private StatusManager npcStatusManager;
+    private StatusManager npcStatusManager; // ▼▼▼ NPCのステータスを保持する変数を追加 ▼▼▼
+
     private Vector3 velocity;
 
     private void Awake()
@@ -38,20 +43,26 @@ public class PlayerController : MonoBehaviour
         currentController.detectCollisions = false;
     }
     
+    // NottoriControllerから呼ばれる
     public void SetTargetNPC(GameObject npc, Animator anim)
     {
         targetNPC = npc;
 
         if (targetNPC != null)
         {
+            // --- 乗っ取り時: 操作対象をNPCに切り替える ---
             npcController = targetNPC.GetComponent<CharacterController>();
             npcAnimator = anim;
-            npcStatusManager = targetNPC.GetComponent<StatusManager>();
+            npcStatusManager = targetNPC.GetComponent<StatusManager>(); // ▼▼▼ NPCのStatusManagerを取得 ▼▼▼
 
             if (npcController == null)
             {
                 Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！");
                 return;
+            }
+            if (npcStatusManager == null)
+            {
+                Debug.LogWarning("乗っ取り対象のNPCにStatusManagerがアタッチされていません。");
             }
 
             ghostController.enabled = false;
@@ -64,6 +75,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            // --- 乗っ取り解除時: 操作対象をGhostに戻す ---
             if (npcController != null)
             {
                 npcController.enabled = false;
@@ -76,9 +88,10 @@ public class PlayerController : MonoBehaviour
             currentController = ghostController;
             currentAnimator = ghostAnimator;
 
+            // NPCの参照をクリア
             npcController = null;
             npcAnimator = null;
-            npcStatusManager = null;
+            npcStatusManager = null; // ▼▼▼ StatusManagerの参照もクリア ▼▼▼
         }
     }
 
@@ -89,7 +102,6 @@ public class PlayerController : MonoBehaviour
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        // 乗っ取り中（NPC操作中）の場合のみ、アニメーション命令を送る
         if (targetNPC != null)
         {
             currentAnimator.SetFloat("Hor", h);
@@ -100,15 +112,12 @@ public class PlayerController : MonoBehaviour
                 currentAnimator.SetTrigger(attackTriggerName);
             }
 
-            // ▼▼▼ ジャンプのロジックを修正 ▼▼▼
-            // ジャンプボタンが押された時だけ、Jumpトリガーを起動する
             if (Input.GetButtonDown("Jump") && currentController.isGrounded)
             {
                 currentAnimator.SetTrigger(jumpTriggerName);
             }
         }
 
-        // --- 回転の処理 ---
         Vector3 lookDir = Camera.main.transform.forward;
         lookDir.y = 0;
         if (lookDir.sqrMagnitude > 0.001f)
@@ -117,27 +126,25 @@ public class PlayerController : MonoBehaviour
             currentCharacter.transform.rotation = Quaternion.Slerp(currentCharacter.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        // --- 移動の処理 ---
+        // ▼▼▼ 現在の状況に応じた移動速度を決定 ▼▼▼
         float currentSpeed;
         if (targetNPC != null && npcStatusManager != null)
         {
-            currentSpeed = npcStatusManager.speed;
+            currentSpeed = npcStatusManager.speed; // 乗っ取り中はNPCの速度を使用
         }
         else
         {
-            currentSpeed = this.moveSpeed;
+            currentSpeed = this.moveSpeed; // 通常時はGhostの速度を使用
         }
 
         Vector3 move = currentCharacter.transform.forward * v + currentCharacter.transform.right * h;
-        move = move.normalized * currentSpeed;
+        move = move.normalized * currentSpeed; // 決定した速度で移動
 
-        // --- 重力と最終的な移動 ---
         if (currentController.detectCollisions)
         {
             if (currentController.isGrounded)
             {
                 velocity.y = -0.1f;
-                // ジャンプの物理的な処理
                 if (Input.GetButtonDown("Jump"))
                 {
                     velocity.y = jumpPower;

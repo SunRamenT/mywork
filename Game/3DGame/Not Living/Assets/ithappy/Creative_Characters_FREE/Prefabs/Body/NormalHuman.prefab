@@ -199,6 +199,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 335f64e53b1ba9648aec09bc1a394a09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2940587463608461257}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 335f64e53b1ba9648aec09bc1a394a09, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8777836140903615509}
     - targetCorrespondingSourceObject: {fileID: -3193301067574944669, guid: 335f64e53b1ba9648aec09bc1a394a09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2681523144554138371}
@@ -242,7 +245,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -293,7 +296,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   patrolRadius: 20
+  horizontalID: Hor
+  verticalID: Vert
+  stateID: State
   isNottoried: 0
+--- !u!114 &8777836140903615509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 146935546818660778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f3182f25fc87924889f9f9ae1e31082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 100
+  currentHp: 0
+  power: 10
+  speed: 3.5
+  reputation: 50
+  currentPopularity: 
+  invincibilityDuration: 1
+  recoveryItemPrefab: {fileID: 0}
 --- !u!1 &708527437172234250 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 512949916277468401, guid: 335f64e53b1ba9648aec09bc1a394a09, type: 3}
