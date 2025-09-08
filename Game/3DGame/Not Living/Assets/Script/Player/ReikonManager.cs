@@ -1,16 +1,13 @@
 using UnityEngine;
-using System; // Actionイベントのために必要
+using System;
 
-/// <summary>
-/// Ghostの霊魂（体力）を管理するクラス
-/// </summary>
 public class ReikonManager : MonoBehaviour
 {
     [Header("霊魂（体力）設定")]
     [Tooltip("霊魂の最大値")]
     public float maxSpirit = 100f;
     [Tooltip("現在の霊魂")]
-    [SerializeField] // privateでもインスペクターに表示
+    [SerializeField]
     private float currentSpirit;
 
     [Header("霊魂の減少速度")]
@@ -20,14 +17,13 @@ public class ReikonManager : MonoBehaviour
     public float phasingDrainMultiplier = 2f;
 
     [Header("UI設定")]
-    [Tooltip("霊魂の残量を表示するUIオブジェクト（通常はImage）")]
+    [Tooltip("霊魂の残量を表示するUIオブジェクト")]
     public Transform spiritBar;
 
-    // ゲームオーバーを通知するイベント
     public static event Action OnSpiritDepleted;
 
     private Vector3 initialBarScale;
-    private bool isPhasing = false; // 壁抜け中かどうかのフラグ
+    private bool isPhasing = false;
 
     void Start()
     {
@@ -37,7 +33,6 @@ public class ReikonManager : MonoBehaviour
             initialBarScale = spiritBar.localScale;
         }
         
-        // 開始時の壁抜け状態をPlayerControllerから取得して設定
         PlayerController player = GetComponent<PlayerController>();
         if (player != null)
         {
@@ -49,23 +44,19 @@ public class ReikonManager : MonoBehaviour
     {
         if (currentSpirit <= 0)
         {
-            return; // 霊魂が0以下なら何もしない
+            return;
         }
 
-        // 現在の減少速度を計算
         float currentDrainSpeed = baseDrainSpeed;
         if (isPhasing)
         {
             currentDrainSpeed *= phasingDrainMultiplier;
         }
 
-        // 時間経過で霊魂を減らす
         currentSpirit -= currentDrainSpeed * Time.deltaTime;
         
-        // UIバーのスケールを更新
         UpdateSpiritBar();
 
-        // 霊魂が0になったらゲームオーバーイベントを発行
         if (currentSpirit <= 0)
         {
             currentSpirit = 0;
@@ -74,7 +65,6 @@ public class ReikonManager : MonoBehaviour
         }
     }
 
-    // UIバーの見た目を更新する
     private void UpdateSpiritBar()
     {
         if (spiritBar != null)
@@ -83,27 +73,27 @@ public class ReikonManager : MonoBehaviour
             spiritBar.localScale = new Vector3(initialBarScale.x * percentage, initialBarScale.y, initialBarScale.z);
         }
     }
-
-    /// <summary>
-    /// 壁抜け状態を外部から設定するためのメソッド
-    /// </summary>
+    
     public void SetPhasingState(bool phasing)
     {
         this.isPhasing = phasing;
     }
     
-    /// <summary>
-    /// 霊魂を指定した量だけ回復させる
-    /// </summary>
     public void Heal(float amount)
     {
         currentSpirit += amount;
-        // 最大値を超えないように制限
         if (currentSpirit > maxSpirit)
         {
             currentSpirit = maxSpirit;
         }
-        UpdateSpiritBar(); // UIを更新
+        UpdateSpiritBar();
         Debug.Log($"{amount} の霊魂を回復！ 現在値: {currentSpirit}");
+    }
+
+    public void TakeDamage(float amount)
+    {
+        currentSpirit -= amount;
+        UpdateSpiritBar();
+        Debug.Log($"{amount} の霊魂ダメージ！ 現在値: {currentSpirit}");
     }
 }

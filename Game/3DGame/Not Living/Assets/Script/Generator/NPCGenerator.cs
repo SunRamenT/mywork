@@ -8,6 +8,8 @@ public class SpawnableNPC
 {
     public string description = "NPC Type";
     public GameObject npcPrefab;
+    [Tooltip("このNPCタイプを識別するためのユニークなタグ名")]
+    public string npcTag;
     [Range(0, 50)]
     public int spawnCount = 10;
     [Tooltip("この時間（時）から出現を開始")]
@@ -49,7 +51,8 @@ public class NPCGenerator : MonoBehaviour
 
     void Update()
     {
-        npcList.RemoveAll(npc => npc == null);
+        // Destroyされたオブジェクトへの参照をリストから掃除する
+        npcList.RemoveAll(item => item == null);
 
         if (GameTimeManager.Instance == null) return;
         int currentHour = GameTimeManager.Instance.currentHour;
@@ -63,27 +66,24 @@ public class NPCGenerator : MonoBehaviour
     private void ManageNpcCount(SpawnableNPC npcType, int currentHour)
     {
         bool shouldBeActive = IsTimeInRange(currentHour, npcType.startHour, npcType.endHour);
-        int currentCount = CountNpcsOfType(npcType.npcPrefab.name);
+        int currentCount = CountNpcsByTag(npcType.npcTag);
 
         if (shouldBeActive)
         {
-            // 【補充】
             if (currentCount < npcType.spawnCount)
             {
                 SpawnNPC(npcType.npcPrefab);
             }
-            // 【超過分を消去】
             else if (currentCount > npcType.spawnCount)
             {
-                DestroyNpcsOfType(npcType.npcPrefab.name, npcType.spawnCount);
+                DestroyNpcsByTag(npcType.npcTag, npcType.spawnCount);
             }
         }
         else
         {
-            // 【時間外は全員消去】
             if (currentCount > 0)
             {
-                DestroyNpcsOfType(npcType.npcPrefab.name, 0);
+                DestroyNpcsByTag(npcType.npcTag, 0);
             }
         }
     }
@@ -110,12 +110,13 @@ public class NPCGenerator : MonoBehaviour
         }
     }
 
-    private int CountNpcsOfType(string prefabName)
+    private int CountNpcsByTag(string tag)
     {
         int count = 0;
         foreach (var npc in npcList)
         {
-            if (npc != null && npc.name.StartsWith(prefabName))
+            // オブジェクトがnullでないことを確認してからタグを比較
+            if (npc != null && npc.CompareTag(tag))
             {
                 count++;
             }
@@ -123,12 +124,13 @@ public class NPCGenerator : MonoBehaviour
         return count;
     }
 
-    private void DestroyNpcsOfType(string prefabName, int targetCount)
+    private void DestroyNpcsByTag(string tag, int targetCount)
     {
         List<GameObject> candidates = new List<GameObject>();
         foreach (var npc in npcList)
         {
-            if (npc != null && npc.name.StartsWith(prefabName))
+            // オブジェクトがnullでないことを確認
+            if (npc != null && npc.CompareTag(tag))
             {
                 candidates.Add(npc);
             }

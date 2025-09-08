@@ -8,6 +8,8 @@ TagManager:
   - sittingpoint
   - pickuppoint
   - waypoint
+  - punch
+  - NPC
   layers:
   - Default
   - TransparentFX
@@ -19,9 +21,9 @@ TagManager:
   - Ground
   - Hand
   - Wall
-  - 
-  - 
-  - 
+  - Reikon
+  - item
+  - NPC
   - 
   - 
   - 

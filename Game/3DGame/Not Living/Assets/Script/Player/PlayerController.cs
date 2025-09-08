@@ -28,6 +28,8 @@ public class PlayerController : MonoBehaviour
     private GameObject targetNPC; 
     private StatusManager npcStatusManager;
     private ReikonManager reikonManager;
+    private NottoriController nottoriController;
+    private AttackInfo punchAttackInfo; // パンチのヒットボックスが持つAttackInfo
 
     private Vector3 velocity;
 
@@ -37,6 +39,7 @@ public class PlayerController : MonoBehaviour
         ghostController = GetComponent<CharacterController>();
         ghostAnimator = GetComponent<Animator>();
         reikonManager = GetComponent<ReikonManager>();
+        nottoriController = GetComponent<NottoriController>();
         
         currentCharacter = ghost;
         currentController = ghostController;
@@ -59,10 +62,14 @@ public class PlayerController : MonoBehaviour
                 Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！");
                 return;
             }
-            if (npcStatusManager == null)
+            
+            // ヒットボックスを探してAttackInfoを取得
+            HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
+            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0)
             {
-                Debug.LogWarning("乗っ取り対象のNPCにStatusManagerがアタッチされていません。");
+                punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>();
             }
+
             if (reikonManager != null) reikonManager.SetPhasingState(false);
 
             ghostController.enabled = false;
@@ -91,6 +98,7 @@ public class PlayerController : MonoBehaviour
             npcController = null;
             npcAnimator = null;
             npcStatusManager = null;
+            punchAttackInfo = null;
         }
     }
 
@@ -98,6 +106,12 @@ public class PlayerController : MonoBehaviour
     {
         if (!currentController || !currentController.enabled) return;
         
+        if (nottoriController.isPossessing && targetNPC == null)
+        {
+            nottoriController.ForceRelease();
+            return;
+        }
+
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -108,6 +122,11 @@ public class PlayerController : MonoBehaviour
             
             if (Input.GetButtonDown("Fire1"))
             {
+                // ダメージ値を設定してから攻撃トリガーを起動
+                if (npcStatusManager != null && punchAttackInfo != null)
+                {
+                    punchAttackInfo.damage = npcStatusManager.power;
+                }
                 currentAnimator.SetTrigger(attackTriggerName);
             }
 
@@ -168,35 +187,22 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// CharacterControllerが他の「固い」コライダーと衝突した時に呼ばれる
-    /// </summary>
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // 衝突した相手が回復アイテムかどうかをチェック
         if (hit.collider.TryGetComponent<ReikonItem>(out ReikonItem item))
         {
             HealAndDestroyItem(item);
         }
     }
-
-    /// <summary>
-    /// 他の「すり抜けられる（IsTrigger）」コライダーに侵入した時に呼ばれる
-    /// </summary>
+    
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("surinuke");
-        // 侵入した相手が回復アイテムかどうかをチェック
         if (other.TryGetComponent<ReikonItem>(out ReikonItem item))
         {
-            Debug.Log("item");
             HealAndDestroyItem(item);
         }
     }
-
-    /// <summary>
-    /// 回復とアイテム消去を行う共通メソッド
-    /// </summary>
+    
     private void HealAndDestroyItem(ReikonItem item)
     {
         if (reikonManager != null)
