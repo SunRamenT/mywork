@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8954800357564837314}
   - component: {fileID: 8954800357564837312}
   - component: {fileID: 8954800357564837313}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Angel_Ring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8954800357669122833}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: JNTs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -128,7 +128,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8954800358130625552}
   - component: {fileID: 8954800358130625583}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Little_Ghost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -220,7 +220,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8954800358222726440}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -252,7 +252,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8954800358260640358}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -284,7 +284,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8954800358367127628}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -316,7 +316,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8954800358609080614}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -349,7 +349,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8954800358981883561}
   - component: {fileID: 8954800358981883560}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Little_ghost_ANIMATOR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -404,7 +404,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8954800359427388005}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -439,8 +439,8 @@ GameObject:
   - component: {fileID: 8954800359469898615}
   - component: {fileID: 2316648810964824734}
   - component: {fileID: 7681382004814237254}
-  m_Layer: 0
-  m_Name: Little_Ghost_ZOMbi (3)
+  m_Layer: 6
+  m_Name: Chaser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
