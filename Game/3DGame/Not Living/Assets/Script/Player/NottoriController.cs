@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Linq;
 
 public class NottoriController : MonoBehaviour
 {
@@ -17,12 +18,13 @@ public class NottoriController : MonoBehaviour
     public string horizontalFloatName = "Hor";
     public string verticalFloatName = "Vert";
 
-
     [HideInInspector] public bool isPossessing = false;
 
     private GameObject currentNPC;
     private Renderer[] ghostRenderers;
     private PlayerController playerController;
+    private CatchObject catchObject;
+    private Transform ghostHand;
     private Animator ghostAnimator;
     private NPCMove npcMove;
     private NavMeshAgent npcAgent;
@@ -35,6 +37,12 @@ public class NottoriController : MonoBehaviour
         playerController = GetComponent<PlayerController>();
         if (!playerController)
             playerController = gameObject.AddComponent<PlayerController>();
+
+        catchObject = GetComponent<CatchObject>();
+        if (catchObject != null)
+        {
+            ghostHand = catchObject.hand;
+        }
 
         ghostAnimator = ghost.GetComponent<Animator>();
         if(ghostAnimator == null) Debug.LogError("GhostにAnimatorコンポーネントがありません！");
@@ -72,6 +80,20 @@ public class NottoriController : MonoBehaviour
             ghostAnimator.SetBool(possessionBoolName, true);
         }
 
+        if (catchObject != null)
+        {
+            Transform npcHand = FindChildRecursive(npc.transform, "Hand");
+            if (npcHand != null)
+            {
+                catchObject.hand = npcHand;
+            }
+            else
+            {
+                Debug.LogWarning($"NPC「{npc.name}」に 'Hand' という名前の子オブジェクトが見つかりません。");
+                catchObject.hand = npc.transform;
+            }
+        }
+
         npcMove = currentNPC.GetComponent<NPCMove>();
         if (npcMove != null) npcMove.isNottoried = true;
 
@@ -86,16 +108,24 @@ public class NottoriController : MonoBehaviour
     private void ReleaseNPC()
     {
         if (!currentNPC) return;
-        
-        // NPCのAnimatorを取得し、プレイヤー操作用のアニメーションパラメータをリセットする
+
+        if (catchObject != null)
+        {
+            catchObject.Release();
+            catchObject.hand = ghostHand;
+        }
+
         Animator npcAnimator = currentNPC.GetComponent<Animator>();
         if (npcAnimator != null)
         {
-            // ▼▼▼ この行をコメントアウトまたは削除 ▼▼▼
-            // npcAnimator.SetBool(jumpBoolName, false); 
+            if (HasParameter(npcAnimator, jumpBoolName))
+                npcAnimator.SetBool(jumpBoolName, false);
             
-            npcAnimator.SetFloat(horizontalFloatName, 0f);
-            npcAnimator.SetFloat(verticalFloatName, 0f);
+            if (HasParameter(npcAnimator, horizontalFloatName))
+                npcAnimator.SetFloat(horizontalFloatName, 0f);
+
+            if (HasParameter(npcAnimator, verticalFloatName))
+                npcAnimator.SetFloat(verticalFloatName, 0f);
         }
 
         if (ghostAnimator != null)
@@ -126,5 +156,29 @@ public class NottoriController : MonoBehaviour
     private void SetGhostVisible(bool visible)
     {
         foreach (var rend in ghostRenderers) rend.enabled = visible;
+    }
+
+    private Transform FindChildRecursive(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+                return child;
+            
+            Transform found = FindChildRecursive(child, name);
+            if (found != null)
+                return found;
+        }
+        return null;
+    }
+    
+    private bool HasParameter(Animator animator, string paramName)
+    {
+        if (string.IsNullOrEmpty(paramName)) return false;
+        foreach (AnimatorControllerParameter param in animator.parameters)
+        {
+            if (param.name == paramName) return true;
+        }
+        return false;
     }
 }

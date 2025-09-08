@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [Tooltip("Ghost状態の時の移動速度")]
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
     public float jumpPower = 5f;
@@ -27,7 +26,8 @@ public class PlayerController : MonoBehaviour
     private CharacterController npcController;
     private Animator npcAnimator;
     private GameObject targetNPC; 
-    private StatusManager npcStatusManager; // ▼▼▼ NPCのステータスを保持する変数を追加 ▼▼▼
+    private StatusManager npcStatusManager;
+    private ReikonManager reikonManager;
 
     private Vector3 velocity;
 
@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
         ghost = this.gameObject;
         ghostController = GetComponent<CharacterController>();
         ghostAnimator = GetComponent<Animator>();
+        reikonManager = GetComponent<ReikonManager>();
         
         currentCharacter = ghost;
         currentController = ghostController;
@@ -43,17 +44,15 @@ public class PlayerController : MonoBehaviour
         currentController.detectCollisions = false;
     }
     
-    // NottoriControllerから呼ばれる
     public void SetTargetNPC(GameObject npc, Animator anim)
     {
         targetNPC = npc;
 
         if (targetNPC != null)
         {
-            // --- 乗っ取り時: 操作対象をNPCに切り替える ---
             npcController = targetNPC.GetComponent<CharacterController>();
             npcAnimator = anim;
-            npcStatusManager = targetNPC.GetComponent<StatusManager>(); // ▼▼▼ NPCのStatusManagerを取得 ▼▼▼
+            npcStatusManager = targetNPC.GetComponent<StatusManager>();
 
             if (npcController == null)
             {
@@ -64,6 +63,7 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.LogWarning("乗っ取り対象のNPCにStatusManagerがアタッチされていません。");
             }
+            if (reikonManager != null) reikonManager.SetPhasingState(false);
 
             ghostController.enabled = false;
             npcController.enabled = true;
@@ -75,7 +75,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // --- 乗っ取り解除時: 操作対象をGhostに戻す ---
             if (npcController != null)
             {
                 npcController.enabled = false;
@@ -83,15 +82,15 @@ public class PlayerController : MonoBehaviour
             
             ghostController.enabled = true;
             ghostController.detectCollisions = false; 
+            if (reikonManager != null) reikonManager.SetPhasingState(true);
             
             currentCharacter = ghost;
             currentController = ghostController;
             currentAnimator = ghostAnimator;
 
-            // NPCの参照をクリア
             npcController = null;
             npcAnimator = null;
-            npcStatusManager = null; // ▼▼▼ StatusManagerの参照もクリア ▼▼▼
+            npcStatusManager = null;
         }
     }
 
@@ -126,19 +125,18 @@ public class PlayerController : MonoBehaviour
             currentCharacter.transform.rotation = Quaternion.Slerp(currentCharacter.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        // ▼▼▼ 現在の状況に応じた移動速度を決定 ▼▼▼
         float currentSpeed;
         if (targetNPC != null && npcStatusManager != null)
         {
-            currentSpeed = npcStatusManager.speed; // 乗っ取り中はNPCの速度を使用
+            currentSpeed = npcStatusManager.speed;
         }
         else
         {
-            currentSpeed = this.moveSpeed; // 通常時はGhostの速度を使用
+            currentSpeed = this.moveSpeed;
         }
 
         Vector3 move = currentCharacter.transform.forward * v + currentCharacter.transform.right * h;
-        move = move.normalized * currentSpeed; // 決定した速度で移動
+        move = move.normalized * currentSpeed;
 
         if (currentController.detectCollisions)
         {
@@ -168,5 +166,57 @@ public class PlayerController : MonoBehaviour
             ghost.transform.position = targetNPC.transform.position;
             ghost.transform.rotation = targetNPC.transform.rotation;
         }
+    }
+    
+    /// <summary>
+    /// CharacterControllerが他の「固い」コライダーと衝突した時に呼ばれる
+    /// </summary>
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // 衝突した相手が回復アイテムかどうかをチェック
+        if (hit.collider.TryGetComponent<ReikonItem>(out ReikonItem item))
+        {
+            HealAndDestroyItem(item);
+        }
+    }
+
+    /// <summary>
+    /// 他の「すり抜けられる（IsTrigger）」コライダーに侵入した時に呼ばれる
+    /// </summary>
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("surinuke");
+        // 侵入した相手が回復アイテムかどうかをチェック
+        if (other.TryGetComponent<ReikonItem>(out ReikonItem item))
+        {
+            Debug.Log("item");
+            HealAndDestroyItem(item);
+        }
+    }
+
+    /// <summary>
+    /// 回復とアイテム消去を行う共通メソッド
+    /// </summary>
+    private void HealAndDestroyItem(ReikonItem item)
+    {
+        if (reikonManager != null)
+        {
+            reikonManager.Heal(item.recoveryAmount);
+        }
+        Destroy(item.gameObject);
+    }
+    
+    public bool IsCollisionsEnabled()
+    {
+        if (currentController != null)
+        {
+            return currentController.detectCollisions;
+        }
+        return false;
+    }
+    
+    public bool IsPossessing()
+    {
+        return targetNPC != null;
     }
 }

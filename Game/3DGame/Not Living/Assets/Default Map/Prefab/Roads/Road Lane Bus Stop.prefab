@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3030694264107601316}
   - component: {fileID: 6349630752011072252}
   - component: {fileID: 8620767068394363182}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Road Lane Bus Stop
   m_TagString: Untagged
   m_Icon: {fileID: 0}

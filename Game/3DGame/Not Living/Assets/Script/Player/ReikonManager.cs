@@ -36,6 +36,13 @@ public class ReikonManager : MonoBehaviour
         {
             initialBarScale = spiritBar.localScale;
         }
+        
+        // 開始時の壁抜け状態をPlayerControllerから取得して設定
+        PlayerController player = GetComponent<PlayerController>();
+        if (player != null)
+        {
+            isPhasing = !player.IsCollisionsEnabled();
+        }
     }
 
     void Update()
@@ -80,8 +87,23 @@ public class ReikonManager : MonoBehaviour
     /// <summary>
     /// 壁抜け状態を外部から設定するためのメソッド
     /// </summary>
-    public void SetPhasingState(bool isPhasing)
+    public void SetPhasingState(bool phasing)
     {
-        this.isPhasing = isPhasing;
+        this.isPhasing = phasing;
+    }
+    
+    /// <summary>
+    /// 霊魂を指定した量だけ回復させる
+    /// </summary>
+    public void Heal(float amount)
+    {
+        currentSpirit += amount;
+        // 最大値を超えないように制限
+        if (currentSpirit > maxSpirit)
+        {
+            currentSpirit = maxSpirit;
+        }
+        UpdateSpiritBar(); // UIを更新
+        Debug.Log($"{amount} の霊魂を回復！ 現在値: {currentSpirit}");
     }
 }
