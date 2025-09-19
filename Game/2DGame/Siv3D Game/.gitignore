@@ -1,0 +1,29 @@
+# Siv3D for Visual Studio C++
+# ------------------------------------
+
+# 1. Siv3D SDK 本体を無視
+# ダウンロードしたSDKのフォルダ名を記述します。
+# バージョン名に合わせて適宜変更してください。
+Siv3D_*/
+
+# 2. Visual Studio のビルド成果物を無視
+# Visual Studio が自動生成するフォルダ
+.vs/
+bin/
+obj/
+Debug/
+Release/
+x64/
+Win32/
+
+# ビルド時に生成されるファイル
+*.exe
+*.pdb
+*.obj
+*.ilk
+*.suo
+*.user
+*.vcxproj.user
+
+# 3. macOS/Linux の一時ファイル（念のため）
+.DS_Store
