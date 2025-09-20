@@ -1,9 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
-/// <summary>
-/// NPCのステータス（HP、評判など）とダメージ処理を管理するクラス (3D版)
-/// </summary>
 public class StatusManager : MonoBehaviour
 {
     [Header("基本ステータス")]
@@ -11,6 +9,10 @@ public class StatusManager : MonoBehaviour
     public int currentHp;
     public int power = 10;
     public float speed = 3f;
+    public float jumpPower = 5f;
+
+    [Header("自動回復")]
+    public int hourlyHealAmount = 10;
 
     [Header("評判システム")]
     [Range(0, 100)]
@@ -21,19 +23,43 @@ public class StatusManager : MonoBehaviour
     public float invincibilityDuration = 1.0f;
     private bool isInvincible = false;
 
+    [Header("UI設定")]
+    public GameObject healthBarCanvas; 
+    public Slider healthBarSlider; 
+
     [Header("その他")]
     public GameObject recoveryItemPrefab;
     
     private Renderer modelRenderer;
+    private int lastHealHour = -1;
+    private NPCMove npcMove;
+
+    private void Awake()
+    {
+        modelRenderer = GetComponentInChildren<Renderer>();
+        npcMove = GetComponent<NPCMove>();
+    }
+
+    private void OnEnable()
+    {
+        GameTimeManager.OnTimeChanged += HandleTimeChange;
+    }
+
+    private void OnDisable()
+    {
+        GameTimeManager.OnTimeChanged -= HandleTimeChange;
+    }
 
     void Start()
     {
         currentHp = maxHp;
-        modelRenderer = GetComponentInChildren<Renderer>();
-        if (modelRenderer == null)
+
+        if (healthBarSlider != null)
         {
-            Debug.LogError("子オブジェクトにRendererが見つかりません。", this);
+            healthBarSlider.maxValue = maxHp;
+            healthBarSlider.value = currentHp;
         }
+        UpdateHealthBarVisibility();
     }
 
     void Update()
@@ -50,13 +76,27 @@ public class StatusManager : MonoBehaviour
             Die();
         }
     }
+
+    void LateUpdate()
+    {
+        if (healthBarCanvas != null && healthBarCanvas.activeSelf && Camera.main != null)
+        {
+            healthBarCanvas.transform.LookAt(healthBarCanvas.transform.position + Camera.main.transform.forward);
+        }
+    }
     
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, GameObject attacker)
     {
         if (isInvincible) return;
 
         currentHp -= damage;
+        UpdateHealthBarVisibility();
         Debug.Log($"{gameObject.name} は {damage} のダメージを受けた！ 残りHP: {currentHp}");
+
+        if (npcMove != null && attacker != this.gameObject)
+        {
+            npcMove.StartRetaliation(attacker);
+        }
 
         if (currentHp > 0)
         {
@@ -74,6 +114,35 @@ public class StatusManager : MonoBehaviour
         }
         
         Destroy(gameObject);
+    }
+    
+    private void HandleTimeChange(int hour, int minute)
+    {
+        if (hour != lastHealHour)
+        {
+            lastHealHour = hour;
+
+            if (currentHp < maxHp && currentHp > 0)
+            {
+                currentHp += hourlyHealAmount;
+                if (currentHp > maxHp)
+                {
+                    currentHp = maxHp;
+                }
+                UpdateHealthBarVisibility();
+                Debug.Log($"{gameObject.name} が {hourlyHealAmount} 回復した。");
+            }
+        }
+    }
+    
+    private void UpdateHealthBarVisibility()
+    {
+        if (healthBarCanvas == null || healthBarSlider == null) return;
+        
+        bool shouldBeVisible = currentHp < maxHp;
+        healthBarCanvas.SetActive(shouldBeVisible);
+        
+        healthBarSlider.value = currentHp;
     }
 
     IEnumerator BecomeInvincible()
@@ -112,12 +181,13 @@ public class StatusManager : MonoBehaviour
             {
                 return;
             }
+
+            GameObject attacker = other.transform.parent.gameObject;
             
-            // 接触相手のAttackInfoからダメージ量を取得
             AttackInfo attackInfo = other.GetComponent<AttackInfo>();
             if (attackInfo != null)
             {
-                TakeDamage(attackInfo.damage);
+                TakeDamage(attackInfo.damage, attacker);
             }
         }
     }

@@ -1,13 +1,20 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
 public class NPCMove : MonoBehaviour
 {
     [Header("追跡設定")]
-    [Tooltip("追いかける対象。空にすると自由探索モードになります。")]
+    [Tooltip("追いかける対象。反撃時にも使用されます。")]
     public Transform target;
+
+    [Header("反撃設定")]
+    [Tooltip("攻撃された後、敵を追いかけながら攻撃し続ける全体の時間（秒）")]
+    public float retaliationDuration = 5f;
+    [Tooltip("攻撃アニメーションを再生するトリガー名")]
+    public string attackTriggerID = "Attack";
 
     [Header("自由探索用の設定")]
     [Tooltip("徘徊モードの時に目的地を探す範囲")]
@@ -23,6 +30,7 @@ public class NPCMove : MonoBehaviour
 
     private NavMeshAgent agent;
     private Animator animator;
+    private bool isRetaliating = false;
 
     private const float AnimationFlowSpeed = 4.5f;
     private Vector2 flowAxis;
@@ -36,25 +44,22 @@ public class NPCMove : MonoBehaviour
 
     private void Start()
     {
-        // ゲーム開始時にターゲットがいなければ、最初の徘徊を開始する
         if (target == null)
         {
-            // AgentをまずNavMesh上の有効な位置に配置（ワープ）させる
             if (agent.Warp(transform.position))
             {
-                // 配置に成功したら、最初の目的地を設定する
                 SetNewPatrolDestination();
             }
             else
             {
-                Debug.LogWarning($"{gameObject.name} をNavMesh上に配置できませんでした。開始位置を確認してください。", this);
+                Debug.LogWarning($"{gameObject.name} をNavMesh上に配置できませんでした。", this);
             }
         }
     }
-
+    
     private void Update()
     {
-        // 乗っ取られている間は、このスクリプトは何もしない
+        // 乗っ取られている場合は、全ての動作を停止
         if (isNottoried)
         {
             if (agent.isActiveAndEnabled && agent.isOnNavMesh)
@@ -64,18 +69,21 @@ public class NPCMove : MonoBehaviour
             return;
         }
 
+        // 通常時、反撃中ともにエージェントは常に動ける状態にする
         if (agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
             agent.isStopped = false;
         }
 
+        // ターゲットがいれば、そこへ向かう（反撃中もこの処理が使われる）
         if (target != null)
         {
             agent.SetDestination(target.position);
         }
         else
         {
-            if (!agent.pathPending && agent.remainingDistance < 0.5f)
+            // ターゲットがおらず、反撃中でもなく、目的地に到着していたら、次の徘徊場所を探す
+            if (!isRetaliating && !agent.pathPending && agent.remainingDistance < 0.5f)
             {
                 SetNewPatrolDestination();
             }
@@ -84,6 +92,53 @@ public class NPCMove : MonoBehaviour
         CalculateAndAnimate();
     }
     
+    public void StartRetaliation(GameObject attacker)
+    {
+        if (isNottoried || isRetaliating) return;
+        if (attacker.CompareTag("Player")) return;
+
+        StartCoroutine(RetaliationRoutine(attacker.transform));
+    }
+
+    /// <summary>
+    /// 敵を追いかけながら、一定時間攻撃を繰り返すコルーチン
+    /// </summary>
+    private IEnumerator RetaliationRoutine(Transform attackerTransform)
+    {
+        isRetaliating = true;
+        
+        // ★★★ ターゲットを設定して、Updateループに追跡させる ★★★
+        target = attackerTransform;
+
+        float retaliationEndTime = Time.time + retaliationDuration;
+
+        // 設定された時間、攻撃アニメーションを繰り返し再生
+        while (Time.time < retaliationEndTime)
+        {
+            // ターゲットが途中でいなくなったら反撃を終了
+            if (target == null) break;
+
+            // ★★★ 移動しながらでも、常に相手の方向を向く ★★★
+            Vector3 direction = (target.position - transform.position).normalized;
+            direction.y = 0;
+            if(direction != Vector3.zero)
+            {
+                // NavMeshAgentの回転とケンカしないように、Slerpで滑らかに回転させる
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * agent.angularSpeed);
+            }
+
+            // ★★★ 距離に関係なく攻撃トリガーをセット ★★★
+            animator.SetTrigger(attackTriggerID);
+            
+            // 次のフレームまで待機
+            yield return null;
+        }
+
+        // --- 後片付け ---
+        target = null;
+        isRetaliating = false;
+    }
+
     private void CalculateAndAnimate()
     {
         Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
@@ -108,12 +163,12 @@ public class NPCMove : MonoBehaviour
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         
-        NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1);
-        
-        // 有効な場所が見つかり、かつAgentがNavMesh上にいる場合のみ目的地を設定
-        if(hit.position != Vector3.zero && agent.isOnNavMesh)
+        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))
         {
-            agent.SetDestination(hit.position);
+            if (agent.isOnNavMesh)
+            {
+                agent.SetDestination(hit.position);
+            }
         }
     }
 }

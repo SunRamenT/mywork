@@ -29,6 +29,7 @@ public class PlayerController : MonoBehaviour
     private StatusManager npcStatusManager;
     private ReikonManager reikonManager;
     private NottoriController nottoriController;
+    private AttackInfo punchAttackInfo; // パンチのヒットボックスが持つAttackInfo
 
     private Vector3 velocity;
 
@@ -61,12 +62,14 @@ public class PlayerController : MonoBehaviour
                 Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！");
                 return;
             }
-            if (npcStatusManager == null)
-            {
-                Debug.LogWarning("乗っ取り対象のNPCにStatusManagerがアタッチされていません。");
-            }
             
-            // ReikonManagerの状態を更新 (壁抜け: false, 憑依: true)
+            // ヒットボックスを探してAttackInfoを取得
+            HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
+            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0)
+            {
+                punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>();
+            }
+
             if (reikonManager != null) reikonManager.UpdateState(false, true);
 
             ghostController.enabled = false;
@@ -86,8 +89,6 @@ public class PlayerController : MonoBehaviour
             
             ghostController.enabled = true;
             ghostController.detectCollisions = false; 
-
-            // ReikonManagerの状態を更新 (壁抜け: true, 憑依: false)
             if (reikonManager != null) reikonManager.UpdateState(true, false);
             
             currentCharacter = ghost;
@@ -97,6 +98,7 @@ public class PlayerController : MonoBehaviour
             npcController = null;
             npcAnimator = null;
             npcStatusManager = null;
+            punchAttackInfo = null;
         }
     }
 
@@ -104,6 +106,10 @@ public class PlayerController : MonoBehaviour
     {
         if (nottoriController.isPossessing && targetNPC == null)
         {
+            if (reikonManager != null && nottoriController != null)
+            {
+                reikonManager.TakeDamage(nottoriController.deathPenaltyAmount);
+            }
             nottoriController.ForceRelease();
             return;
         }
@@ -120,6 +126,11 @@ public class PlayerController : MonoBehaviour
             
             if (Input.GetButtonDown("Fire1"))
             {
+                // ダメージ値を設定してから攻撃トリガーを起動
+                if (npcStatusManager != null && punchAttackInfo != null)
+                {
+                    punchAttackInfo.damage = npcStatusManager.power;
+                }
                 currentAnimator.SetTrigger(attackTriggerName);
             }
 
@@ -157,7 +168,16 @@ public class PlayerController : MonoBehaviour
                 velocity.y = -0.1f;
                 if (Input.GetButtonDown("Jump"))
                 {
-                    velocity.y = jumpPower;
+                    float currentJumpPower;
+                    if (targetNPC != null && npcStatusManager != null)
+                    {
+                        currentJumpPower = npcStatusManager.jumpPower;
+                    }
+                    else
+                    {
+                        currentJumpPower = this.jumpPower;
+                    }
+                    velocity.y = currentJumpPower;
                 }
             }
             else

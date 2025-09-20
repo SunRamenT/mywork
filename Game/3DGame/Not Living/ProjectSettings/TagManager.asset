@@ -10,6 +10,7 @@ TagManager:
   - waypoint
   - punch
   - NPC
+  - Building
   layers:
   - Default
   - TransparentFX
