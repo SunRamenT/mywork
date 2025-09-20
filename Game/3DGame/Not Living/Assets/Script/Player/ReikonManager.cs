@@ -15,6 +15,8 @@ public class ReikonManager : MonoBehaviour
     public float baseDrainSpeed = 1f;
     [Tooltip("壁抜け時の減少速度の倍率")]
     public float phasingDrainMultiplier = 2f;
+    [Tooltip("憑依（とりつき）中の減少速度の倍率")]
+    public float possessionDrainMultiplier = 1.5f;
 
     [Header("UI設定")]
     [Tooltip("霊魂の残量を表示するUIオブジェクト")]
@@ -23,7 +25,9 @@ public class ReikonManager : MonoBehaviour
     public static event Action OnSpiritDepleted;
 
     private Vector3 initialBarScale;
+    
     private bool isPhasing = false;
+    private bool isPossessing = false;
 
     void Start()
     {
@@ -36,24 +40,25 @@ public class ReikonManager : MonoBehaviour
         PlayerController player = GetComponent<PlayerController>();
         if (player != null)
         {
-            isPhasing = !player.IsCollisionsEnabled();
+            UpdateState(!player.IsCollisionsEnabled(), player.IsPossessing());
         }
     }
 
     void Update()
     {
-        if (currentSpirit <= 0)
-        {
-            return;
-        }
+        if (currentSpirit <= 0) return;
 
-        float currentDrainSpeed = baseDrainSpeed;
-        if (isPhasing)
+        float currentMultiplier = 1.0f;
+        if (isPossessing)
         {
-            currentDrainSpeed *= phasingDrainMultiplier;
+            currentMultiplier = possessionDrainMultiplier;
         }
-
-        currentSpirit -= currentDrainSpeed * Time.deltaTime;
+        else if (isPhasing)
+        {
+            currentMultiplier = phasingDrainMultiplier;
+        }
+        
+        currentSpirit -= baseDrainSpeed * currentMultiplier * Time.deltaTime;
         
         UpdateSpiritBar();
 
@@ -74,9 +79,10 @@ public class ReikonManager : MonoBehaviour
         }
     }
     
-    public void SetPhasingState(bool phasing)
+    public void UpdateState(bool isPhasing, bool isPossessing)
     {
-        this.isPhasing = phasing;
+        this.isPhasing = isPhasing;
+        this.isPossessing = isPossessing;
     }
     
     public void Heal(float amount)
