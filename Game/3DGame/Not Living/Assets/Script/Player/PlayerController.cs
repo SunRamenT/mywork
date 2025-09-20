@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Animator))]
@@ -12,25 +13,31 @@ public class PlayerController : MonoBehaviour
     [Header("Animator Settings")]
     public string attackTriggerName = "Attack";
     public string jumpTriggerName = "Jump";
+    
+    // ▼▼▼ 壁抜け判定用の設定を追加 ▼▼▼
+    [Header("壁抜け判定")]
+    [Tooltip("壁として判定するレイヤー")]
+    public LayerMask wallLayer;
+    [Tooltip("建物として判定するタグ")]
+    public string buildingTag = "Building";
 
-    // --- 現在操作している対象の情報を保持する変数 ---
+    // 現在、壁を抜けているかどうかの状態
+    public bool IsPhasingThroughWall { get; private set; } = false;
+    private float checkRadius;
+
+    // --- (既存の他の変数) ---
     private CharacterController currentController;
     private Animator currentAnimator;
     private GameObject currentCharacter;
-
-    // --- GhostとNPCの情報を個別に保持 ---
     private CharacterController ghostController;
     private Animator ghostAnimator;
     private GameObject ghost;
-    
     private CharacterController npcController;
     private Animator npcAnimator;
     private GameObject targetNPC; 
     private StatusManager npcStatusManager;
     private ReikonManager reikonManager;
     private NottoriController nottoriController;
-    private AttackInfo punchAttackInfo; // パンチのヒットボックスが持つAttackInfo
-
     private Vector3 velocity;
 
     private void Awake()
@@ -45,8 +52,12 @@ public class PlayerController : MonoBehaviour
         currentController = ghostController;
         currentAnimator = ghostAnimator;
         currentController.detectCollisions = false;
+
+        // 判定用の球の半径をCharacterControllerの半径に合わせる
+        checkRadius = ghostController.radius;
     }
     
+    // ... (SetTargetNPCは変更なし) ...
     public void SetTargetNPC(GameObject npc, Animator anim)
     {
         targetNPC = npc;
@@ -62,14 +73,10 @@ public class PlayerController : MonoBehaviour
                 Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！");
                 return;
             }
-            
-            // ヒットボックスを探してAttackInfoを取得
-            HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
-            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0)
+            if (npcStatusManager == null)
             {
-                punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>();
+                Debug.LogWarning("乗っ取り対象のNPCにStatusManagerがアタッチされていません。");
             }
-
             if (reikonManager != null) reikonManager.SetPhasingState(false);
 
             ghostController.enabled = false;
@@ -98,20 +105,32 @@ public class PlayerController : MonoBehaviour
             npcController = null;
             npcAnimator = null;
             npcStatusManager = null;
-            punchAttackInfo = null;
         }
     }
 
+
     private void Update()
     {
-        if (!currentController || !currentController.enabled) return;
-        
         if (nottoriController.isPossessing && targetNPC == null)
         {
             nottoriController.ForceRelease();
             return;
         }
 
+        if (!currentController || !currentController.enabled) return;
+        
+        // --- 壁抜け判定 ---
+        // Ghost状態（当たり判定が無効）の時だけチェックする
+        if (!currentController.detectCollisions)
+        {
+            CheckWallPhasing();
+        }
+        else
+        {
+            IsPhasingThroughWall = false;
+        }
+
+        // ... (以降の移動やアニメーションの処理は変更なし) ...
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -122,11 +141,6 @@ public class PlayerController : MonoBehaviour
             
             if (Input.GetButtonDown("Fire1"))
             {
-                // ダメージ値を設定してから攻撃トリガーを起動
-                if (npcStatusManager != null && punchAttackInfo != null)
-                {
-                    punchAttackInfo.damage = npcStatusManager.power;
-                }
                 currentAnimator.SetTrigger(attackTriggerName);
             }
 
@@ -186,7 +200,28 @@ public class PlayerController : MonoBehaviour
             ghost.transform.rotation = targetNPC.transform.rotation;
         }
     }
+
+    /// <summary>
+    /// Ghostが建物の中を通り抜けているかチェックする
+    /// </summary>
+    private void CheckWallPhasing()
+    {
+        IsPhasingThroughWall = false;
+
+        Collider[] overlappingColliders = Physics.OverlapSphere(transform.position, checkRadius, wallLayer);
+
+        foreach (var col in overlappingColliders)
+        {
+            if (col.CompareTag(buildingTag))
+            {
+                IsPhasingThroughWall = true;
+                Debug.Log("aa");
+                break;
+            }
+        }
+    }
     
+    // ... (以降のメソッドは変更なし) ...
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.TryGetComponent<ReikonItem>(out ReikonItem item))

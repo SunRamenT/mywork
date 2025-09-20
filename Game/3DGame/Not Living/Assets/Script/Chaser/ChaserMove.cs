@@ -8,7 +8,7 @@ public class ChaserMove : MonoBehaviour
     private NavMeshAgent agent;
     private Transform player;
 
-    // ▼▼▼ AgentType切り替え用の変数をインデックスベースに変更 ▼▼▼
+    //  AgentType切り替え用の変数をインデックスベースに変更 
     [Header("Agent Type Settings")]
     [Tooltip("徘徊時に使用するAgentTypeのインデックス番号 (通常は0)")]
     public int humanoidAgentTypeIndex = 0;
