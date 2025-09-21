@@ -192,6 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 448188}
   - component: {fileID: 65251386570402468}
+  - component: {fileID: 7673609247595257034}
   m_Layer: 0
   m_Name: MenuBoard_simple
   m_TagString: Untagged
@@ -238,6 +239,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.7895503, y: 1.5231538, z: 0.059066117}
   m_Center: {x: -0.0020329952, y: -0.10727641, z: 0.039244384}
+--- !u!114 &7673609247595257034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 108466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10721ac0056c22c459aa51517908e885, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  messageUIPrefab: {fileID: 0}
+  targetCanvas: {fileID: 0}
+  message: 
 --- !u!1 &112414
 GameObject:
   m_ObjectHideFlags: 0
