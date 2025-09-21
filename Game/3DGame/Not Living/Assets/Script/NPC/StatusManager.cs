@@ -28,7 +28,10 @@ public class StatusManager : MonoBehaviour
     public Slider healthBarSlider; 
 
     [Header("その他")]
+    [Tooltip("乗っ取り中に倒した時に落とす霊魂アイテム")]
     public GameObject recoveryItemPrefab;
+    [Tooltip("アイテムをドロップする高さのオフセット")] // ▼▼▼ 変数を追加 ▼▼▼
+    public float itemDropOffsetY = 1.0f;
     
     private Renderer modelRenderer;
     private int lastHealHour = -1;
@@ -73,7 +76,7 @@ public class StatusManager : MonoBehaviour
 
         if (currentHp <= 0)
         {
-            Die();
+            Die(null);
         }
     }
 
@@ -91,7 +94,12 @@ public class StatusManager : MonoBehaviour
 
         currentHp -= damage;
         UpdateHealthBarVisibility();
-        Debug.Log($"{gameObject.name} は {damage} のダメージを受けた！ 残りHP: {currentHp}");
+
+        if (currentHp <= 0)
+        {
+            Die(attacker);
+            return;
+        }
 
         if (npcMove != null && attacker != this.gameObject)
         {
@@ -104,13 +112,27 @@ public class StatusManager : MonoBehaviour
         }
     }
     
-    private void Die()
+    private void Die(GameObject attacker)
     {
+        if (!this.enabled) return;
+        this.enabled = false;
+
         Debug.Log($"{gameObject.name} は倒れた。");
 
-        if (recoveryItemPrefab != null)
+        if (attacker != null && recoveryItemPrefab != null)
         {
-            Instantiate(recoveryItemPrefab, transform.position, Quaternion.identity);
+            NPCMove attackerMoveScript = attacker.GetComponent<NPCMove>();
+            
+            if (attackerMoveScript != null && attackerMoveScript.isNottoried)
+            {
+                // ▼▼▼ アイテムの生成位置を修正 ▼▼▼
+                // キャラクターの位置に、Y軸のオフセットを加算する
+                Vector3 dropPosition = transform.position + new Vector3(0, itemDropOffsetY, 0);
+                Instantiate(recoveryItemPrefab, dropPosition, Quaternion.identity);
+                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+                Debug.Log($"乗っ取られた {attacker.name} が倒したため、{gameObject.name} は霊魂をドロップした！");
+            }
         }
         
         Destroy(gameObject);
@@ -130,7 +152,6 @@ public class StatusManager : MonoBehaviour
                     currentHp = maxHp;
                 }
                 UpdateHealthBarVisibility();
-                Debug.Log($"{gameObject.name} が {hourlyHealAmount} 回復した。");
             }
         }
     }
@@ -182,12 +203,17 @@ public class StatusManager : MonoBehaviour
                 return;
             }
 
-            GameObject attacker = other.transform.parent.gameObject;
-            
-            AttackInfo attackInfo = other.GetComponent<AttackInfo>();
-            if (attackInfo != null)
+            NPCMove attackerMoveScript = other.GetComponentInParent<NPCMove>();
+
+            if (attackerMoveScript != null)
             {
-                TakeDamage(attackInfo.damage, attacker);
+                GameObject attacker = attackerMoveScript.gameObject;
+                
+                AttackInfo attackInfo = other.GetComponent<AttackInfo>();
+                if (attackInfo != null)
+                {
+                    TakeDamage(attackInfo.damage, attacker);
+                }
             }
         }
     }

@@ -127,6 +127,10 @@ MonoBehaviour:
   moveSpeed: 5
   rotationSpeed: 10
   jumpPower: 3
+  reikonLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  itemDetectionRadius: 1.5
   attackTriggerName: Attack
   jumpTriggerName: Jump
 --- !u!95 &2069234913439815857
@@ -169,6 +173,7 @@ MonoBehaviour:
     m_Bits: 0
   rayDistance: 10
   releaseForwardDistance: 2
+  deathPenaltyAmount: 25
   possessionBoolName: Nottori
   jumpBoolName: isJump
   horizontalFloatName: Hor
@@ -190,6 +195,7 @@ MonoBehaviour:
   currentSpirit: 0
   baseDrainSpeed: 1
   phasingDrainMultiplier: 2
+  possessionDrainMultiplier: 0.85
   spiritBar: {fileID: 2075469718233517996, guid: bc9b3a9681d710b45ad0f60ba59df177, type: 3}
 --- !u!114 &8366907078264689167
 MonoBehaviour:

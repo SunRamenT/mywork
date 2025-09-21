@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8003945131670204814}
   - component: {fileID: 6686328701901482361}
   - component: {fileID: 7427382625405891728}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: glow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4896,7 +4896,7 @@ GameObject:
   - component: {fileID: 5409775837789171265}
   - component: {fileID: 8304827230832334493}
   - component: {fileID: 5661441179861056164}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: dust
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9798,7 +9798,7 @@ GameObject:
   - component: {fileID: 3165833880065288399}
   - component: {fileID: 2387415509489043307}
   - component: {fileID: 6394034369402968447}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: BlurFire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14659,7 +14659,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3

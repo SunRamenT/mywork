@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq; // OrderByを使うために必要
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Animator))]
@@ -8,6 +9,12 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
     public float jumpPower = 5f;
+
+    [Header("Item Detection Settings")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("回復アイテム（霊魂）が含まれるレイヤー")]
+    public LayerMask reikonLayer; 
+    [Tooltip("アイテムを検知する半径")]
+    public float itemDetectionRadius = 1.5f;
 
     [Header("Animator Settings")]
     public string attackTriggerName = "Attack";
@@ -29,7 +36,7 @@ public class PlayerController : MonoBehaviour
     private StatusManager npcStatusManager;
     private ReikonManager reikonManager;
     private NottoriController nottoriController;
-    private AttackInfo punchAttackInfo; // パンチのヒットボックスが持つAttackInfo
+    private AttackInfo punchAttackInfo;
 
     private Vector3 velocity;
 
@@ -63,7 +70,6 @@ public class PlayerController : MonoBehaviour
                 return;
             }
             
-            // ヒットボックスを探してAttackInfoを取得
             HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
             if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0)
             {
@@ -104,6 +110,10 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // ▼▼▼ アイテム検知処理をUpdateの最初に追加 ▼▼▼
+        CheckForRecoveryItems();
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         if (nottoriController.isPossessing && targetNPC == null)
         {
             if (reikonManager != null && nottoriController != null)
@@ -126,7 +136,6 @@ public class PlayerController : MonoBehaviour
             
             if (Input.GetButtonDown("Fire1"))
             {
-                // ダメージ値を設定してから攻撃トリガーを起動
                 if (npcStatusManager != null && punchAttackInfo != null)
                 {
                     punchAttackInfo.damage = npcStatusManager.power;
@@ -148,18 +157,8 @@ public class PlayerController : MonoBehaviour
             currentCharacter.transform.rotation = Quaternion.Slerp(currentCharacter.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        float currentSpeed;
-        if (targetNPC != null && npcStatusManager != null)
-        {
-            currentSpeed = npcStatusManager.speed;
-        }
-        else
-        {
-            currentSpeed = this.moveSpeed;
-        }
-
-        Vector3 move = currentCharacter.transform.forward * v + currentCharacter.transform.right * h;
-        move = move.normalized * currentSpeed;
+        float currentSpeed = (targetNPC != null && npcStatusManager != null) ? npcStatusManager.speed : this.moveSpeed;
+        Vector3 move = (currentCharacter.transform.forward * v + currentCharacter.transform.right * h).normalized * currentSpeed;
 
         if (currentController.detectCollisions)
         {
@@ -168,15 +167,7 @@ public class PlayerController : MonoBehaviour
                 velocity.y = -0.1f;
                 if (Input.GetButtonDown("Jump"))
                 {
-                    float currentJumpPower;
-                    if (targetNPC != null && npcStatusManager != null)
-                    {
-                        currentJumpPower = npcStatusManager.jumpPower;
-                    }
-                    else
-                    {
-                        currentJumpPower = this.jumpPower;
-                    }
+                    float currentJumpPower = (targetNPC != null && npcStatusManager != null) ? npcStatusManager.jumpPower : this.jumpPower;
                     velocity.y = currentJumpPower;
                 }
             }
@@ -200,6 +191,38 @@ public class PlayerController : MonoBehaviour
         }
     }
     
+    // ▼▼▼ 新しく追加したメソッド ▼▼▼
+    /// <summary>
+    /// 物理判定に頼らず、キャラクターの周囲にある回復アイテムを検知して取得する
+    /// </summary>
+    private void CheckForRecoveryItems()
+    {
+        // キャラクターの位置を中心に、指定した半径内のコライダーを全て取得する
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, itemDetectionRadius, reikonLayer);
+
+        if (hitColliders.Length > 0)
+        {
+            // 複数のアイテムを同時に検知した場合、一番近いものを取得する
+            Collider closest = hitColliders.OrderBy(c => (transform.position - c.transform.position).sqrMagnitude).FirstOrDefault();
+
+            if (closest != null && closest.TryGetComponent<ReikonItem>(out ReikonItem item))
+            {
+                HealAndDestroyItem(item);
+            }
+        }
+    }
+    
+    private void HealAndDestroyItem(ReikonItem item)
+    {
+        if (reikonManager != null)
+        {
+            reikonManager.Heal(item.recoveryAmount);
+        }
+        Destroy(item.gameObject);
+    }
+    
+    // ▼▼▼ 既存のOnTriggerEnterは不要になるため、コメントアウトまたは削除してもOK ▼▼▼
+    /*
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.TryGetComponent<ReikonItem>(out ReikonItem item))
@@ -215,23 +238,11 @@ public class PlayerController : MonoBehaviour
             HealAndDestroyItem(item);
         }
     }
-    
-    private void HealAndDestroyItem(ReikonItem item)
-    {
-        if (reikonManager != null)
-        {
-            reikonManager.Heal(item.recoveryAmount);
-        }
-        Destroy(item.gameObject);
-    }
+    */
     
     public bool IsCollisionsEnabled()
     {
-        if (currentController != null)
-        {
-            return currentController.detectCollisions;
-        }
-        return false;
+        return currentController != null ? currentController.detectCollisions : false;
     }
     
     public bool IsPossessing()

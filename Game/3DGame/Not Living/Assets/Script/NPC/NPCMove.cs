@@ -7,7 +7,7 @@ using System.Collections;
 public class NPCMove : MonoBehaviour
 {
     [Header("追跡設定")]
-    [Tooltip("追いかける対象。反撃時にも使用されます。")]
+    [Tooltip("追いかける対象。反撃時は使用しません。")]
     public Transform target;
 
     [Header("反撃設定")]
@@ -42,24 +42,21 @@ public class NPCMove : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+    // ▼▼▼ このStartメソッドを修正しました ▼▼▼
     private void Start()
     {
+        // ターゲットが設定されていない場合（つまり、最初から自由探索モードの場合）
         if (target == null)
         {
-            if (agent.Warp(transform.position))
-            {
-                SetNewPatrolDestination();
-            }
-            else
-            {
-                Debug.LogWarning($"{gameObject.name} をNavMesh上に配置できませんでした。", this);
-            }
+            // NPCGeneratorが既にNavMesh上の有効な位置に配置してくれているため、
+            // ここでWarpによるチェックは行わず、すぐに最初の目的地を設定する。
+            SetNewPatrolDestination();
         }
     }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
     
     private void Update()
     {
-        // 乗っ取られている場合は、全ての動作を停止
         if (isNottoried)
         {
             if (agent.isActiveAndEnabled && agent.isOnNavMesh)
@@ -69,20 +66,17 @@ public class NPCMove : MonoBehaviour
             return;
         }
 
-        // 通常時、反撃中ともにエージェントは常に動ける状態にする
         if (agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
             agent.isStopped = false;
         }
 
-        // ターゲットがいれば、そこへ向かう（反撃中もこの処理が使われる）
         if (target != null)
         {
             agent.SetDestination(target.position);
         }
         else
         {
-            // ターゲットがおらず、反撃中でもなく、目的地に到着していたら、次の徘徊場所を探す
             if (!isRetaliating && !agent.pathPending && agent.remainingDistance < 0.5f)
             {
                 SetNewPatrolDestination();
@@ -100,41 +94,29 @@ public class NPCMove : MonoBehaviour
         StartCoroutine(RetaliationRoutine(attacker.transform));
     }
 
-    /// <summary>
-    /// 敵を追いかけながら、一定時間攻撃を繰り返すコルーチン
-    /// </summary>
     private IEnumerator RetaliationRoutine(Transform attackerTransform)
     {
         isRetaliating = true;
-        
-        // ★★★ ターゲットを設定して、Updateループに追跡させる ★★★
         target = attackerTransform;
 
         float retaliationEndTime = Time.time + retaliationDuration;
 
-        // 設定された時間、攻撃アニメーションを繰り返し再生
         while (Time.time < retaliationEndTime)
         {
-            // ターゲットが途中でいなくなったら反撃を終了
             if (target == null) break;
 
-            // ★★★ 移動しながらでも、常に相手の方向を向く ★★★
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
             if(direction != Vector3.zero)
             {
-                // NavMeshAgentの回転とケンカしないように、Slerpで滑らかに回転させる
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * agent.angularSpeed);
             }
 
-            // ★★★ 距離に関係なく攻撃トリガーをセット ★★★
             animator.SetTrigger(attackTriggerID);
             
-            // 次のフレームまで待機
             yield return null;
         }
 
-        // --- 後片付け ---
         target = null;
         isRetaliating = false;
     }
