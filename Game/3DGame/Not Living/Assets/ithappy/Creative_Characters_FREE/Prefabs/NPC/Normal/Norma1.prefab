@@ -3480,6 +3480,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharaHP
       objectReference: {fileID: 0}
+    - target: {fileID: 2309628528114892459, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -3522,7 +3526,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3546,7 +3550,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

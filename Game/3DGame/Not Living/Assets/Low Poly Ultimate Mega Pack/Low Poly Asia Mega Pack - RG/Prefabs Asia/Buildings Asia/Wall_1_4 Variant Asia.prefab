@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
@@ -13,11 +14,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.93
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -2.44
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -52,11 +53,11 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: b0bb03c70f92d71449cdc414ff1df927, type: 2}
     - target: {fileID: -7511558181221131132, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
-      propertyPath: m_Materials.Array.data[1]
+      propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: b0bb03c70f92d71449cdc414ff1df927, type: 2}
     - target: {fileID: 919132149155446097, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
@@ -67,5 +68,66 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 3451118302482216456, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
+      propertyPath: m_Convex
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 3451118302482216456, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6965747139457989354}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5434150479522473694}
   m_SourcePrefab: {fileID: 100100000, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
+--- !u!1 &7552141005157637416 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1ecd2f201d2cace438a71dbb20cc7bf8, type: 3}
+  m_PrefabInstance: {fileID: 7210247519360000121}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &6965747139457989354
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7552141005157637416}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.7482064, y: 4.2797365, z: 7.4820423}
+  m_Center: {x: 0.049841046, y: 2.1877356, z: -1.8694811}
+--- !u!65 &5434150479522473694
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7552141005157637416}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 7.4713206, y: 4.2574415, z: 3.825814}
+  m_Center: {x: 1.9113982, y: 2.176588, z: -0.041364312}
