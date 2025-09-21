@@ -119,24 +119,53 @@ public class StatusManager : MonoBehaviour
 
         Debug.Log($"{gameObject.name} は倒れた。");
 
-        if (attacker != null && recoveryItemPrefab != null)
+        if (attacker != null)
         {
             NPCMove attackerMoveScript = attacker.GetComponent<NPCMove>();
-            
             if (attackerMoveScript != null && attackerMoveScript.isNottoried)
             {
-                // ▼▼▼ アイテムの生成位置を修正 ▼▼▼
-                // キャラクターの位置に、Y軸のオフセットを加算する
-                Vector3 dropPosition = transform.position + new Vector3(0, itemDropOffsetY, 0);
-                Instantiate(recoveryItemPrefab, dropPosition, Quaternion.identity);
-                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+                StatusManager attackerStatus = attacker.GetComponent<StatusManager>();
+                if (attackerStatus != null)
+                {
+                    // 攻撃者(attackerStatus)の評判を、倒された相手(this)の情報をもとに更新する
+                    attackerStatus.UpdateReputationOnDefeat(this);
+                }
 
-                Debug.Log($"乗っ取られた {attacker.name} が倒したため、{gameObject.name} は霊魂をドロップした！");
+                // スコアと善悪値のイベントを発行
+                GameEvents.TriggerTargetDefeatedWithInfo(this);
+
+                // 霊魂ドロップ処理
+                if (recoveryItemPrefab != null)
+                {
+                    Vector3 dropPosition = transform.position + new Vector3(0, itemDropOffsetY, 0);
+                    Instantiate(recoveryItemPrefab, dropPosition, Quaternion.identity);
+                }
             }
         }
-        
         Destroy(gameObject);
     }
+    
+    public void UpdateReputationOnDefeat(StatusManager victimStatus)
+    {
+        int reputationChange = 0;
+        
+        if (victimStatus.reputation >= 30) // Bad, Normal, Good...
+        {
+            reputationChange = -10;
+        }
+        else if (victimStatus.reputation >= 10) // So Bad
+        {
+            reputationChange = 10;
+        }
+        else // Worst
+        {
+            reputationChange = 40;
+        }
+        
+        this.reputation = Mathf.Clamp(this.reputation + reputationChange, 0, 100);
+        Debug.Log($"[評判更新] {victimStatus.gameObject.name}を倒したため、{this.gameObject.name}の評判が{reputationChange}変動しました。現在の評判: {this.reputation}");
+    }
+
     
     private void HandleTimeChange(int hour, int minute)
     {
@@ -182,7 +211,7 @@ public class StatusManager : MonoBehaviour
         if(modelRenderer != null) modelRenderer.enabled = true;
         isInvincible = false;
     }
-    
+
     public void UpdatePopularity()
     {
         if (reputation >= 90) currentPopularity = "Saint";
@@ -194,27 +223,35 @@ public class StatusManager : MonoBehaviour
         else currentPopularity = "Worst";
     }
     
+    
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("punch"))
+        // ヒットボックスのタグが "punch" でなければ何もしない
+        if(!other.gameObject.CompareTag("punch")) return;
+
+        // --- ▼▼▼ 自分自身への攻撃判定ロジックを修正 ▼▼▼ ---
+
+        // 1. ヒットボックスから、攻撃者のキャラクター本体（NPCMoveを持つオブジェクト）を探す
+        NPCMove attackerMoveScript = other.GetComponentInParent<NPCMove>();
+
+        // 2. 攻撃者のキャラクター本体が見つからない場合は、無効な攻撃なので処理を中断
+        if (attackerMoveScript == null) return;
+            
+        // 3. 攻撃者のキャラクター本体(attackerMoveScript.gameObject)と
+        //    ダメージを受ける自分自身(this.gameObject)が同じなら、それは自分自身への攻撃なので処理を中断
+        if (attackerMoveScript.gameObject == this.gameObject)
         {
-            if (other.transform.root == this.transform.root)
-            {
-                return;
-            }
+            return;
+        }
 
-            NPCMove attackerMoveScript = other.GetComponentInParent<NPCMove>();
+        // --- ▲▲▲ 修正ここまで ▲▲▲ ---
 
-            if (attackerMoveScript != null)
-            {
-                GameObject attacker = attackerMoveScript.gameObject;
-                
-                AttackInfo attackInfo = other.GetComponent<AttackInfo>();
-                if (attackInfo != null)
-                {
-                    TakeDamage(attackInfo.damage, attacker);
-                }
-            }
+        // 自分自身への攻撃でないことが確定したので、ダメージ処理に進む
+        GameObject attacker = attackerMoveScript.gameObject;
+        AttackInfo attackInfo = other.GetComponent<AttackInfo>();
+        if (attackInfo != null)
+        {
+            TakeDamage(attackInfo.damage, attacker);
         }
     }
 }

@@ -6,30 +6,41 @@ public class ScoreDisplayUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI scoreText;
 
-    private void OnEnable()
+    // ScoreManagerへのイベント登録が完了したかどうかのフラグ
+    private bool isSubscribed = false;
+
+    // ▼▼▼ OnEnableの代わりにUpdateで、より確実に接続を試みるように変更 ▼▼▼
+    private void Update()
     {
-        if(ScoreManager.Instance != null)
+        // まだイベント登録が済んでおらず、ScoreManagerが利用可能になったら
+        if (!isSubscribed && ScoreManager.Instance != null)
+        {
+            // イベントにテキスト更新メソッドを登録する
             ScoreManager.Instance.OnScoreChanged += UpdateScoreText;
+            // 登録が完了したことを記録
+            isSubscribed = true;
+            // 現在のスコアで一度表示を更新する
+            UpdateScoreText(ScoreManager.Instance.CurrentScore);
+        }
     }
 
     private void OnDisable()
     {
-        if(ScoreManager.Instance != null)
+        // ScoreManagerが存在すれば、登録を解除する
+        if (ScoreManager.Instance != null)
+        {
             ScoreManager.Instance.OnScoreChanged -= UpdateScoreText;
-    }
-
-
-
-    private void Start()
-    {
-        if(ScoreManager.Instance != null)
-            UpdateScoreText(ScoreManager.Instance.CurrentScore);
+        }
     }
     
+    /// <summary>
+    /// スコアの数値を受け取り、6桁のゼロ埋め形式でテキストを更新する
+    /// </summary>
     private void UpdateScoreText(int newScore)
     {
         if (scoreText != null)
         {
+            // "D6"は「6桁の整数（足りない分は0で埋める）」という書式設定
             scoreText.text = newScore.ToString("D6");
         }
     }

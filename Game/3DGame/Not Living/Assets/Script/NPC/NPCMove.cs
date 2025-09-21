@@ -7,17 +7,13 @@ using System.Collections;
 public class NPCMove : MonoBehaviour
 {
     [Header("追跡設定")]
-    [Tooltip("追いかける対象。反撃時は使用しません。")]
     public Transform target;
 
     [Header("反撃設定")]
-    [Tooltip("攻撃された後、敵を追いかけながら攻撃し続ける全体の時間（秒）")]
     public float retaliationDuration = 5f;
-    [Tooltip("攻撃アニメーションを再生するトリガー名")]
     public string attackTriggerID = "Attack";
 
     [Header("自由探索用の設定")]
-    [Tooltip("徘徊モードの時に目的地を探す範囲")]
     public float patrolRadius = 20f;
     
     [Header("Animator パラメータ名")]
@@ -25,8 +21,28 @@ public class NPCMove : MonoBehaviour
     public string verticalID = "Vert";
     public string stateID = "State";
 
+    // ▼▼▼ isNottoried をプロパティに変更 ▼▼▼
     [Header("乗っ取り判定")]
-    public bool isNottoried = false;
+    private bool _isNottoried = false;
+    public bool isNottoried
+    {
+        get { return _isNottoried; }
+        set
+        {
+            _isNottoried = value;
+            // isNottoriedがtrueに設定された瞬間に、以下の処理を自動で実行する
+            if (_isNottoried)
+            {
+                // 実行中の全てのAI行動（反撃など）を強制的に停止させる
+                StopAllCoroutines();
+                // ターゲットが残っているとUpdateで追跡しようとするため、クリアする
+                target = null;
+                // 反撃状態フラグもリセットする
+                isRetaliating = false;
+            }
+        }
+    }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     private NavMeshAgent agent;
     private Animator animator;
@@ -42,18 +58,13 @@ public class NPCMove : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    // ▼▼▼ このStartメソッドを修正しました ▼▼▼
     private void Start()
     {
-        // ターゲットが設定されていない場合（つまり、最初から自由探索モードの場合）
         if (target == null)
         {
-            // NPCGeneratorが既にNavMesh上の有効な位置に配置してくれているため、
-            // ここでWarpによるチェックは行わず、すぐに最初の目的地を設定する。
             SetNewPatrolDestination();
         }
     }
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
     
     private void Update()
     {
@@ -65,7 +76,7 @@ public class NPCMove : MonoBehaviour
             }
             return;
         }
-
+        
         if (agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
             agent.isStopped = false;
@@ -111,12 +122,11 @@ public class NPCMove : MonoBehaviour
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * agent.angularSpeed);
             }
-
-            animator.SetTrigger(attackTriggerID);
             
+            animator.SetTrigger(attackTriggerID);
             yield return null;
         }
-
+        
         target = null;
         isRetaliating = false;
     }

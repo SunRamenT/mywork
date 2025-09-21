@@ -48,22 +48,31 @@ public class AlignmentManager : MonoBehaviour
         NotifyAlignmentChange();
     }
 
+    // ▼▼▼ このメソッドのロジックを変更 ▼▼▼
+    /// <summary>
+    /// 敵を倒した際に呼ばれる。相手の評判に関わらず、善行として+1する
+    /// </summary>
     private void HandleTargetDefeated(StatusManager defeatedStatus)
     {
-        if (defeatedStatus.reputation >= 40) AddGoodEvilValue(-10f);
-        else if (defeatedStatus.reputation <= 30) AddGoodEvilValue(5f);
+        AddGoodEvilValue(1f);
     }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     private void HandleGoodDeed() => AddGoodEvilValue(2f);
+    
     public void AddGoodEvilValue(float amount)
     {
         _goodEvilValue = Mathf.Clamp(_goodEvilValue + amount, goodEvilRange.x, goodEvilRange.y);
+        Debug.Log($"[善悪値更新] {amount}変動しました。現在の善悪値: {_goodEvilValue}");
         NotifyAlignmentChange();
     }
+    
     public void AddChaosValue(float amount)
     {
         _chaosValue = Mathf.Clamp(_chaosValue + amount, chaosRange.x, chaosRange.y);
+        Debug.Log($"[カオス値更新] {amount}変動しました。現在のカオス値: {_chaosValue}");
         NotifyAlignmentChange();
     }
+
     private void NotifyAlignmentChange() => OnAlignmentChanged?.Invoke(CurrentAlignment);
 }

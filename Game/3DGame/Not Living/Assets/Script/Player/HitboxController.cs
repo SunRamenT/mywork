@@ -1,3 +1,4 @@
+// HitboxController.cs
 using UnityEngine;
 
 /// <summary>
@@ -11,6 +12,9 @@ public class HitboxController : MonoBehaviour
     // アニメーションイベントから呼び出される
     public void EnableHitboxes()
     {
+        // ▼▼▼ デバッグログを追加 ▼▼▼
+        //Debug.Log($"<color=green>{transform.root.name} の EnableHitboxes が呼ばれました。</color>", transform.root.gameObject);
+
         foreach (var hitbox in attackHitboxes)
         {
             if (hitbox != null)
@@ -23,6 +27,9 @@ public class HitboxController : MonoBehaviour
     // アニメーションイベントから呼び出される
     public void DisableHitboxes()
     {
+        // ▼▼▼ デバッグログを追加 ▼▼▼
+        //Debug.Log($"<color=red>{transform.root.name} の DisableHitboxes が呼ばれました。</color>", transform.root.gameObject);
+
         foreach (var hitbox in attackHitboxes)
         {
             if (hitbox != null)

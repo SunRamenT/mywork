@@ -24,14 +24,17 @@ public class ScoreManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            Debug.Log("[ScoreManager] ScoreManagerが初期化されました。");
         }
         else { Destroy(gameObject); }
     }
 
     private void OnEnable()
     {
+        // --- ▼▼▼ デバッグログを追加 ▼▼▼ ---
+        Debug.Log("[ScoreManager] 各種イベントの購読を開始します...");
         GameEvents.OnHalfDayPassed += AddScoreForTime;
-        GameEvents.OnTargetDefeatedWithInfo += AddScoreForDefeat; // Info版をリッスン
+        GameEvents.OnTargetDefeatedWithInfo += AddScoreForDefeat;
         GameEvents.OnGoodDeedPerformed += AddScoreForGoodDeed;
     }
 
@@ -43,13 +46,20 @@ public class ScoreManager : MonoBehaviour
     }
 
     private void AddScoreForTime() => AddScore(scoreForTimePassage);
-    // 倒した相手の情報は今のところ不要だが、イベントを統一しておく
-    private void AddScoreForDefeat(StatusManager defeatedStatus) => AddScore(scoreForDefeatingTarget);
+    
+    private void AddScoreForDefeat(StatusManager defeatedStatus)
+    {
+        // --- ▼▼▼ デバッグログを追加 ▼▼▼ ---
+        Debug.Log($"<color=green>[ScoreManager] 敵撃破イベントを受信！ {defeatedStatus.gameObject.name} を倒したのでスコアを加算します。</color>");
+        AddScore(scoreForDefeatingTarget);
+    }
+
     private void AddScoreForGoodDeed() => AddScore(scoreForGoodDeed);
 
     public void AddScore(int amount)
     {
         _currentScore = Mathf.Clamp(_currentScore + amount, 0, maxScore);
+        Debug.Log($"[ScoreManager] スコアが {amount} 加算されました。現在のスコア: {_currentScore}");
         OnScoreChanged?.Invoke(_currentScore);
     }
 }
