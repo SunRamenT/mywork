@@ -20,6 +20,7 @@ Material:
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses:
+  - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
