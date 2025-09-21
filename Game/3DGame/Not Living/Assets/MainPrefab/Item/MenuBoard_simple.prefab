@@ -233,12 +233,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.7895503, y: 1.5231538, z: 0.059066117}
-  m_Center: {x: -0.0020329952, y: -0.10727641, z: 0.039244384}
+  m_Size: {x: 0.7895503, y: 1.5231538, z: 1.2832463}
+  m_Center: {x: -0.0020329952, y: -0.10727644, z: -0.5728456}
 --- !u!114 &7673609247595257034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,7 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10721ac0056c22c459aa51517908e885, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  messageUIPrefab: {fileID: 0}
+  messageUIPrefab: {fileID: 2517208496109484821, guid: 513ed2be84c633e46890bdee65e09ff5, type: 3}
   targetCanvas: {fileID: 0}
   message: 
 --- !u!1 &112414
