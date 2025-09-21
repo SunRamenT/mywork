@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: affd85d75c3c8e54b802be2df6f1770f
+timeCreated: 1508584387
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 101989
+  packageName: Menu Chalk Board
+  packageVersion: 1.1
+  assetPath: Assets/MenuBoard/Prefabs/menuboard.prefab
+  uploadId: 240619

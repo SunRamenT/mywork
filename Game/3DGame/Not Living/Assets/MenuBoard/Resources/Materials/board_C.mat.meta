@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9e5fe6e598ea6d44db5bec6ab3b3ea0f
+timeCreated: 1508583952
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 101989
+  packageName: Menu Chalk Board
+  packageVersion: 1.1
+  assetPath: Assets/MenuBoard/Resources/Materials/board_C.mat
+  uploadId: 240619

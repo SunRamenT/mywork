@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0ec022a1a733a8247bb2609547301b0f
+timeCreated: 1449520954
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 101989
+  packageName: Menu Chalk Board
+  packageVersion: 1.1
+  assetPath: Assets/MenuBoard/Doc/ReadMe.txt
+  uploadId: 240619
