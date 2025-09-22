@@ -1,72 +1,61 @@
+// InteractiveSignboard.cs
 using UnityEngine;
-using TMPro; // TextMeshProを使用
+using TMPro;
 
 public class InteractiveSignboard : MonoBehaviour
 {
     [Header("UI設定")]
-    [Tooltip("表示するメッセージUIのプレハブ")]
     [SerializeField] private GameObject messageUIPrefab;
-    [Tooltip("UIを配置するCanvas")]
     [SerializeField] private Canvas targetCanvas;
 
     [Header("メッセージ内容")]
-    [Tooltip("Inspectorで設定するメッセージ内容")]
-    [TextArea(3, 10)] // 複数行入力できるようにする
+    [TextArea(3, 10)]
     [SerializeField] private string message;
 
-    // --- 内部で使う変数 ---
-    private GameObject messageUIInstance; // 生成したUIのインスタンス
-    private Animator uiAnimator; // UIのアニメーションを制御
-    private TextMeshProUGUI messageText; // 表示するテキスト
+    // --- 内部変数 ---
+    private GameObject messageUIInstance;
+    private Animator uiAnimator;
+    private TextMeshProUGUI messageText;
 
-    private void OnTriggerEnter(Collider other)
+    // ▼▼▼ PlayerControllerから呼ばれる公開メソッド ▼▼▼
+    
+    /// <summary>
+    /// プレイヤーが範囲内に入った時に呼び出される
+    /// </summary>
+    public void OnPlayerEnter()
     {
-        // プレイヤー（Ghost）が範囲内に入ったら
-        if (other.CompareTag("Player"))
+        if (messageUIInstance == null)
         {
-            // まだメッセージが表示されていなければ、新しく生成する
-            if (messageUIInstance == null)
+            if (messageUIPrefab == null || targetCanvas == null)
             {
-                // プレハブとCanvasが設定されているか確認
-                if (messageUIPrefab == null || targetCanvas == null)
-                {
-                    Debug.LogError("メッセージUIのプレハブまたはCanvasが設定されていません！", this);
-                    return;
-                }
-
-                // UIを生成し、Canvasの子にする
-                messageUIInstance = Instantiate(messageUIPrefab, targetCanvas.transform);
-
-                // UIから必要なコンポーネントを取得
-                uiAnimator = messageUIInstance.GetComponent<Animator>();
-                // TextMeshProコンポーネントを子オブジェクトから探す
-                messageText = messageUIInstance.GetComponentInChildren<TextMeshProUGUI>();
+                Debug.LogError("メッセージUIのプレハブまたはCanvasが設定されていません！", this);
+                return;
             }
+            messageUIInstance = Instantiate(messageUIPrefab, targetCanvas.transform);
+            uiAnimator = messageUIInstance.GetComponent<Animator>();
+            messageText = messageUIInstance.GetComponentInChildren<TextMeshProUGUI>();
+        }
+        
+        if (messageText != null) messageText.text = message;
 
-            // テキストを設定し、表示アニメーションを再生
-            if (messageText != null)
-            {
-                messageText.text = message;
-            }
-            if (uiAnimator != null)
-            {
-                // "Show"という名前のアニメーションステートに遷移させる
-                uiAnimator.SetBool("IsShown", true);
-            }
+        if (uiAnimator != null)
+        {
+            messageUIInstance.SetActive(true);
+            uiAnimator.SetBool("IsShown", true);
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    /// <summary>
+    /// プレイヤーが範囲外に出た時に呼び出される
+    /// </summary>
+    public void OnPlayerExit()
     {
-        // プレイヤーが範囲外に出たら
-        if (other.CompareTag("Player"))
+        if (messageUIInstance != null && uiAnimator != null)
         {
-            // メッセージが表示されていれば、非表示アニメーションを再生
-            if (messageUIInstance != null && uiAnimator != null)
-            {
-                uiAnimator.SetBool("IsShown", false);
-            }
-            // アニメーションの終了はアニメーターが自動で検知してGameObjectを非アクティブにする（後述）
+            uiAnimator.SetBool("IsShown", false);
         }
     }
+
+    // ▼▼▼ Updateメソッドは不要になったので削除 ▼▼▼
+    // private void Update() { ... }
 }

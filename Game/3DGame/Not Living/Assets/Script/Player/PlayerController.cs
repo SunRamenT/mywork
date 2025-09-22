@@ -16,6 +16,18 @@ public class PlayerController : MonoBehaviour
     [Tooltip("アイテムを検知する半径")]
     public float itemDetectionRadius = 1.5f;
 
+    // ▼▼▼ 看板などを検知するための設定を追加 ▼▼▼
+    [Header("Interaction Settings")]
+    [Tooltip("看板など、インタラクション可能なオブジェクトのレイヤー")]
+    public LayerMask interactableLayer;
+    [Tooltip("インタラクション可能なオブジェクトを検知する半径")]
+    public float interactionRadius = 3f;
+
+    // ▼▼▼ 壁検知用の設定を追加 ▼▼▼
+    [Header("Wall Phasing Settings")]
+    [Tooltip("壁として認識するオブジェクトのレイヤー")]
+    public LayerMask wallLayer;
+
     [Header("Animator Settings")]
     public string attackTriggerName = "Attack";
     public string jumpTriggerName = "Jump";
@@ -39,6 +51,9 @@ public class PlayerController : MonoBehaviour
     private AttackInfo punchAttackInfo;
 
     private Vector3 velocity;
+    
+    //  現在範囲内にいる看板を記憶しておくための変数を追加 
+    private InteractiveSignboard currentSignboard;
 
     private void Awake()
     {
@@ -47,7 +62,7 @@ public class PlayerController : MonoBehaviour
         ghostAnimator = GetComponent<Animator>();
         reikonManager = GetComponent<ReikonManager>();
         nottoriController = GetComponent<NottoriController>();
-        
+
         currentCharacter = ghost;
         currentController = ghostController;
         currentAnimator = ghostAnimator;
@@ -110,9 +125,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // ▼▼▼ アイテム検知処理をUpdateの最初に追加 ▼▼▼
         CheckForRecoveryItems();
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        CheckForInteractables();
+        UpdatePhasingState(); 
 
         if (nottoriController.isPossessing && targetNPC == null)
         {
@@ -190,8 +205,69 @@ public class PlayerController : MonoBehaviour
             ghost.transform.rotation = targetNPC.transform.rotation;
         }
     }
+
+    // ▼▼▼ 壁抜け状態を検知・通知する新しいメソッドを追加 ▼▼▼
+    private void UpdatePhasingState()
+    {
+        // 憑依中は壁抜け判定を行わない
+        if (IsPossessing())
+        {
+            // ReikonManagerの状態を「憑依中」として更新
+            reikonManager.UpdateState(false, true);
+            return;
+        }
+
+        // --- 幽霊状態の時の処理 ---
+        
+        // CharacterControllerのサイズと位置を使って、仮想的なチェックボックスを作成
+        Vector3 boxCenter = transform.position + currentController.center;
+        Vector3 halfExtents = new Vector3(currentController.radius, currentController.height / 2, currentController.radius);
+        
+        // チェックボックスが "wallLayer" と重なっているか判定
+        bool isInsideWall = Physics.CheckBox(boxCenter, halfExtents, transform.rotation, wallLayer);
+
+        // ReikonManagerに現在の状態を通知
+        // isPhasing: 壁の中にいるか？ / isPossessing: 憑依中か？(ここではfalse)
+        reikonManager.UpdateState(isInsideWall, false);
+    }
     
-    // ▼▼▼ 新しく追加したメソッド ▼▼▼
+    // ▼▼▼ インタラクション可能オブジェクトを検知する新しいメソッドを追加 ▼▼▼
+    private void CheckForInteractables()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactionRadius, interactableLayer);
+
+        InteractiveSignboard closestSign = null;
+        if (hitColliders.Length > 0)
+        {
+            // 1. 最も近いコライダーを1つだけ見つける
+            Collider closestCollider = hitColliders
+                .OrderBy(c => (transform.position - c.transform.position).sqrMagnitude)
+                .FirstOrDefault();
+
+            // 2. そのコライダーからコンポーネントを取得する
+            if (closestCollider != null)
+            {
+                closestSign = closestCollider.GetComponent<InteractiveSignboard>();
+            }
+        }
+
+        // --- 状態の比較と通知 ---
+        if (closestSign != null && closestSign != currentSignboard)
+        {
+            if (currentSignboard != null)
+            {
+                currentSignboard.OnPlayerExit();
+            }
+            currentSignboard = closestSign;
+            currentSignboard.OnPlayerEnter();
+        }
+        else if (closestSign == null && currentSignboard != null)
+        {
+            currentSignboard.OnPlayerExit();
+            currentSignboard = null;
+        }
+    }
+    
     /// <summary>
     /// 物理判定に頼らず、キャラクターの周囲にある回復アイテムを検知して取得する
     /// </summary>
@@ -221,7 +297,7 @@ public class PlayerController : MonoBehaviour
         Destroy(item.gameObject);
     }
     
-    // ▼▼▼ 既存のOnTriggerEnterは不要になるため、コメントアウトまたは削除してもOK ▼▼▼
+    
     /*
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {

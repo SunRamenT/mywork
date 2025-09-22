@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 22348872}
   - component: {fileID: 11450934}
   - component: {fileID: 11474094}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -114,7 +114,7 @@ GameObject:
   - component: {fileID: 22465022}
   - component: {fileID: 22218828}
   - component: {fileID: 11428742}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -193,7 +193,7 @@ GameObject:
   - component: {fileID: 448188}
   - component: {fileID: 65251386570402468}
   - component: {fileID: 7673609247595257034}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: MenuBoard_simple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -253,7 +253,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   messageUIPrefab: {fileID: 2517208496109484821, guid: 513ed2be84c633e46890bdee65e09ff5, type: 3}
   targetCanvas: {fileID: 0}
-  message: 
+  detectionRadius: 2
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  message: aaaa
 --- !u!1 &112414
 GameObject:
   m_ObjectHideFlags: 0
@@ -265,7 +269,7 @@ GameObject:
   - component: {fileID: 460100}
   - component: {fileID: 3381344}
   - component: {fileID: 2346258}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -351,7 +355,7 @@ GameObject:
   - component: {fileID: 406050}
   - component: {fileID: 3343164}
   - component: {fileID: 2364634}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Board
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -437,7 +441,7 @@ GameObject:
   - component: {fileID: 22489102}
   - component: {fileID: 22216864}
   - component: {fileID: 11416696}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}

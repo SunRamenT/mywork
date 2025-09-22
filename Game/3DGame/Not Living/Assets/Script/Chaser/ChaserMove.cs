@@ -8,7 +8,6 @@ public class ChaserMove : MonoBehaviour
     private NavMeshAgent agent;
     private Transform player;
 
-    //  AgentType切り替え用の変数をインデックスベースに変更 
     [Header("Agent Type Settings")]
     [Tooltip("徘徊時に使用するAgentTypeのインデックス番号 (通常は0)")]
     public int humanoidAgentTypeIndex = 0;
@@ -44,11 +43,9 @@ public class ChaserMove : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         
-        // ▼▼▼ インデックス番号からAgentTypeのIDを取得 ▼▼▼
         humanoidAgentTypeID = NavMesh.GetSettingsByIndex(humanoidAgentTypeIndex).agentTypeID;
         chaserAgentTypeID = NavMesh.GetSettingsByIndex(chaserAgentTypeIndex).agentTypeID;
 
-        // 初期状態をHumanoidモードに設定
         initialAcceleration = agent.acceleration;
         agent.agentTypeID = humanoidAgentTypeID;
         agent.speed = humanoidSpeed;
@@ -80,21 +77,20 @@ public class ChaserMove : MonoBehaviour
         {
             case AIState.Patrolling:
                 LookForPlayer();
-                if (!agent.pathPending && agent.remainingDistance < 0.5f)
+                if (agent.isOnNavMesh && !agent.pathPending && agent.remainingDistance < 0.5f)
                 {
                     SetNewPatrolDestination();
                 }
                 break;
 
             case AIState.Chasing:
-                agent.SetDestination(player.position);
+                if (agent.isOnNavMesh) agent.SetDestination(player.position);
                 
                 if (!IsPlayerInSight())
                 {
                     timeSinceLastSeenPlayer += Time.deltaTime;
                     if (timeSinceLastSeenPlayer > losePlayerTime)
                     {
-                        // Humanoidモードに復帰
                         currentState = AIState.Patrolling;
                         agent.agentTypeID = humanoidAgentTypeID;
                         agent.speed = humanoidSpeed;
@@ -114,7 +110,6 @@ public class ChaserMove : MonoBehaviour
     {
         if (IsPlayerInSight())
         {
-            // Chaserモードへ移行
             currentState = AIState.Chasing;
             agent.agentTypeID = chaserAgentTypeID;
             agent.speed = chaserSpeed;
@@ -122,8 +117,7 @@ public class ChaserMove : MonoBehaviour
             timeSinceLastSeenPlayer = 0f;
         }
     }
-
-    // ... (IsPlayerInSight以下の他の関数は変更なし) ...
+    
     bool IsPlayerInSight()
     {
         if (player == null) return false;
@@ -142,8 +136,16 @@ public class ChaserMove : MonoBehaviour
     {
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
-        NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1);
-        agent.SetDestination(hit.position);
+        
+        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))
+        {
+            // ▼▼▼ ここに安全確認を追加 ▼▼▼
+            // エージェントがNavMesh上に存在する場合にのみ、目的地を設定する
+            if (agent.isOnNavMesh)
+            {
+                agent.SetDestination(hit.position);
+            }
+        }
     }
     
     private void OnCollisionEnter(Collision collision)
