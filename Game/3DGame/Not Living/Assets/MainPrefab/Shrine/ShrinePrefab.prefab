@@ -130,6 +130,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_Place Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 5978821765221760839, guid: 594712c9ebc0d824e98424350fda86ff, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 6463468226773444093, guid: 594712c9ebc0d824e98424350fda86ff, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -235,6 +239,10 @@ PrefabInstance:
     - target: {fileID: 2148709571479177014, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
       propertyPath: m_Name
       value: Wall_1_3 Variant Asia (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2148709571479177014, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -456,6 +464,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wall_1_Gate Variant Asia
       objectReference: {fileID: 0}
+    - target: {fileID: 7176930210617970968, guid: e06f11670ceb0274eb0575964bdb58d6, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 7553175034858507170, guid: e06f11670ceb0274eb0575964bdb58d6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -517,6 +529,10 @@ PrefabInstance:
     - target: {fileID: 5944711313324560517, guid: 9f572511101e2144e8b3fedc26589fcd, type: 3}
       propertyPath: m_Name
       value: Fence_4_1 Variant Asia
+      objectReference: {fileID: 0}
+    - target: {fileID: 5944711313324560517, guid: 9f572511101e2144e8b3fedc26589fcd, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 6427775616011242047, guid: 9f572511101e2144e8b3fedc26589fcd, type: 3}
       propertyPath: m_LocalScale.x
@@ -591,6 +607,10 @@ PrefabInstance:
     - target: {fileID: 141484791278186700, guid: d0f909bc4a884e744846363e2135434e, type: 3}
       propertyPath: m_Name
       value: Wall_1_5 Variant Asia
+      objectReference: {fileID: 0}
+    - target: {fileID: 141484791278186700, guid: d0f909bc4a884e744846363e2135434e, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 773905585609501302, guid: d0f909bc4a884e744846363e2135434e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -698,6 +718,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wall_1_3 Variant Asia
       objectReference: {fileID: 0}
+    - target: {fileID: 2148709571479177014, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -763,6 +787,10 @@ PrefabInstance:
     - target: {fileID: 1731782411820496093, guid: e22eea18251356c4a931f57a5654fbd8, type: 3}
       propertyPath: m_Name
       value: Fence_2_1 Variant Asia
+      objectReference: {fileID: 0}
+    - target: {fileID: 1731782411820496093, guid: e22eea18251356c4a931f57a5654fbd8, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4264129240923144068, guid: e22eea18251356c4a931f57a5654fbd8, type: 3}
@@ -871,6 +899,10 @@ PrefabInstance:
     - target: {fileID: 4718500896034386199, guid: 119b77f2b4524534bb7bc05594178bd6, type: 3}
       propertyPath: m_Name
       value: Witchered_Tree_1 Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 4718500896034386199, guid: 119b77f2b4524534bb7bc05594178bd6, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 5345961032660396973, guid: 119b77f2b4524534bb7bc05594178bd6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -981,6 +1013,10 @@ PrefabInstance:
     - target: {fileID: 2148709571479177014, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
       propertyPath: m_Name
       value: Wall_1_3 Variant Asia (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2148709571479177014, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4536255014674336879, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
       propertyPath: m_Convex
@@ -1126,6 +1162,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wall_1_3 Variant Asia (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 2148709571479177014, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1187,6 +1227,10 @@ PrefabInstance:
     - target: {fileID: 7737708966390730924, guid: 205d20f8a2b14b34c9875150c9e4b9c9, type: 3}
       propertyPath: m_Name
       value: Tora_2 Variant Asia
+      objectReference: {fileID: 0}
+    - target: {fileID: 7737708966390730924, guid: 205d20f8a2b14b34c9875150c9e4b9c9, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1250,6 +1294,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wall_1_4 Variant Asia (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 7552141005157637416, guid: 230539e62c38e6c4dae35c789b7bd1d2, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1311,6 +1359,10 @@ PrefabInstance:
     - target: {fileID: 7552141005157637416, guid: 230539e62c38e6c4dae35c789b7bd1d2, type: 3}
       propertyPath: m_Name
       value: Wall_1_4 Variant Asia (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7552141005157637416, guid: 230539e62c38e6c4dae35c789b7bd1d2, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1381,6 +1433,10 @@ PrefabInstance:
     - target: {fileID: 2148709571479177014, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
       propertyPath: m_Name
       value: Wall_1_3 Variant Asia (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2148709571479177014, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4536255014674336879, guid: 4cca08de9e2542847bb2f0c25c1eaab8, type: 3}
       propertyPath: m_Convex
@@ -1510,6 +1566,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wall_1_4 Variant Asia (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 7552141005157637416, guid: 230539e62c38e6c4dae35c789b7bd1d2, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1634,6 +1694,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Witchered_Tree_2 Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 8779504537895299278, guid: 1933cccad30ef3c43a0e70b15f502074, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1695,6 +1759,10 @@ PrefabInstance:
     - target: {fileID: 7552141005157637416, guid: 230539e62c38e6c4dae35c789b7bd1d2, type: 3}
       propertyPath: m_Name
       value: Wall_1_4 Variant Asia
+      objectReference: {fileID: 0}
+    - target: {fileID: 7552141005157637416, guid: 230539e62c38e6c4dae35c789b7bd1d2, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
