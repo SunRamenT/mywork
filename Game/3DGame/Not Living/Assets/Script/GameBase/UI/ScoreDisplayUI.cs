@@ -34,14 +34,14 @@ public class ScoreDisplayUI : MonoBehaviour
     }
     
     /// <summary>
-    /// スコアの数値を受け取り、6桁のゼロ埋め形式でテキストを更新する
+    /// スコアの数値を受け取り、9桁のゼロ埋め形式でテキストを更新する
     /// </summary>
     private void UpdateScoreText(int newScore)
     {
         if (scoreText != null)
         {
-            // "D6"は「6桁の整数（足りない分は0で埋める）」という書式設定
-            scoreText.text = newScore.ToString("D6");
+            // "D9"は「9桁の整数（足りない分は0で埋める）」という書式設定
+            scoreText.text = newScore.ToString("D9");
         }
     }
 }

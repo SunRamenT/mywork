@@ -123,38 +123,30 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Update()
+     private void Update()
     {
-        // 乗っ取り中のはずなのに、対象のNPCが（ジェネレーターなどによって）破壊されていた場合
-        if (IsPossessing() && targetNPC == null)
-        {
-            Debug.LogWarning("乗っ取り対象が消滅したため、強制的に憑依解除します。");
-            // 霊魂ダメージなどのペナルティ処理
-            if (reikonManager != null && nottoriController != null) 
-            {
-                reikonManager.TakeDamage(nottoriController.deathPenaltyAmount);
-            }
-            // 憑依解除処理を呼び出す
-            nottoriController.ForceRelease();
-            return; // このフレームの以降の処理は行わない
-        }
-
-        CheckForRecoveryItems();
-        CheckForInteractables();
-        UpdatePhasingState(); 
-
+        // ▼▼▼ この安全確認をUpdateの一番最初に配置し、重複を削除 ▼▼▼
+        // 乗っ取り中のはずなのに、対象のNPCが破壊されていた場合
         if (nottoriController.isPossessing && targetNPC == null)
         {
+            Debug.LogWarning("乗っ取り対象が消滅したため、強制的に憑依解除します。");
+            
             if (reikonManager != null && nottoriController != null)
             {
                 reikonManager.TakeDamage(nottoriController.deathPenaltyAmount);
             }
+            
             nottoriController.ForceRelease();
-            return;
+            return; // このフレームの以降の処理は行わず、安全に終了する
         }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+        CheckForRecoveryItems();
+        CheckForInteractables();
+        UpdatePhasingState();
 
         if (!currentController || !currentController.enabled) return;
-        
+
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -162,7 +154,7 @@ public class PlayerController : MonoBehaviour
         {
             currentAnimator.SetFloat("Hor", h);
             currentAnimator.SetFloat("Vert", v);
-            
+
             if (Input.GetButtonDown("Fire1"))
             {
                 if (npcStatusManager != null && punchAttackInfo != null)
@@ -212,14 +204,13 @@ public class PlayerController : MonoBehaviour
 
         Vector3 finalMove = move + new Vector3(0, velocity.y, 0);
         currentController.Move(finalMove * Time.deltaTime);
-        
+
         if (targetNPC != null)
         {
             ghost.transform.position = targetNPC.transform.position;
             ghost.transform.rotation = targetNPC.transform.rotation;
         }
     }
-
     // ▼▼▼ 壁抜け状態を検知・通知する新しいメソッドを追加 ▼▼▼
     private void UpdatePhasingState()
     {
