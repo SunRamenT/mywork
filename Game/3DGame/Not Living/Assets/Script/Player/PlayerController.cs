@@ -125,6 +125,20 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // 乗っ取り中のはずなのに、対象のNPCが（ジェネレーターなどによって）破壊されていた場合
+        if (IsPossessing() && targetNPC == null)
+        {
+            Debug.LogWarning("乗っ取り対象が消滅したため、強制的に憑依解除します。");
+            // 霊魂ダメージなどのペナルティ処理
+            if (reikonManager != null && nottoriController != null) 
+            {
+                reikonManager.TakeDamage(nottoriController.deathPenaltyAmount);
+            }
+            // 憑依解除処理を呼び出す
+            nottoriController.ForceRelease();
+            return; // このフレームの以降の処理は行わない
+        }
+
         CheckForRecoveryItems();
         CheckForInteractables();
         UpdatePhasingState(); 
@@ -193,7 +207,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-             velocity.y = 0;
+            velocity.y += Physics.gravity.y * Time.deltaTime;
         }
 
         Vector3 finalMove = move + new Vector3(0, velocity.y, 0);

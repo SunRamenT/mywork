@@ -1,47 +1,40 @@
 using UnityEngine;
+using UnityEngine.UI; // Imageコンポーネント用に必要
+using TMPro;          // TextMeshPro用に必要
 using System;
 
 public class ReikonManager : MonoBehaviour
 {
     [Header("霊魂（体力）設定")]
-    [Tooltip("霊魂の最大値")]
     public float maxSpirit = 100f;
-    [Tooltip("現在の霊魂")]
     [SerializeField]
     private float currentSpirit;
 
     [Header("霊魂の減少速度")]
-    [Tooltip("通常時の1秒あたりの減少量")]
     public float baseDrainSpeed = 1f;
-    [Tooltip("壁抜け時の減少速度の倍率")]
     public float phasingDrainMultiplier = 2f;
-    [Tooltip("憑依（とりつき）中の減少速度の倍率")]
     public float possessionDrainMultiplier = 1.5f;
 
+    // ▼▼▼ UI設定を新しいものに変更 ▼▼▼
     [Header("UI設定")]
-    [Tooltip("霊魂の残量を表示するUIオブジェクト")]
-    public Transform spiritBar;
+    [Tooltip("青い炎を表示するImageコンポーネント")]
+    public Image flameImage;
+    [Tooltip("霊魂の数値を表示するTextMeshProUGUIコンポーネント")]
+    public TextMeshProUGUI amountText;
+    [Tooltip("霊魂が最大の時の炎の大きさ")]
+    public Vector2 maxFlameSize = new Vector2(100f, 100f);
+    [Tooltip("霊魂が0の時の炎の大きさ")]
+    public Vector2 minFlameSize = new Vector2(20f, 20f);
 
     public static event Action OnSpiritDepleted;
 
-    private Vector3 initialBarScale;
-    
     private bool isPhasing = false;
     private bool isPossessing = false;
 
     void Start()
     {
         currentSpirit = maxSpirit;
-        if (spiritBar != null)
-        {
-            initialBarScale = spiritBar.localScale;
-        }
-        
-        PlayerController player = GetComponent<PlayerController>();
-        if (player != null)
-        {
-            UpdateState(!player.IsCollisionsEnabled(), player.IsPossessing());
-        }
+        UpdateSpiritUI(); // UIの初期表示を更新
     }
 
     void Update()
@@ -60,7 +53,7 @@ public class ReikonManager : MonoBehaviour
         
         currentSpirit -= baseDrainSpeed * currentMultiplier * Time.deltaTime;
         
-        UpdateSpiritBar();
+        UpdateSpiritUI(); // 毎フレームUIを更新
 
         if (currentSpirit <= 0)
         {
@@ -70,12 +63,24 @@ public class ReikonManager : MonoBehaviour
         }
     }
 
-    private void UpdateSpiritBar()
+    // ▼▼▼ UI更新メソッドを新しいロジックに変更 ▼▼▼
+    private void UpdateSpiritUI()
     {
-        if (spiritBar != null)
+        // 現在の霊魂の割合を計算 (0.0～1.0の範囲)
+        float percentage = currentSpirit / maxSpirit;
+
+        // 数値テキストの更新
+        if (amountText != null)
         {
-            float percentage = currentSpirit / maxSpirit;
-            spiritBar.localScale = new Vector3(initialBarScale.x * percentage, initialBarScale.y, initialBarScale.z);
+            // Mathf.CeilToIntで小数点以下を切り上げて整数にする
+            amountText.text = Mathf.CeilToInt(currentSpirit).ToString();
+        }
+
+        // 炎の大きさの更新
+        if (flameImage != null)
+        {
+            // Vector2.Lerpを使って、最小サイズと最大サイズの間を割合に応じて線形補間する
+            flameImage.rectTransform.sizeDelta = Vector2.Lerp(minFlameSize, maxFlameSize, percentage);
         }
     }
     
@@ -87,19 +92,15 @@ public class ReikonManager : MonoBehaviour
     
     public void Heal(float amount)
     {
-        currentSpirit += amount;
-        if (currentSpirit > maxSpirit)
-        {
-            currentSpirit = maxSpirit;
-        }
-        UpdateSpiritBar();
+        currentSpirit = Mathf.Clamp(currentSpirit + amount, 0, maxSpirit);
+        UpdateSpiritUI(); // UIを更新
         Debug.Log($"{amount} の霊魂を回復！ 現在値: {currentSpirit}");
     }
 
     public void TakeDamage(float amount)
     {
         currentSpirit -= amount;
-        UpdateSpiritBar();
+        UpdateSpiritUI(); // UIを更新
         Debug.Log($"{amount} の霊魂ダメージ！ 現在値: {currentSpirit}");
     }
 }
