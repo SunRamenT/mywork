@@ -61,6 +61,11 @@ public class PlayerController : MonoBehaviour
     /// 現在の特殊能力を外部から読み取るためのプロパティ
     public ISpecialAction CurrentSpecialAction => currentSpecialAction;
 
+    /// 現在操作しているキャラクターのTransformを外部（CameraControllerなど）に公開する
+    /// </summary>
+    public Transform CurrentCharacterTransform => currentCharacter != null ? currentCharacter.transform : this.transform;
+
+
     private void Awake()
     {
         ghost = this.gameObject;

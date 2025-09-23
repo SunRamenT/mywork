@@ -253,10 +253,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   messageUIPrefab: {fileID: 2517208496109484821, guid: 513ed2be84c633e46890bdee65e09ff5, type: 3}
   targetCanvas: {fileID: 0}
-  detectionRadius: 2
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 8
   message: aaaa
 --- !u!1 &112414
 GameObject:
