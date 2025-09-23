@@ -21,7 +21,6 @@ public class NPCMove : MonoBehaviour
     public string verticalID = "Vert";
     public string stateID = "State";
 
-    // ▼▼▼ isNottoried をプロパティに変更 ▼▼▼
     [Header("乗っ取り判定")]
     private bool _isNottoried = false;
     public bool isNottoried
@@ -30,19 +29,14 @@ public class NPCMove : MonoBehaviour
         set
         {
             _isNottoried = value;
-            // isNottoriedがtrueに設定された瞬間に、以下の処理を自動で実行する
             if (_isNottoried)
             {
-                // 実行中の全てのAI行動（反撃など）を強制的に停止させる
                 StopAllCoroutines();
-                // ターゲットが残っているとUpdateで追跡しようとするため、クリアする
                 target = null;
-                // 反撃状態フラグもリセットする
                 isRetaliating = false;
             }
         }
     }
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     private NavMeshAgent agent;
     private Animator animator;
@@ -77,10 +71,17 @@ public class NPCMove : MonoBehaviour
             return;
         }
         
-        if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+        // ▼▼▼ この安全確認を強化 ▼▼▼
+        // エージェントが無効、またはNavMesh上にいない場合は、AIのロジックを実行しない
+        if (!agent.enabled || !agent.isOnNavMesh)
         {
-            agent.isStopped = false;
+            // アニメーションだけは更新しておく
+            CalculateAndAnimate();
+            return;
         }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+        agent.isStopped = false;
 
         if (target != null)
         {
@@ -88,6 +89,7 @@ public class NPCMove : MonoBehaviour
         }
         else
         {
+            // パス計算中か、目的地に到着した場合
             if (!isRetaliating && !agent.pathPending && agent.remainingDistance < 0.5f)
             {
                 SetNewPatrolDestination();
@@ -109,20 +111,17 @@ public class NPCMove : MonoBehaviour
     {
         isRetaliating = true;
         target = attackerTransform;
-
         float retaliationEndTime = Time.time + retaliationDuration;
 
         while (Time.time < retaliationEndTime)
         {
             if (target == null) break;
-
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
             if(direction != Vector3.zero)
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * agent.angularSpeed);
             }
-            
             animator.SetTrigger(attackTriggerID);
             yield return null;
         }
@@ -133,7 +132,10 @@ public class NPCMove : MonoBehaviour
 
     private void CalculateAndAnimate()
     {
-        Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
+        // エージェントが無効な場合は、速度を0としてアニメーションを更新
+        Vector3 velocity = (agent.enabled && agent.isOnNavMesh) ? agent.velocity : Vector3.zero;
+        
+        Vector3 localVelocity = transform.InverseTransformDirection(velocity);
         Vector2 targetAxis = new Vector2(localVelocity.x / agent.speed, localVelocity.z / agent.speed);
         float targetState = (target != null) ? 1.0f : 0.0f;
         UpdateAnimation(targetAxis, targetState);
@@ -144,7 +146,6 @@ public class NPCMove : MonoBehaviour
         float deltaTime = Time.deltaTime;
         flowAxis = Vector2.MoveTowards(flowAxis, axis, AnimationFlowSpeed * deltaTime);
         flowState = Mathf.MoveTowards(flowState, state, AnimationFlowSpeed * deltaTime);
-        
         animator.SetFloat(horizontalID, flowAxis.x);
         animator.SetFloat(verticalID, flowAxis.y);
         animator.SetFloat(stateID, flowState);
@@ -152,9 +153,9 @@ public class NPCMove : MonoBehaviour
 
     void SetNewPatrolDestination()
     {
+        if (!agent.isOnNavMesh) return;
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
-        
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))
         {
             if (agent.isOnNavMesh)

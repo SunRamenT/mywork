@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AI;
 
 public class StatusManager : MonoBehaviour
 {
@@ -42,10 +43,13 @@ public class StatusManager : MonoBehaviour
     private int lastHealHour = -1;
     private NPCMove npcMove;
 
+    private NavMeshAgent agent;
+
     private void Awake()
     {
         // modelRenderer = GetComponentInChildren<Renderer>(); // ← この行を削除またはコメントアウト
         npcMove = GetComponent<NPCMove>();
+        agent = GetComponent<NavMeshAgent>();
     }
 
 
@@ -177,7 +181,43 @@ public class StatusManager : MonoBehaviour
         Debug.Log($"[評判更新] {victimStatus.gameObject.name}を倒したため、{this.gameObject.name}の評判が{reputationChange}変動しました。現在の評判: {this.reputation}");
     }
 
-    
+    /// 外部（爆弾など）から呼び出され、吹き飛ばし処理を開始する
+    /// </summary>
+    public void ApplyKnockback(Vector3 direction, float force, float duration)
+    {
+        // isNottoriedフラグがない場合はnpcMoveで代用
+        if (npcMove != null && npcMove.isNottoried)
+        {
+            // 乗っ取り中のNPCは吹き飛ばないようにする
+            return;
+        }
+        StartCoroutine(KnockbackCoroutine(direction, force, duration));
+    }
+
+    private IEnumerator KnockbackCoroutine(Vector3 direction, float force, float duration)
+    {
+        // 吹き飛ばされている間、AIの動きを止める
+        if (agent != null)
+        {
+            agent.enabled = false;
+        }
+        
+        float timer = 0;
+        while (timer < duration)
+        {
+            // キャラクターを吹き飛ばし方向に動かす
+            // （CharacterControllerを持つオブジェクトでも機能する）
+            transform.position += direction * force * Time.deltaTime;
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        // 吹き飛ばしが終わったら、AIの動きを元に戻す
+        if (agent != null)
+        {
+            agent.enabled = true;
+        }
+    }
     private void HandleTimeChange(int hour, int minute)
     {
         if (hour != lastHealHour)
