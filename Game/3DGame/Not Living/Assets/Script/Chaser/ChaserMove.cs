@@ -1,36 +1,42 @@
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class ChaserMove : MonoBehaviour
 {
     private NavMeshAgent agent;
     private Transform player;
+    private ReikonManager reikonManager;
+
+    [Header("コンポーネント参照")]
+    [Tooltip("視界を可視化するためのSpotlight")]
+    public Light sightLight;
+
+    [Header("Light Settings")]
+    [Tooltip("通常（徘徊）時のライトの色")]
+    public Color patrolLightColor = Color.yellow;
+    [Tooltip("プレイヤー発見（追跡）時のライトの色")]
+    public Color chasingLightColor = Color.red;
 
     [Header("Agent Type Settings")]
-    [Tooltip("徘徊時に使用するAgentTypeのインデックス番号 (通常は0)")]
     public int humanoidAgentTypeIndex = 0;
-    [Tooltip("追跡時に使用するAgentTypeのインデックス番号 (通常は1)")]
     public int chaserAgentTypeIndex = 1;
     private int humanoidAgentTypeID;
     private int chaserAgentTypeID;
 
     [Header("AI States")]
-    [Tooltip("徘徊時の移動速度")]
     public float humanoidSpeed = 3.5f;
-    [Tooltip("追跡時の移動速度")]
     public float chaserSpeed = 7.0f;
-    [Tooltip("追跡時の加速度")]
     public float chaserAcceleration = 16f;
     private float initialAcceleration;
 
     [Header("AI Settings")]
     public float sightRadius = 15f;
-    [Range(0, 180)]
+    [Range(0, 90)]
     public float sightAngle = 60f;
     public float patrolRadius = 30f;
     public float losePlayerTime = 5.0f;
+    public float dangerAuraRadius = 10f;
 
     [Header("遮蔽物チェック用")]
     public LayerMask obstacleMask;
@@ -38,6 +44,7 @@ public class ChaserMove : MonoBehaviour
     private enum AIState { Patrolling, Chasing }
     private AIState currentState;
     private float timeSinceLastSeenPlayer = 0f;
+    private bool isPlayerInAura = false;
 
     void Start()
     {
@@ -54,6 +61,7 @@ public class ChaserMove : MonoBehaviour
         if (playerObject != null)
         {
             player = playerObject.transform;
+            reikonManager = playerObject.GetComponent<ReikonManager>();
         }
         else
         {
@@ -61,30 +69,40 @@ public class ChaserMove : MonoBehaviour
             enabled = false;
             return;
         }
-
-        if (TryGetComponent<SphereCollider>(out var sphereCollider))
-        {
-            sphereCollider.enabled = false;
-        }
-
+        
         currentState = AIState.Patrolling;
         SetNewPatrolDestination();
+        UpdateSightLight();
+        
+        if (sightLight != null)
+        {
+            sightLight.color = patrolLightColor;
+        }
     }
 
     void Update()
     {
+        // ▼▼▼ この安全確認を追加 ▼▼▼
+        // エージェントが無効、またはNavMesh上にいない場合は、AIのロジックを実行しない
+        if (!agent.enabled || !agent.isOnNavMesh)
+        {
+            return; // このフレームの処理を中断
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         switch (currentState)
         {
             case AIState.Patrolling:
                 LookForPlayer();
-                if (agent.isOnNavMesh && !agent.pathPending && agent.remainingDistance < 0.5f)
+                // pathPending: パス計算中かどうか。計算中にremainingDistanceにアクセスするとエラーになることがある
+                if (!agent.pathPending && agent.remainingDistance < 0.5f)
                 {
                     SetNewPatrolDestination();
                 }
                 break;
 
             case AIState.Chasing:
-                if (agent.isOnNavMesh) agent.SetDestination(player.position);
+                agent.SetDestination(player.position);
                 
                 if (!IsPlayerInSight())
                 {
@@ -96,6 +114,11 @@ public class ChaserMove : MonoBehaviour
                         agent.speed = humanoidSpeed;
                         agent.acceleration = initialAcceleration;
                         SetNewPatrolDestination();
+
+                        if (sightLight != null)
+                        {
+                            sightLight.color = patrolLightColor;
+                        }
                     }
                 }
                 else
@@ -104,6 +127,7 @@ public class ChaserMove : MonoBehaviour
                 }
                 break;
         }
+        CheckDangerAura();
     }
     
     void LookForPlayer()
@@ -115,6 +139,46 @@ public class ChaserMove : MonoBehaviour
             agent.speed = chaserSpeed;
             agent.acceleration = chaserAcceleration;
             timeSinceLastSeenPlayer = 0f;
+
+            if (sightLight != null)
+            {
+                sightLight.color = chasingLightColor;
+            }
+        }
+    }
+
+    private void UpdateSightLight()
+    {
+        if (sightLight != null)
+        {
+            sightLight.range = sightRadius;
+            sightLight.spotAngle = sightAngle * 2;
+        }
+    }
+
+    private void CheckDangerAura()
+    {
+        if (player == null || reikonManager == null) return;
+
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        if (distanceToPlayer <= dangerAuraRadius && !isPlayerInAura)
+        {
+            isPlayerInAura = true;
+            reikonManager.OnChaserEnterAura();
+        }
+        else if (distanceToPlayer > dangerAuraRadius && isPlayerInAura)
+        {
+            isPlayerInAura = false;
+            reikonManager.OnChaserExitAura();
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        if (isPlayerInAura && reikonManager != null)
+        {
+            reikonManager.OnChaserExitAura();
         }
     }
     
@@ -134,26 +198,15 @@ public class ChaserMove : MonoBehaviour
 
     void SetNewPatrolDestination()
     {
+        if (!agent.isOnNavMesh) return;
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
-        
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))
         {
-            // ▼▼▼ ここに安全確認を追加 ▼▼▼
-            // エージェントがNavMesh上に存在する場合にのみ、目的地を設定する
             if (agent.isOnNavMesh)
             {
                 agent.SetDestination(hit.position);
             }
-        }
-    }
-    
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.transform == player)
-        {
-            Debug.Log("プレイヤーが捕まった！ゲームオーバー！");
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 
@@ -166,5 +219,13 @@ public class ChaserMove : MonoBehaviour
         Vector3 leftDir = Quaternion.Euler(0, -sightAngle, 0) * transform.forward;
         Gizmos.DrawRay(transform.position, rightDir * sightRadius);
         Gizmos.DrawRay(transform.position, leftDir * sightRadius);
+        
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, dangerAuraRadius);
+
+        if (Application.isEditor && !Application.isPlaying)
+        {
+            UpdateSightLight();
+        }
     }
 }

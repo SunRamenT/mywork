@@ -1,6 +1,6 @@
 using UnityEngine;
-using UnityEngine.UI; // Imageコンポーネント用に必要
-using TMPro;          // TextMeshPro用に必要
+using UnityEngine.UI;
+using TMPro;
 using System;
 
 public class ReikonManager : MonoBehaviour
@@ -14,8 +14,9 @@ public class ReikonManager : MonoBehaviour
     public float baseDrainSpeed = 1f;
     public float phasingDrainMultiplier = 2f;
     public float possessionDrainMultiplier = 1.5f;
+    [Tooltip("Chaser接近時の減少速度の倍率")]
+    public float chaserDrainMultiplier = 3f;
 
-    // ▼▼▼ UI設定を新しいものに変更 ▼▼▼
     [Header("UI設定")]
     [Tooltip("青い炎を表示するImageコンポーネント")]
     public Image flameImage;
@@ -25,16 +26,24 @@ public class ReikonManager : MonoBehaviour
     public Vector2 maxFlameSize = new Vector2(100f, 100f);
     [Tooltip("霊魂が0の時の炎の大きさ")]
     public Vector2 minFlameSize = new Vector2(20f, 20f);
+    [Tooltip("霊魂の減少が加速している時に表示するエフェクト")]
+    public GameObject debuffEffect;
 
     public static event Action OnSpiritDepleted;
 
     private bool isPhasing = false;
     private bool isPossessing = false;
+    private int nearbyChaserCount = 0;
 
     void Start()
     {
         currentSpirit = maxSpirit;
-        UpdateSpiritUI(); // UIの初期表示を更新
+        UpdateSpiritUI();
+        
+        if (debuffEffect != null)
+        {
+            debuffEffect.SetActive(false);
+        }
     }
 
     void Update()
@@ -42,18 +51,33 @@ public class ReikonManager : MonoBehaviour
         if (currentSpirit <= 0) return;
 
         float currentMultiplier = 1.0f;
-        if (isPossessing)
+        
+        // 優先順位1: Chaser接近中
+        if (nearbyChaserCount > 0)
+        {
+            currentMultiplier = chaserDrainMultiplier;
+        }
+        // 優先順位2: 憑依中
+        else if (isPossessing)
         {
             currentMultiplier = possessionDrainMultiplier;
         }
+        // 優先順位3: 壁抜け中
         else if (isPhasing)
         {
             currentMultiplier = phasingDrainMultiplier;
         }
         
+        // デバフエフェクトの表示判定
+        if (debuffEffect != null)
+        {
+            bool isDebuffed = currentMultiplier > 1.0f;
+            debuffEffect.SetActive(isDebuffed);
+        }
+
         currentSpirit -= baseDrainSpeed * currentMultiplier * Time.deltaTime;
         
-        UpdateSpiritUI(); // 毎フレームUIを更新
+        UpdateSpiritUI();
 
         if (currentSpirit <= 0)
         {
@@ -63,23 +87,35 @@ public class ReikonManager : MonoBehaviour
         }
     }
 
-    // ▼▼▼ UI更新メソッドを新しいロジックに変更 ▼▼▼
+    /// <summary>
+    /// Chaserの危険オーラに入った時に呼ばれる
+    /// </summary>
+    public void OnChaserEnterAura()
+    {
+        nearbyChaserCount++;
+    }
+
+    /// <summary>
+    /// Chaserの危険オーラから出た時に呼ばれる
+    /// </summary>
+    public void OnChaserExitAura()
+    {
+        if (nearbyChaserCount > 0)
+        {
+            nearbyChaserCount--;
+        }
+    }
+
     private void UpdateSpiritUI()
     {
-        // 現在の霊魂の割合を計算 (0.0～1.0の範囲)
         float percentage = currentSpirit / maxSpirit;
 
-        // 数値テキストの更新
         if (amountText != null)
         {
-            // Mathf.CeilToIntで小数点以下を切り上げて整数にする
             amountText.text = Mathf.CeilToInt(currentSpirit).ToString();
         }
-
-        // 炎の大きさの更新
         if (flameImage != null)
         {
-            // Vector2.Lerpを使って、最小サイズと最大サイズの間を割合に応じて線形補間する
             flameImage.rectTransform.sizeDelta = Vector2.Lerp(minFlameSize, maxFlameSize, percentage);
         }
     }
@@ -93,14 +129,14 @@ public class ReikonManager : MonoBehaviour
     public void Heal(float amount)
     {
         currentSpirit = Mathf.Clamp(currentSpirit + amount, 0, maxSpirit);
-        UpdateSpiritUI(); // UIを更新
+        UpdateSpiritUI();
         Debug.Log($"{amount} の霊魂を回復！ 現在値: {currentSpirit}");
     }
 
     public void TakeDamage(float amount)
     {
         currentSpirit -= amount;
-        UpdateSpiritUI(); // UIを更新
+        UpdateSpiritUI();
         Debug.Log($"{amount} の霊魂ダメージ！ 現在値: {currentSpirit}");
     }
 }

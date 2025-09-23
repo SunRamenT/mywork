@@ -111,10 +111,10 @@ RectTransform:
   - {fileID: 3694897949474511035}
   m_Father: {fileID: 7320778258338521079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.73875, y: 0.6385657}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: 0.5}
-  m_SizeDelta: {x: -1, y: -1}
+  m_AnchorMin: {x: 0.33125, y: 0.8526346}
+  m_AnchorMax: {x: 0.68375003, y: 1}
+  m_AnchoredPosition: {x: -6, y: -1.1549225}
+  m_SizeDelta: {x: 0.3485031, y: 2.3098984}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &996457251622046385
 CanvasRenderer:
@@ -476,8 +476,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 150, y: 40}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -26.004, y: 8.8465}
+  m_SizeDelta: {x: 26.142, y: 32.3079}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &576999711994621879
 CanvasRenderer:
@@ -534,8 +534,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -572,7 +572,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 6.1975803}
+  m_margin: {x: 0, y: 0, z: 0, w: 0.9090023}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -763,8 +763,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 75.8, y: 10.577}
+  m_SizeDelta: {x: 81.7346, y: 28.8468}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5532194001807248106
 CanvasRenderer:
@@ -794,7 +794,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: 12:12
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3b1a593cbdd032949bf702dcaa3e47d4, type: 2}
   m_sharedMaterial: {fileID: 1303807490924008001, guid: 3b1a593cbdd032949bf702dcaa3e47d4, type: 2}
@@ -821,8 +821,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -859,7 +859,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 11.324399}
+  m_margin: {x: 0, y: 0, z: 0, w: 1.2278898}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1147,8 +1147,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 45}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -86.1, y: 10.577}
+  m_SizeDelta: {x: 94.0499, y: 32.969}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3179024941758653747
 CanvasRenderer:
@@ -1178,7 +1178,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u65E5"
+  m_text: "155\u65E5\u76EE"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3b1a593cbdd032949bf702dcaa3e47d4, type: 2}
   m_sharedMaterial: {fileID: 1303807490924008001, guid: 3b1a593cbdd032949bf702dcaa3e47d4, type: 2}
@@ -1205,8 +1205,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1243,7 +1243,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 5.6621666, z: 1.7694473, w: 6.369974}
+  m_margin: {x: 0, y: 1.8144569, z: 1.7694473, w: -0.8408127}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
