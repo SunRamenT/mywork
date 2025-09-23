@@ -55,6 +55,12 @@ public class PlayerController : MonoBehaviour
     //  現在範囲内にいる看板を記憶しておくための変数を追加 
     private InteractiveSignboard currentSignboard;
 
+    // 変数の型を、具体的なクラスではなくインターフェースにする
+    private ISpecialAction currentSpecialAction;
+
+    /// 現在の特殊能力を外部から読み取るためのプロパティ
+    public ISpecialAction CurrentSpecialAction => currentSpecialAction;
+
     private void Awake()
     {
         ghost = this.gameObject;
@@ -78,6 +84,8 @@ public class PlayerController : MonoBehaviour
             npcController = targetNPC.GetComponent<CharacterController>();
             npcAnimator = anim;
             npcStatusManager = targetNPC.GetComponent<StatusManager>();
+            // GuardActionやSuperJumpActionなど、ISpecialActionを持つコンポーネントを探す
+            currentSpecialAction = targetNPC.GetComponent<ISpecialAction>();
 
             if (npcController == null)
             {
@@ -115,6 +123,7 @@ public class PlayerController : MonoBehaviour
             currentCharacter = ghost;
             currentController = ghostController;
             currentAnimator = ghostAnimator;
+            currentSpecialAction = null;
 
             npcController = null;
             npcAnimator = null;
@@ -140,6 +149,13 @@ public class PlayerController : MonoBehaviour
             return; // このフレームの以降の処理は行わず、安全に終了する
         }
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+        // 右クリックで特殊能力を発動
+        if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
+        {
+            // 相手がどんな能力かは知る必要がない。ただ「実行」ボタンを押すだけ。
+            currentSpecialAction.PerformAction(this);
+        }
 
         CheckForRecoveryItems();
         CheckForInteractables();
@@ -211,6 +227,26 @@ public class PlayerController : MonoBehaviour
             ghost.transform.rotation = targetNPC.transform.rotation;
         }
     }
+    
+    /// <summary>
+    /// 指定された力でジャンプを実行する
+    /// </summary>
+    public void PerformJump(float customJumpPower)
+    {
+        if (currentController != null && currentController.isGrounded)
+        {
+            velocity.y = customJumpPower;
+        }
+    }
+
+    /// <summary>
+    /// 現在乗っ取っているNPCのStatusManagerを取得する
+    /// </summary>
+    public StatusManager GetPossessedStatusManager()
+    {
+        return npcStatusManager;
+    }
+
     // ▼▼▼ 壁抜け状態を検知・通知する新しいメソッドを追加 ▼▼▼
     private void UpdatePhasingState()
     {
@@ -223,11 +259,11 @@ public class PlayerController : MonoBehaviour
         }
 
         // --- 幽霊状態の時の処理 ---
-        
+
         // CharacterControllerのサイズと位置を使って、仮想的なチェックボックスを作成
         Vector3 boxCenter = transform.position + currentController.center;
         Vector3 halfExtents = new Vector3(currentController.radius, currentController.height / 2, currentController.radius);
-        
+
         // チェックボックスが "wallLayer" と重なっているか判定
         bool isInsideWall = Physics.CheckBox(boxCenter, halfExtents, transform.rotation, wallLayer);
 

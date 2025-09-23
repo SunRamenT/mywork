@@ -21,6 +21,8 @@ public class StatusManager : MonoBehaviour
 
     [Header("ダメージと無敵")]
     public float invincibilityDuration = 1.0f;
+    [Tooltip("無敵時間中の点滅間隔（秒）")] // ▼▼▼ 変数を追加 ▼▼▼
+    public float invincibilityBlinkInterval = 0.2f;
     private bool isInvincible = false;
 
     [Header("UI設定")]
@@ -32,16 +34,20 @@ public class StatusManager : MonoBehaviour
     public GameObject recoveryItemPrefab;
     [Tooltip("アイテムをドロップする高さのオフセット")] // ▼▼▼ 変数を追加 ▼▼▼
     public float itemDropOffsetY = 1.0f;
-    
-    private Renderer modelRenderer;
+    [Header("コンポーネント参照")] // ▼▼▼ 新しいヘッダーを追加 ▼▼▼
+    [Tooltip("点滅させるキャラクター本体のレンダラー")]
+    public Renderer characterModelRenderer;
+
+    //private Renderer modelRenderer;
     private int lastHealHour = -1;
     private NPCMove npcMove;
 
     private void Awake()
     {
-        modelRenderer = GetComponentInChildren<Renderer>();
+        // modelRenderer = GetComponentInChildren<Renderer>(); // ← この行を削除またはコメントアウト
         npcMove = GetComponent<NPCMove>();
     }
+
 
     private void OnEnable()
     {
@@ -87,10 +93,14 @@ public class StatusManager : MonoBehaviour
             healthBarCanvas.transform.LookAt(healthBarCanvas.transform.position + Camera.main.transform.forward);
         }
     }
-    
+
     public void TakeDamage(int damage, GameObject attacker)
     {
-        if (isInvincible) return;
+        if (isInvincible)
+        {
+            Debug.Log("無敵状態のため、ダメージを無効化しました！");
+            return; // isInvincibleがtrueなら、ここで処理を中断する
+        }
 
         currentHp -= damage;
         UpdateHealthBarVisibility();
@@ -101,11 +111,12 @@ public class StatusManager : MonoBehaviour
             return;
         }
 
-        if (npcMove != null && attacker != this.gameObject)
+        if (attacker != null && npcMove != null && attacker != this.gameObject)
         {
             npcMove.StartRetaliation(attacker);
         }
 
+        // ダメージを受けた後、無敵状態を開始
         if (currentHp > 0)
         {
             StartCoroutine(BecomeInvincible());
@@ -195,20 +206,32 @@ public class StatusManager : MonoBehaviour
         healthBarSlider.value = currentHp;
     }
 
-    IEnumerator BecomeInvincible()
+    public IEnumerator BecomeInvincible()
     {
         isInvincible = true;
-        
         float endTime = Time.time + invincibilityDuration;
+
         while (Time.time < endTime)
         {
-            if(modelRenderer != null) modelRenderer.enabled = false;
-            yield return new WaitForSeconds(0.1f);
-            if(modelRenderer != null) modelRenderer.enabled = true;
-            yield return new WaitForSeconds(0.1f);
+            // ▼▼▼ modelRenderer を characterModelRenderer に変更 ▼▼▼
+            if (characterModelRenderer != null)
+            {
+                characterModelRenderer.enabled = false;
+            }
+            yield return new WaitForSeconds(invincibilityBlinkInterval / 2);
+
+            if (characterModelRenderer != null)
+            {
+                characterModelRenderer.enabled = true;
+            }
+            yield return new WaitForSeconds(invincibilityBlinkInterval / 2);
+        }
+        
+        if (characterModelRenderer != null)
+        {
+            characterModelRenderer.enabled = true;
         }
 
-        if(modelRenderer != null) modelRenderer.enabled = true;
         isInvincible = false;
     }
 

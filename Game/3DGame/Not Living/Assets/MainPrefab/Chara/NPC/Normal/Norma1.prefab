@@ -1157,6 +1157,7 @@ GameObject:
   - component: {fileID: 6278243313125652799}
   - component: {fileID: 6372908637256394061}
   - component: {fileID: 66907337915071345}
+  - component: {fileID: 1088512767096643754}
   m_Layer: 12
   m_Name: Norma1
   m_TagString: NPC
@@ -1268,7 +1269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f3182f25fc87924889f9f9ae1e31082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 100
+  maxHp: 30
   currentHp: 0
   power: 10
   speed: 5
@@ -1277,10 +1278,12 @@ MonoBehaviour:
   reputation: 50
   currentPopularity: 
   invincibilityDuration: 1
+  invincibilityBlinkInterval: 0.2
   healthBarCanvas: {fileID: 5114173676631748830}
   healthBarSlider: {fileID: 8235865001266984467}
   recoveryItemPrefab: {fileID: 0}
   itemDropOffsetY: 1
+  characterModelRenderer: {fileID: 5362982110468254550}
 --- !u!65 &1056621011581399881
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1384,6 +1387,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1088512767096643754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2537784867759110673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f738789df3e1de4692b696ae29e8a9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cooldownDuration: 5
+  abilityName: "\u30E0\u30C6\u30AD"
 --- !u!1 &2664567710390387237
 GameObject:
   m_ObjectHideFlags: 0
@@ -3476,6 +3493,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1453768665214857591}
     m_Modifications:
+    - target: {fileID: 407089850226246358, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2309628528114892459, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_Name
       value: CharaHP
@@ -3510,11 +3531,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 150
+      value: 148.644
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 50
+      value: 74.3796
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3546,11 +3567,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 0.0068
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2.5
+      value: 2.29
       objectReference: {fileID: 0}
     - target: {fileID: 4032202859918216588, guid: 39332fe064560f34e9fa465c2740299e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

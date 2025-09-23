@@ -2227,6 +2227,7 @@ GameObject:
   - component: {fileID: 8113858443949120738}
   - component: {fileID: -7286932173858680817}
   - component: {fileID: 170014187983193079}
+  - component: {fileID: 6967427910698185206}
   m_Layer: 12
   m_Name: Police
   m_TagString: NPC
@@ -2303,6 +2304,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackHitboxes:
   - {fileID: 2442454874894178292}
+--- !u!95 &6967427910698185206
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6279802642772558393}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 335f64e53b1ba9648aec09bc1a394a09, type: 3}
+  m_Controller: {fileID: 9100000, guid: 69dad6ef0cff12e4a85f7ed588f0bcc7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6317800080620469522
 GameObject:
   m_ObjectHideFlags: 0
