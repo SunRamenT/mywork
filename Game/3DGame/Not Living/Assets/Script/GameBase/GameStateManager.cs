@@ -1,16 +1,37 @@
+// GameStateManager.cs
 using UnityEngine;
+using System;
 
 public class GameStateManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public static GameStateManager Instance { get; private set; }
+
+    public enum GameState
     {
-        
+        Gameplay,      // 通常のプレイ状態
+        MiniGameActive // ミニゲーム実行中
     }
 
-    // Update is called once per frame
-    void Update()
+    public GameState CurrentState { get; private set; }
+    public event Action<GameState> OnGameStateChanged;
+
+    private void Awake()
     {
-        
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void SetState(GameState newState)
+    {
+        if (CurrentState == newState) return;
+        CurrentState = newState;
+        OnGameStateChanged?.Invoke(newState);
     }
 }

@@ -1,8 +1,8 @@
-// InteractiveSignboard.cs
 using UnityEngine;
 using TMPro;
 
-public class InteractiveSignboard : MonoBehaviour
+// IInteractableインターフェースを実装する
+public class InteractiveSignboard : MonoBehaviour, IInteractable
 {
     [Header("UI設定")]
     [SerializeField] private GameObject messageUIPrefab;
@@ -17,13 +17,12 @@ public class InteractiveSignboard : MonoBehaviour
     private Animator uiAnimator;
     private TextMeshProUGUI messageText;
 
-    // ▼▼▼ PlayerControllerから呼ばれる公開メソッド ▼▼▼
-    
     /// <summary>
-    /// プレイヤーが範囲内に入った時に呼び出される
+    /// プレイヤーが範囲内に入った時にPlayerControllerから呼び出される
     /// </summary>
-    public void OnPlayerEnter()
+    public void OnPlayerEnterRange()
     {
+        // UIがまだ生成されていなければ、一度だけ生成する
         if (messageUIInstance == null)
         {
             if (messageUIPrefab == null || targetCanvas == null)
@@ -36,8 +35,13 @@ public class InteractiveSignboard : MonoBehaviour
             messageText = messageUIInstance.GetComponentInChildren<TextMeshProUGUI>();
         }
         
-        if (messageText != null) messageText.text = message;
+        // メッセージ内容を更新
+        if (messageText != null)
+        {
+            messageText.text = message;
+        }
 
+        // 表示アニメーションを実行
         if (uiAnimator != null)
         {
             messageUIInstance.SetActive(true);
@@ -46,16 +50,23 @@ public class InteractiveSignboard : MonoBehaviour
     }
 
     /// <summary>
-    /// プレイヤーが範囲外に出た時に呼び出される
+    /// プレイヤーが範囲外に出た時にPlayerControllerから呼び出される
     /// </summary>
-    public void OnPlayerExit()
+    public void OnPlayerExitRange()
     {
+        // 非表示アニメーションを実行
         if (messageUIInstance != null && uiAnimator != null)
         {
             uiAnimator.SetBool("IsShown", false);
         }
     }
 
-    // ▼▼▼ Updateメソッドは不要になったので削除 ▼▼▼
-    // private void Update() { ... }
+    /// <summary>
+    /// プレイヤーがインタラクトキーを押した時にPlayerControllerから呼び出される
+    /// （看板は自動表示なので、この中身は空でOK）
+    /// </summary>
+    public void OnInteract(PlayerController playerController)
+    {
+        // 何もしない
+    }
 }

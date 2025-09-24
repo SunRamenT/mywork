@@ -1,16 +1,11 @@
-using UnityEngine;
+// ITaskMiniGame.cs
+using System;
 
-public class ITaskMiniGame : MonoBehaviour
+public interface ITaskMiniGame
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // タスクが完了したことを通知するイベント (bool: true=成功, false=失敗)
+    event Action<bool> OnTaskCompleted;
+    
+    // タスクを開始するメソッド
+    void StartTask(TaskMachine machine);
 }

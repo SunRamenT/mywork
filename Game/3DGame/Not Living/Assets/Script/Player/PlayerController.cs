@@ -65,6 +65,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Transform CurrentCharacterTransform => currentCharacter != null ? currentCharacter.transform : this.transform;
 
+    // 現在フォーカスしている対象を、より汎用的なIInteractableで保持
+    private IInteractable currentInteractable;
 
     private void Awake()
     {
@@ -73,7 +75,6 @@ public class PlayerController : MonoBehaviour
         ghostAnimator = GetComponent<Animator>();
         reikonManager = GetComponent<ReikonManager>();
         nottoriController = GetComponent<NottoriController>();
-
         currentCharacter = ghost;
         currentController = ghostController;
         currentAnimator = ghostAnimator;
@@ -83,53 +84,39 @@ public class PlayerController : MonoBehaviour
     public void SetTargetNPC(GameObject npc, Animator anim)
     {
         targetNPC = npc;
-
         if (targetNPC != null)
         {
             npcController = targetNPC.GetComponent<CharacterController>();
             npcAnimator = anim;
             npcStatusManager = targetNPC.GetComponent<StatusManager>();
-            // GuardActionやSuperJumpActionなど、ISpecialActionを持つコンポーネントを探す
+            if (npcController == null) { Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！"); if(nottoriController != null) nottoriController.ForceRelease(); return; }
+            HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
+            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0) { punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>(); }
+            
             currentSpecialAction = targetNPC.GetComponent<ISpecialAction>();
 
-            if (npcController == null)
-            {
-                Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！");
-                return;
-            }
-            
-            HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
-            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0)
-            {
-                punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>();
-            }
-
-            if (reikonManager != null) reikonManager.UpdateState(false, true);
-
             ghostController.enabled = false;
-            //npcController.enabled = true;
-            npcController.detectCollisions = true; 
-            
             currentCharacter = targetNPC;
             currentController = npcController;
             currentAnimator = npcAnimator;
         }
         else
         {
-            //if (npcController != null)
-            //{
-            //    npcController.enabled = false;
-            //}
-            
             ghostController.enabled = true;
-            ghostController.detectCollisions = false; 
-            if (reikonManager != null) reikonManager.UpdateState(true, false);
             
+            currentSpecialAction = null;
+
+            // ▼▼▼ 憑依解除時にインタラクション対象もリセット ▼▼▼
+            if (currentInteractable != null)
+            {
+                currentInteractable.OnPlayerExitRange();
+                currentInteractable = null;
+            }
+            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
             currentCharacter = ghost;
             currentController = ghostController;
             currentAnimator = ghostAnimator;
-            currentSpecialAction = null;
-
             npcController = null;
             npcAnimator = null;
             npcStatusManager = null;
@@ -137,37 +124,35 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-     private void Update()
+    private void Update()
     {
-        // ▼▼▼ この安全確認をUpdateの一番最初に配置し、重複を削除 ▼▼▼
-        // 乗っ取り中のはずなのに、対象のNPCが破壊されていた場合
+        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameStateManager.GameState.MiniGameActive)
+        {
+            if(targetNPC != null) { currentAnimator.SetFloat("Hor", 0); currentAnimator.SetFloat("Vert", 0); }
+            return;
+        }
+
+        // --- インタラクション入力 ---
+        if (Input.GetButtonDown("Fire3") && currentInteractable != null)
+        {
+            currentInteractable.OnInteract(this);
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         if (nottoriController.isPossessing && targetNPC == null)
         {
-            Debug.LogWarning("乗っ取り対象が消滅したため、強制的に憑依解除します。");
-            
-            if (reikonManager != null && nottoriController != null)
-            {
-                reikonManager.TakeDamage(nottoriController.deathPenaltyAmount);
-            }
-            
             nottoriController.ForceRelease();
-            return; // このフレームの以降の処理は行わず、安全に終了する
+            return;
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
-        // 右クリックで特殊能力を発動
-        if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
-        {
-            // 相手がどんな能力かは知る必要がない。ただ「実行」ボタンを押すだけ。
-            currentSpecialAction.PerformAction(this);
-        }
-
+        
+        // --- 毎フレーム実行するチェック処理 ---
         CheckForRecoveryItems();
         CheckForInteractables();
         UpdatePhasingState();
-
+        
         if (!currentController || !currentController.enabled) return;
-
+        
+        // --- 移動とアクション入力 ---
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -175,19 +160,21 @@ public class PlayerController : MonoBehaviour
         {
             currentAnimator.SetFloat("Hor", h);
             currentAnimator.SetFloat("Vert", v);
-
             if (Input.GetButtonDown("Fire1"))
             {
-                if (npcStatusManager != null && punchAttackInfo != null)
-                {
-                    punchAttackInfo.damage = npcStatusManager.power;
-                }
+                if (npcStatusManager != null && punchAttackInfo != null) { punchAttackInfo.damage = npcStatusManager.power; }
                 currentAnimator.SetTrigger(attackTriggerName);
             }
-
+            if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
+            {
+                currentSpecialAction.PerformAction(this);
+            }
             if (Input.GetButtonDown("Jump") && currentController.isGrounded)
             {
                 currentAnimator.SetTrigger(jumpTriggerName);
+                
+                // 実際にジャンプさせる
+                PerformJump((targetNPC != null && npcStatusManager != null) ? npcStatusManager.jumpPower : this.jumpPower);
             }
         }
 
@@ -202,30 +189,19 @@ public class PlayerController : MonoBehaviour
         float currentSpeed = (targetNPC != null && npcStatusManager != null) ? npcStatusManager.speed : this.moveSpeed;
         Vector3 move = (currentCharacter.transform.forward * v + currentCharacter.transform.right * h).normalized * currentSpeed;
 
-        if (currentController.detectCollisions)
+        if (currentController.isGrounded)
         {
-            if (currentController.isGrounded)
-            {
-                velocity.y = -0.1f;
-                if (Input.GetButtonDown("Jump"))
-                {
-                    float currentJumpPower = (targetNPC != null && npcStatusManager != null) ? npcStatusManager.jumpPower : this.jumpPower;
-                    velocity.y = currentJumpPower;
-                }
-            }
-            else
-            {
-                velocity.y += Physics.gravity.y * Time.deltaTime;
-            }
+            velocity.y = -0.1f;
         }
-        else
+        else 
         {
             velocity.y += Physics.gravity.y * Time.deltaTime;
         }
 
+        
         Vector3 finalMove = move + new Vector3(0, velocity.y, 0);
         currentController.Move(finalMove * Time.deltaTime);
-
+        
         if (targetNPC != null)
         {
             ghost.transform.position = targetNPC.transform.position;
@@ -233,9 +209,58 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    /// <summary>
+    private void CheckForInteractables()
+    {
+        // 自分の現在位置を中心に、指定した半径・レイヤー内の全てのコライダーを見つけ出し、配列に格納する
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactionRadius, interactableLayer);
+
+        // 見つけた「操作可能な対象」を一時的に保持するための変数を準備する
+        IInteractable closestInteractable = null;
+
+        // もしコライダーが1つ以上見つかった場合
+        if (hitColliders.Length > 0)
+        {
+            // 見つかった全てのコライダーを、自分との距離が近い順に並び替える
+            Collider closestCollider = hitColliders
+                .OrderBy(c => (transform.position - c.transform.position).sqrMagnitude)
+                .FirstOrDefault(); // 並び替えた後、リストの先頭（＝最も近いもの）を1つだけ取り出す
+            
+            // 最も近いコライダーが確實に存在する場合
+            if (closestCollider != null)
+            {
+                // そのコライダーがアタッチされているGameObjectから、IInteractableインターフェースを持つコンポーネントを探す
+                closestInteractable = closestCollider.GetComponent<IInteractable>();
+            }
+        }
+        
+        // --- ここから、前のフレームの状態と比較して、イベントを通知する ---
+
+        // 「今フレームで見つけた最も近い対象」が存在し、かつ「前のフレームでフォーカスしていた対象」と違う場合
+        // つまり、新しく何かの範囲に入ったか、別の対象にフォーカスを乗り換えた瞬間
+        if (closestInteractable != null && closestInteractable != currentInteractable)
+        {
+            // もし「前のフレームでフォーカスしていた対象」が存在するなら、まずその対象に「範囲外に出たよ」と通知する
+            if (currentInteractable != null)
+            {
+                currentInteractable.OnPlayerExitRange();
+            }
+            // 「現在のフォーカス対象」を、新しく見つけた対象に更新する
+            currentInteractable = closestInteractable;
+            // 新しい対象に「範囲内に入ったよ」と通知する
+            currentInteractable.OnPlayerEnterRange();
+        }
+        //  今フレームで見つけた最も近い対象が存在せず、かつ前のフレームではフォーカスしていた対象がいた場合
+        //  何かの範囲から完全に出た瞬間
+        else if (closestInteractable == null && currentInteractable != null)
+        {
+            // 「前のフレームでフォーカスしていた対象」に「範囲外に出たよ」と通知する
+            currentInteractable.OnPlayerExitRange();
+            // 「現在のフォーカス対象」を空にする
+            currentInteractable = null;
+        }
+    }
+
     /// 指定された力でジャンプを実行する
-    /// </summary>
     public void PerformJump(float customJumpPower)
     {
         if (currentController != null && currentController.isGrounded)
@@ -276,44 +301,7 @@ public class PlayerController : MonoBehaviour
         // isPhasing: 壁の中にいるか？ / isPossessing: 憑依中か？(ここではfalse)
         reikonManager.UpdateState(isInsideWall, false);
     }
-    
-    // ▼▼▼ インタラクション可能オブジェクトを検知する新しいメソッドを追加 ▼▼▼
-    private void CheckForInteractables()
-    {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactionRadius, interactableLayer);
 
-        InteractiveSignboard closestSign = null;
-        if (hitColliders.Length > 0)
-        {
-            // 1. 最も近いコライダーを1つだけ見つける
-            Collider closestCollider = hitColliders
-                .OrderBy(c => (transform.position - c.transform.position).sqrMagnitude)
-                .FirstOrDefault();
-
-            // 2. そのコライダーからコンポーネントを取得する
-            if (closestCollider != null)
-            {
-                closestSign = closestCollider.GetComponent<InteractiveSignboard>();
-            }
-        }
-
-        // --- 状態の比較と通知 ---
-        if (closestSign != null && closestSign != currentSignboard)
-        {
-            if (currentSignboard != null)
-            {
-                currentSignboard.OnPlayerExit();
-            }
-            currentSignboard = closestSign;
-            currentSignboard.OnPlayerEnter();
-        }
-        else if (closestSign == null && currentSignboard != null)
-        {
-            currentSignboard.OnPlayerExit();
-            currentSignboard = null;
-        }
-    }
-    
     /// <summary>
     /// 物理判定に頼らず、キャラクターの周囲にある回復アイテムを検知して取得する
     /// </summary>
@@ -342,25 +330,6 @@ public class PlayerController : MonoBehaviour
         }
         Destroy(item.gameObject);
     }
-    
-    
-    /*
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (hit.collider.TryGetComponent<ReikonItem>(out ReikonItem item))
-        {
-            HealAndDestroyItem(item);
-        }
-    }
-    
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent<ReikonItem>(out ReikonItem item))
-        {
-            HealAndDestroyItem(item);
-        }
-    }
-    */
     
     public bool IsCollisionsEnabled()
     {
