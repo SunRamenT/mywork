@@ -135,6 +135,14 @@ public class StatusManager : MonoBehaviour
         }
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
+        // ▼▼▼ ヒットストップを呼び出す処理にログを追加 ▼▼▼
+        if (HitStopManager.Instance != null)
+        {
+            Debug.Log($"[StatusManager] {this.gameObject.name} がダメージを受けました。HitStopManagerにヒットストップを要求します。");
+            HitStopManager.Instance.ApplyHitStop(hitStopDuration);
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         currentHp -= damage;
         UpdateHealthBarVisibility();
 
