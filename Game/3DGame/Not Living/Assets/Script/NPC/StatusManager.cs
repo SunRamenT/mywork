@@ -21,8 +21,9 @@ public class StatusManager : MonoBehaviour
     public string currentPopularity;
 
     [Header("ダメージと無敵")]
+    [Tooltip("ダメージを受けた際の、デフォルトの無敵時間")]
     public float invincibilityDuration = 1.0f;
-    [Tooltip("無敵時間中の点滅間隔（秒）")] // ▼▼▼ 変数を追加 ▼▼▼
+    [Tooltip("無敵時間中の点滅間隔（秒）")]
     public float invincibilityBlinkInterval = 0.2f;
     private bool isInvincible = false;
 
@@ -246,24 +247,27 @@ public class StatusManager : MonoBehaviour
         healthBarSlider.value = currentHp;
     }
 
+     // バージョン1：引数なし（これまで通り）
+    /// Inspectorで設定されたデフォルトの無敵時間を適用する
     public IEnumerator BecomeInvincible()
     {
+        // 引数ありのバージョンを、デフォルトの無敵時間で呼び出す
+        yield return StartCoroutine(BecomeInvincible(this.invincibilityDuration));
+    }
+
+    //  バージョン2：引数あり（新しい）
+    /// 引数で指定された時間だけ無敵になる
+    public IEnumerator BecomeInvincible(float duration)
+    {
         isInvincible = true;
-        float endTime = Time.time + invincibilityDuration;
+
+        float endTime = Time.time + duration;
 
         while (Time.time < endTime)
         {
-            // ▼▼▼ modelRenderer を characterModelRenderer に変更 ▼▼▼
-            if (characterModelRenderer != null)
-            {
-                characterModelRenderer.enabled = false;
-            }
+            if (characterModelRenderer != null) characterModelRenderer.enabled = false;
             yield return new WaitForSeconds(invincibilityBlinkInterval / 2);
-
-            if (characterModelRenderer != null)
-            {
-                characterModelRenderer.enabled = true;
-            }
+            if (characterModelRenderer != null) characterModelRenderer.enabled = true;
             yield return new WaitForSeconds(invincibilityBlinkInterval / 2);
         }
         
@@ -274,6 +278,7 @@ public class StatusManager : MonoBehaviour
 
         isInvincible = false;
     }
+
 
     public void UpdatePopularity()
     {

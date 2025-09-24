@@ -28,6 +28,7 @@ public class NottoriController : MonoBehaviour
     private Animator ghostAnimator;
     private NPCMove npcMove;
     private NavMeshAgent npcAgent;
+    private CharacterController npcController;
 
     private void Awake()
     {
@@ -74,8 +75,13 @@ public class NottoriController : MonoBehaviour
         npcMove = currentNPC.GetComponent<NPCMove>();
         if (npcMove != null) npcMove.isNottoried = true;
 
+        // AI用のNavMeshAgentは無効化
         npcAgent = currentNPC.GetComponent<NavMeshAgent>();
         if (npcAgent != null) npcAgent.enabled = false;
+
+        // プレイヤー操作用のCharacterControllerは有効化
+        npcController = currentNPC.GetComponent<CharacterController>();
+        if (npcController != null) npcController.enabled = true;
 
         Animator npcAnimator = currentNPC.GetComponent<Animator>();
         playerController.SetTargetNPC(currentNPC, npcAnimator);
@@ -94,16 +100,12 @@ public class NottoriController : MonoBehaviour
                 if (HasParameter(npcAnimator, horizontalFloatName)) npcAnimator.SetFloat(horizontalFloatName, 0f);
                 if (HasParameter(npcAnimator, verticalFloatName)) npcAnimator.SetFloat(verticalFloatName, 0f);
             }
-
-            if (NavMesh.SamplePosition(currentNPC.transform.position, out NavMeshHit hit, 10.0f, NavMesh.AllAreas))
-            {
-                var npcController = currentNPC.GetComponent<CharacterController>();
-                if (npcController != null) npcController.enabled = false;
-                currentNPC.transform.position = hit.position;
-                if (npcController != null) npcController.enabled = true;
-            }
-
+            
+            // AI用のNavMeshAgentを有効化
             if (npcAgent != null) npcAgent.enabled = true;
+            // プレイヤー操作用のCharacterControllerを無効化
+            //if (npcController != null) npcController.enabled = false;
+
             if (npcMove != null) npcMove.isNottoried = false;
 
             Vector3 offset = currentNPC.transform.forward * releaseForwardDistance;
@@ -116,7 +118,6 @@ public class NottoriController : MonoBehaviour
         }
         
         SetGhostVisible(true);
-        
         playerController.SetTargetNPC(null, null);
 
         currentNPC = null;

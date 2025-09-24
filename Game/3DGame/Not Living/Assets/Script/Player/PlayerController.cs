@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
             if (reikonManager != null) reikonManager.UpdateState(false, true);
 
             ghostController.enabled = false;
-            npcController.enabled = true;
+            //npcController.enabled = true;
             npcController.detectCollisions = true; 
             
             currentCharacter = targetNPC;
@@ -116,10 +116,10 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (npcController != null)
-            {
-                npcController.enabled = false;
-            }
+            //if (npcController != null)
+            //{
+            //    npcController.enabled = false;
+            //}
             
             ghostController.enabled = true;
             ghostController.detectCollisions = false; 

@@ -3233,13 +3233,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 30
   currentHp: 0
-  power: 10
+  power: 15
   speed: 4
   jumpPower: 7
   hourlyHealAmount: 10
   reputation: 50
   currentPopularity: 
-  invincibilityDuration: 1
+  invincibilityDuration: 0.7
   invincibilityBlinkInterval: 0.2
   healthBarCanvas: {fileID: 1018737284807842753}
   healthBarSlider: {fileID: 4220385635945684236}
@@ -3273,6 +3273,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cooldownDuration: 5
+  guardInvincibilityDuration: 2
   abilityName: "\u30E0\u30C6\u30AD"
 --- !u!1 &8871283303427130236
 GameObject:

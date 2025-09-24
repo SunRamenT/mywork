@@ -3680,6 +3680,7 @@ GameObject:
   - component: {fileID: 129651623}
   - component: {fileID: 129651624}
   - component: {fileID: 129651625}
+  - component: {fileID: 129651626}
   m_Layer: 12
   m_Name: NPC
   m_TagString: Untagged
@@ -3721,8 +3722,8 @@ MonoBehaviour:
     spawnCount: 15
     startHour: 0
     endHour: 19
-  spawnRadius: 100
-  maxSpawnHeight: 1
+  spawnRadius: 200
+  maxSpawnHeight: 0.4
   agentTypeIndex: 0
   sampleDistance: 15
   maxAttempts: 10
@@ -3745,8 +3746,32 @@ MonoBehaviour:
     spawnCount: 15
     startHour: 0
     endHour: 15
-  spawnRadius: 20
-  maxSpawnHeight: 5
+  spawnRadius: 200
+  maxSpawnHeight: 0.4
+  agentTypeIndex: 0
+  sampleDistance: 15
+  maxAttempts: 10
+--- !u!114 &129651626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129651622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bb6fec45635da34cbf98b673fab1ec5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnableNpcs:
+  - description: NormalHuman3
+    npcPrefab: {fileID: 5993942175922792291, guid: a9d9126323be8ac4487d7374b6e920f0, type: 3}
+    npcTag: NPC
+    spawnCount: 15
+    startHour: 0
+    endHour: 23
+  spawnRadius: 200
+  maxSpawnHeight: 1
   agentTypeIndex: 0
   sampleDistance: 15
   maxAttempts: 10
@@ -22252,6 +22277,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7157666211583365472, guid: 97312d62c2ac3f447a21b20ec005b4f5, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -1.1549072
+      objectReference: {fileID: 0}
     - target: {fileID: 7320778258338521079, guid: 97312d62c2ac3f447a21b20ec005b4f5, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -32154,7 +32183,7 @@ Transform:
   m_GameObject: {fileID: 1259289463}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 120.5444, y: -0.599, z: 99.86104}
+  m_LocalPosition: {x: 120.5444, y: 0, z: 99.86104}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -35736,9 +35765,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 390843399106803423, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.09
+      objectReference: {fileID: 0}
     - target: {fileID: 494705349101313075, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: message
-      value: "E\u30DC\u30BF\u30F3"
+      value: "E\u30DC\u30BF\u30F3\u3067\u306E\u3063\u3068\u308B"
       objectReference: {fileID: 0}
     - target: {fileID: 494705349101313075, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: targetCanvas
@@ -35755,6 +35788,18 @@ PrefabInstance:
     - target: {fileID: 648351654579384758, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -0.00024414062
+      objectReference: {fileID: 0}
+    - target: {fileID: 1508484320180784357, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: targetCanvas
+      value: 
+      objectReference: {fileID: 2104215757}
+    - target: {fileID: 1508484320180784357, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: messageUIPrefab
+      value: 
+      objectReference: {fileID: 1570001172}
+    - target: {fileID: 1547336077427267043, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.05
       objectReference: {fileID: 0}
     - target: {fileID: 1663835450836832416, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: m_Layer
@@ -35844,6 +35889,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 3293570313181143579, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_Height
+      value: 1.8
+      objectReference: {fileID: 0}
     - target: {fileID: 3404452696897611650, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -35852,9 +35901,45 @@ PrefabInstance:
       propertyPath: 'attackHitboxes.Array.data[0]'
       value: 
       objectReference: {fileID: 1780860072}
+    - target: {fileID: 3527942294975970790, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 4205895635835367651, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: m_Layer
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 4334709153898824231, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4334709153898824231, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 4334709153898824231, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -9
+      objectReference: {fileID: 0}
+    - target: {fileID: 4334709153898824231, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4334709153898824231, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4334709153898824231, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4334709153898824231, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4334709153898824231, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 4391495841040331020, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: m_Layer
@@ -35878,7 +35963,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5282904531694418444, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: message
-      value: "\u5DE6\u30AF\u30EA\u30C3\u30AF"
+      value: "\u5DE6\u30AF\u30EA\u30C3\u30AF\u3067\u3053\u3046\u3052\u304D"
       objectReference: {fileID: 0}
     - target: {fileID: 5282904531694418444, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: targetCanvas
@@ -35988,6 +36073,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 8067567207589386242, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8188834648454325123, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: m_Layer
       value: 9
@@ -36018,6 +36107,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4035961953357548806, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+    - {fileID: 1652975670531051877, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
     m_RemovedGameObjects:
     - {fileID: 2942762193012742304, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
     m_AddedGameObjects:
@@ -39597,6 +39687,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cooldownDuration: 5
+  guardInvincibilityDuration: 2
   abilityName: "\u30E0\u30C6\u30AD"
 --- !u!1001 &1504186436
 PrefabInstance:

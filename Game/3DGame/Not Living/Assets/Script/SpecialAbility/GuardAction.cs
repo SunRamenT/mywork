@@ -1,4 +1,3 @@
-// GuardAction.cs
 using UnityEngine;
 
 public class GuardAction : MonoBehaviour, ISpecialAction
@@ -6,15 +5,14 @@ public class GuardAction : MonoBehaviour, ISpecialAction
     [Header("ガード設定")]
     [Tooltip("ガードが成功した後のクールタイム（秒）")]
     public float cooldownDuration = 5f;
-    [Tooltip("UIに表示する能力名")] // 表示名用の変数を追加 
-    public string abilityName = "ムテキ";
+    [Tooltip("ガードによって無敵になる時間（秒）")] // ▼▼▼ 無敵時間用の変数を追加 ▼▼▼
+    public float guardInvincibilityDuration = 2f;
+    [Tooltip("UIに表示する能力名")]
+    public string abilityName = "ガード";
 
     private float nextActionTime = 0f;
-
-    // インターフェースの新しいルールを実装 
+    
     public string AbilityName => abilityName;
-    // 
-
     public float CooldownProgress
     {
         get
@@ -33,9 +31,17 @@ public class GuardAction : MonoBehaviour, ISpecialAction
             StatusManager status = playerController.GetPossessedStatusManager();
             if (status != null)
             {
-                status.StartCoroutine(status.BecomeInvincible());
+                Debug.Log($"<color=cyan>[{status.gameObject.name}] ガード発動！ {guardInvincibilityDuration}秒間無敵になります。</color>");
+                
+                // ▼▼▼ 引数ありのBecomeInvincibleを、独自の無敵時間で呼び出す ▼▼▼
+                status.StartCoroutine(status.BecomeInvincible(guardInvincibilityDuration));
+
                 nextActionTime = Time.time + cooldownDuration;
             }
+        }
+        else
+        {
+            Debug.Log("ガードはクールタイム中です。");
         }
     }
 }
