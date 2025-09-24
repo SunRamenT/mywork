@@ -1494,6 +1494,7 @@ MonoBehaviour:
   currentPopularity: 
   invincibilityDuration: 1
   invincibilityBlinkInterval: 0.2
+  hitStopDuration: 0.5
   healthBarCanvas: {fileID: 7412683725466646484}
   healthBarSlider: {fileID: 5939613329920946457}
   recoveryItemPrefab: {fileID: 0}

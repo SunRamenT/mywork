@@ -10,63 +10,46 @@ public class PlayerController : MonoBehaviour
     public float rotationSpeed = 10f;
     public float jumpPower = 5f;
 
-    [Header("Item Detection Settings")] // ▼▼▼ 追加 ▼▼▼
-    [Tooltip("回復アイテム（霊魂）が含まれるレイヤー")]
-    public LayerMask reikonLayer; 
-    [Tooltip("アイテムを検知する半径")]
+    [Header("Item Detection Settings")]
+    public LayerMask reikonLayer;
     public float itemDetectionRadius = 1.5f;
 
-    // ▼▼▼ 看板などを検知するための設定を追加 ▼▼▼
     [Header("Interaction Settings")]
-    [Tooltip("看板など、インタラクション可能なオブジェクトのレイヤー")]
     public LayerMask interactableLayer;
-    [Tooltip("インタラクション可能なオブジェクトを検知する半径")]
     public float interactionRadius = 3f;
 
-    // ▼▼▼ 壁検知用の設定を追加 ▼▼▼
     [Header("Wall Phasing Settings")]
-    [Tooltip("壁として認識するオブジェクトのレイヤー")]
     public LayerMask wallLayer;
 
     [Header("Animator Settings")]
     public string attackTriggerName = "Attack";
     public string jumpTriggerName = "Jump";
+    // ▼▼▼ Animatorのパラメータ名をInspectorで設定できるように変更 ▼▼▼
+    public string horizontalFloatName = "Hor";
+    public string verticalFloatName = "Vert";
 
-    // --- 現在操作している対象の情報を保持する変数 ---
+    // --- Private Variables ---
     private CharacterController currentController;
     private Animator currentAnimator;
     private GameObject currentCharacter;
-
-    // --- GhostとNPCの情報を個別に保持 ---
     private CharacterController ghostController;
     private Animator ghostAnimator;
     private GameObject ghost;
-    
     private CharacterController npcController;
     private Animator npcAnimator;
-    private GameObject targetNPC; 
+    private GameObject targetNPC;
     private StatusManager npcStatusManager;
     private ReikonManager reikonManager;
     private NottoriController nottoriController;
     private AttackInfo punchAttackInfo;
-
     private Vector3 velocity;
-    
-    //  現在範囲内にいる看板を記憶しておくための変数を追加 
-    private InteractiveSignboard currentSignboard;
-
-    // 変数の型を、具体的なクラスではなくインターフェースにする
+    private IInteractable currentInteractable;
     private ISpecialAction currentSpecialAction;
 
-    /// 現在の特殊能力を外部から読み取るためのプロパティ
-    public ISpecialAction CurrentSpecialAction => currentSpecialAction;
-
-    /// 現在操作しているキャラクターのTransformを外部（CameraControllerなど）に公開する
-    /// </summary>
     public Transform CurrentCharacterTransform => currentCharacter != null ? currentCharacter.transform : this.transform;
-
-    // 現在フォーカスしている対象を、より汎用的なIInteractableで保持
-    private IInteractable currentInteractable;
+    public ISpecialAction CurrentSpecialAction => currentSpecialAction;
+    [Tooltip("ダメージモーションのステートに設定したタグ名")] // ▼▼▼ 追加 ▼▼▼
+    public string flinchingTagName = "Flinching";
 
     private void Awake()
     {
@@ -78,9 +61,8 @@ public class PlayerController : MonoBehaviour
         currentCharacter = ghost;
         currentController = ghostController;
         currentAnimator = ghostAnimator;
-        currentController.detectCollisions = false;
     }
-    
+
     public void SetTargetNPC(GameObject npc, Animator anim)
     {
         targetNPC = npc;
@@ -89,12 +71,11 @@ public class PlayerController : MonoBehaviour
             npcController = targetNPC.GetComponent<CharacterController>();
             npcAnimator = anim;
             npcStatusManager = targetNPC.GetComponent<StatusManager>();
-            if (npcController == null) { Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！"); if(nottoriController != null) nottoriController.ForceRelease(); return; }
+            if (npcController == null) { Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！");
+                if (nottoriController != null) nottoriController.ForceRelease(); return; }
             HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
             if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0) { punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>(); }
-            
             currentSpecialAction = targetNPC.GetComponent<ISpecialAction>();
-
             ghostController.enabled = false;
             currentCharacter = targetNPC;
             currentController = npcController;
@@ -103,17 +84,8 @@ public class PlayerController : MonoBehaviour
         else
         {
             ghostController.enabled = true;
-            
             currentSpecialAction = null;
-
-            // ▼▼▼ 憑依解除時にインタラクション対象もリセット ▼▼▼
-            if (currentInteractable != null)
-            {
-                currentInteractable.OnPlayerExitRange();
-                currentInteractable = null;
-            }
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
+            if (currentInteractable != null) { currentInteractable.OnPlayerExitRange(); currentInteractable = null; }
             currentCharacter = ghost;
             currentController = ghostController;
             currentAnimator = ghostAnimator;
@@ -128,55 +100,71 @@ public class PlayerController : MonoBehaviour
     {
         if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameStateManager.GameState.MiniGameActive)
         {
-            if(targetNPC != null) { currentAnimator.SetFloat("Hor", 0); currentAnimator.SetFloat("Vert", 0); }
+            if(targetNPC != null && currentAnimator != null) { currentAnimator.SetFloat(horizontalFloatName, 0); currentAnimator.SetFloat(verticalFloatName, 0); }
+            return;
+        }
+        
+        if (nottoriController.isPossessing && targetNPC == null)
+        {
+            Debug.LogWarning("乗っ取り対象が消滅したため、強制的に憑依解除します。");
+            // 霊魂ダメージなどのペナルティ処理
+            if (reikonManager != null && nottoriController != null)
+            {
+                reikonManager.TakeDamage(nottoriController.deathPenaltyAmount);
+            }
+            // 憑依解除処理を呼び出す
+            nottoriController.ForceRelease();
             return;
         }
 
-        // --- インタラクション入力 ---
+
+        CheckForRecoveryItems();
+        CheckForInteractables();
+        UpdatePhasingState();
+
+        if (!currentController || !currentController.enabled) return;
+
         if (Input.GetButtonDown("Fire3") && currentInteractable != null)
         {
             currentInteractable.OnInteract(this);
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        if (nottoriController.isPossessing && targetNPC == null)
-        {
-            nottoriController.ForceRelease();
-            return;
-        }
-        
-        // --- 毎フレーム実行するチェック処理 ---
-        CheckForRecoveryItems();
-        CheckForInteractables();
-        UpdatePhasingState();
-        
-        if (!currentController || !currentController.enabled) return;
-        
-        // --- 移動とアクション入力 ---
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        if (targetNPC != null)
+        // ▼▼▼ アニメーションパラメータの更新ロジックを修正 ▼▼▼
+        // currentAnimatorにパラメータが存在する場合のみ値を設定する
+        if (HasParameter(currentAnimator, horizontalFloatName))
         {
-            currentAnimator.SetFloat("Hor", h);
-            currentAnimator.SetFloat("Vert", v);
-            if (Input.GetButtonDown("Fire1"))
+            currentAnimator.SetFloat(horizontalFloatName, h);
+        }
+        if (HasParameter(currentAnimator, verticalFloatName))
+        {
+            currentAnimator.SetFloat(verticalFloatName, v);
+        }
+        
+        if (IsPossessing())
+        {
+            AnimatorStateInfo stateInfo = currentAnimator.GetCurrentAnimatorStateInfo(0); // 0はベースレイヤー
+            bool isFlinching = stateInfo.IsTag(flinchingTagName);
+
+            // isFlinchingがfalseの時（＝ダメージ中でない時）だけ、以下の入力が可能
+            if (!isFlinching)
             {
-                if (npcStatusManager != null && punchAttackInfo != null) { punchAttackInfo.damage = npcStatusManager.power; }
-                currentAnimator.SetTrigger(attackTriggerName);
-            }
-            if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
-            {
-                currentSpecialAction.PerformAction(this);
-            }
-            if (Input.GetButtonDown("Jump") && currentController.isGrounded)
-            {
-                currentAnimator.SetTrigger(jumpTriggerName);
-                
-                // 実際にジャンプさせる
-                PerformJump((targetNPC != null && npcStatusManager != null) ? npcStatusManager.jumpPower : this.jumpPower);
+                // 攻撃
+                if (Input.GetButtonDown("Fire1"))
+                {
+                    if (npcStatusManager != null && punchAttackInfo != null) { punchAttackInfo.damage = npcStatusManager.power; }
+                    currentAnimator.SetTrigger(attackTriggerName);
+                }
+                // 特殊能力
+                if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
+                {
+                    currentSpecialAction.PerformAction(this);
+                }
             }
         }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         Vector3 lookDir = Camera.main.transform.forward;
         lookDir.y = 0;
@@ -186,28 +174,40 @@ public class PlayerController : MonoBehaviour
             currentCharacter.transform.rotation = Quaternion.Slerp(currentCharacter.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        float currentSpeed = (targetNPC != null && npcStatusManager != null) ? npcStatusManager.speed : this.moveSpeed;
+        float currentSpeed = IsPossessing() && npcStatusManager != null ? npcStatusManager.speed : this.moveSpeed;
         Vector3 move = (currentCharacter.transform.forward * v + currentCharacter.transform.right * h).normalized * currentSpeed;
 
         if (currentController.isGrounded)
         {
             velocity.y = -0.1f;
         }
-        else 
+        else
         {
             velocity.y += Physics.gravity.y * Time.deltaTime;
         }
 
-        
+        if (Input.GetButtonDown("Jump") && currentController.isGrounded)
+        {
+            if (IsPossessing()) // ジャンプは憑依中のみ可能
+            {
+                if (HasParameter(currentAnimator, jumpTriggerName))
+                {
+                    currentAnimator.SetTrigger(jumpTriggerName);
+                }
+                PerformJump(npcStatusManager != null ? npcStatusManager.jumpPower : this.jumpPower);
+            }
+        }
+
         Vector3 finalMove = move + new Vector3(0, velocity.y, 0);
         currentController.Move(finalMove * Time.deltaTime);
-        
+
         if (targetNPC != null)
         {
             ghost.transform.position = targetNPC.transform.position;
             ghost.transform.rotation = targetNPC.transform.rotation;
         }
     }
+
     
     private void CheckForInteractables()
     {
@@ -267,6 +267,16 @@ public class PlayerController : MonoBehaviour
         {
             velocity.y = customJumpPower;
         }
+    }
+
+    private bool HasParameter(Animator animator, string paramName)
+    {
+        if (animator == null || string.IsNullOrEmpty(paramName)) return false;
+        foreach (AnimatorControllerParameter param in animator.parameters)
+        {
+            if (param.name == paramName) return true;
+        }
+        return false;
     }
 
     /// <summary>

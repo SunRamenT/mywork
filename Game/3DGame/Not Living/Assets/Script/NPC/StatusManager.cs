@@ -25,7 +25,16 @@ public class StatusManager : MonoBehaviour
     public float invincibilityDuration = 1.0f;
     [Tooltip("無敵時間中の点滅間隔（秒）")]
     public float invincibilityBlinkInterval = 0.2f;
-    private bool isInvincible = false;
+    private bool isInvincible = false;    
+    [Tooltip("このキャラクターに攻撃が当たった時のヒットストップ時間")] // ▼▼▼ 追加 ▼▼▼
+    public float hitStopDuration = 0.05f;
+    [Tooltip("ダメージを受けた際のノックバックの強さ")] // ▼▼▼ 追加 ▼▼▼
+    public float knockbackForce = 5f;
+    [Tooltip("ダメージを受けた際のノックバックの時間")] // ▼▼▼ 追加 ▼▼▼
+    public float knockbackDuration = 0.2f;
+
+
+
 
     [Header("UI設定")]
     public GameObject healthBarCanvas; 
@@ -39,18 +48,25 @@ public class StatusManager : MonoBehaviour
     [Header("コンポーネント参照")] // ▼▼▼ 新しいヘッダーを追加 ▼▼▼
     [Tooltip("点滅させるキャラクター本体のレンダラー")]
     public Renderer characterModelRenderer;
+    
+    [Tooltip("ダメージアニメーションのトリガー名")] // ▼▼▼ 追加 ▼▼▼
+    public string damageTriggerName = "Damage";
+
 
     //private Renderer modelRenderer;
     private int lastHealHour = -1;
     private NPCMove npcMove;
 
     private NavMeshAgent agent;
+    private Animator animator; // ▼▼▼ Animatorへの参照を追加 ▼▼▼
+
 
     private void Awake()
     {
         // modelRenderer = GetComponentInChildren<Renderer>(); // ← この行を削除またはコメントアウト
         npcMove = GetComponent<NPCMove>();
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
     }
 
 
@@ -101,11 +117,23 @@ public class StatusManager : MonoBehaviour
 
     public void TakeDamage(int damage, GameObject attacker)
     {
-        if (isInvincible)
+        if (isInvincible) return;
+
+        // ▼▼▼ ダメージアニメーションとノックバック処理を追加 ▼▼▼
+
+        // 1. ダメージアニメーションのトリガーを起動
+        if (HasParameter(animator, damageTriggerName))
         {
-            Debug.Log("無敵状態のため、ダメージを無効化しました！");
-            return; // isInvincibleがtrueなら、ここで処理を中断する
+            animator.SetTrigger(damageTriggerName);
         }
+
+        // 2. 攻撃者が存在する場合のみ、ノックバック処理を開始
+        if (attacker != null)
+        {
+            Vector3 knockbackDirection = (transform.position - attacker.transform.position).normalized;
+            ApplyKnockback(knockbackDirection, knockbackForce, knockbackDuration);
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         currentHp -= damage;
         UpdateHealthBarVisibility();
@@ -121,7 +149,6 @@ public class StatusManager : MonoBehaviour
             npcMove.StartRetaliation(attacker);
         }
 
-        // ダメージを受けた後、無敵状態を開始
         if (currentHp > 0)
         {
             StartCoroutine(BecomeInvincible());
@@ -182,43 +209,42 @@ public class StatusManager : MonoBehaviour
         Debug.Log($"[評判更新] {victimStatus.gameObject.name}を倒したため、{this.gameObject.name}の評判が{reputationChange}変動しました。現在の評判: {this.reputation}");
     }
 
-    /// 外部（爆弾など）から呼び出され、吹き飛ばし処理を開始する
-    /// </summary>
     public void ApplyKnockback(Vector3 direction, float force, float duration)
     {
-        // isNottoriedフラグがない場合はnpcMoveで代用
-        if (npcMove != null && npcMove.isNottoried)
-        {
-            // 乗っ取り中のNPCは吹き飛ばないようにする
-            return;
-        }
+        // 乗っ取り中のNPCは吹き飛ばないようにする
+        if (npcMove != null && npcMove.isNottoried) return;
+        
         StartCoroutine(KnockbackCoroutine(direction, force, duration));
     }
 
     private IEnumerator KnockbackCoroutine(Vector3 direction, float force, float duration)
     {
-        // 吹き飛ばされている間、AIの動きを止める
-        if (agent != null)
-        {
-            agent.enabled = false;
-        }
+        if (agent != null) agent.enabled = false;
         
         float timer = 0;
         while (timer < duration)
         {
-            // キャラクターを吹き飛ばし方向に動かす
-            // （CharacterControllerを持つオブジェクトでも機能する）
+            // Y方向には動かないように方向を水平にする
+            direction.y = 0;
             transform.position += direction * force * Time.deltaTime;
             timer += Time.deltaTime;
             yield return null;
         }
 
-        // 吹き飛ばしが終わったら、AIの動きを元に戻す
-        if (agent != null)
-        {
-            agent.enabled = true;
-        }
+        if (agent != null) agent.enabled = true;
     }
+    
+    // ▼▼▼ Animatorのパラメータ存在確認メソッドを追加 ▼▼▼
+    private bool HasParameter(Animator animator, string paramName)
+    {
+        if (animator == null || string.IsNullOrEmpty(paramName)) return false;
+        foreach (AnimatorControllerParameter param in animator.parameters)
+        {
+            if (param.name == paramName) return true;
+        }
+        return false;
+    }
+
     private void HandleTimeChange(int hour, int minute)
     {
         if (hour != lastHealHour)

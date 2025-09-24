@@ -20,6 +20,8 @@ public class NPCMove : MonoBehaviour
     public string horizontalID = "Hor";
     public string verticalID = "Vert";
     public string stateID = "State";
+    [Tooltip("ダメージモーションのステートに設定したタグ名")] // ▼▼▼ 追加 ▼▼▼
+    public string flinchingTagName = "Flinching";
 
     [Header("乗っ取り判定")]
     private bool _isNottoried = false;
@@ -70,6 +72,19 @@ public class NPCMove : MonoBehaviour
             }
             return;
         }
+
+        // ▼▼▼ このブロックをUpdateの冒頭に追加 ▼▼▼
+        // 現在のアニメーションステートを確認
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        // もしFlinchingタグが付いたステートを再生中なら、AIの思考を停止する
+        if (stateInfo.IsTag(flinchingTagName))
+        {
+            // 移動を停止し、このフレームの処理を中断
+            if (agent.isOnNavMesh) agent.isStopped = true;
+            return;
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         
         // ▼▼▼ この安全確認を強化 ▼▼▼
         // エージェントが無効、またはNavMesh上にいない場合は、AIのロジックを実行しない
@@ -116,6 +131,17 @@ public class NPCMove : MonoBehaviour
         while (Time.time < retaliationEndTime)
         {
             if (target == null) break;
+
+            // ▼▼▼ ダメージモーション中は攻撃しないように、ここでもチェックを追加 ▼▼▼
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            if (stateInfo.IsTag(flinchingTagName))
+            {
+                // Flinching中は待機
+                yield return null;
+                continue; // ループの最初に戻る
+            }
+            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
             if(direction != Vector3.zero)
