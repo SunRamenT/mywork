@@ -2,11 +2,10 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    // ▼▼▼ カメラ設定をまとめるための新しいクラスを追加 ▼▼▼
     [System.Serializable]
     public class CameraState
     {
-        public string stateName; // Inspectorでの見出し用
+        public string stateName;
         [Range(0f, 1f)] public float lookAtHeightPercent = 0.85f;
         public Vector3 manualOffset = Vector3.zero;
         [Range(1f, 20f)] public float distance = 5f;
@@ -14,12 +13,10 @@ public class CameraController : MonoBehaviour
     }
 
     [Header("カメラ設定")]
-    [Tooltip("ゴースト状態の時のカメラ設定")]
     public CameraState ghostCameraState;
-    [Tooltip("NPC憑依中のカメラ設定")]
     public CameraState possessedCameraState;
-    [Tooltip("カメラ設定が切り替わる際の滑らかさ")]
-    [SerializeField, Range(0f, 10f)] private float transitionSpeed = 5f;
+    [Tooltip("カメラが目標に追従する際の滑らかさ。小さいほどゆっくり。")]
+    [SerializeField, Range(0.1f, 20f)] private float transitionSpeed = 5f;
 
     [Header("マウス設定")]
     [SerializeField, Min(0f)] private float mouseSensitivityX = 300f;
@@ -32,15 +29,8 @@ public class CameraController : MonoBehaviour
     private float yaw;
     private float pitch;
 
-    // 現在のカメラ設定（滑らかに変化させるため）
-    private float currentDistance;
-    private float currentHeightPercent;
-    private Vector3 currentManualOffset;
-    private float currentPitch;
-
     private void Start()
     {
-        // シーン内のPlayerControllerを自動で探す
         playerController = FindFirstObjectByType<PlayerController>();
         if (playerController == null)
         {
@@ -51,68 +41,54 @@ public class CameraController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        // 初期角度とカメラ設定を適用
+        
         yaw = playerController.transform.eulerAngles.y;
         pitch = ghostCameraState.pitch;
-        currentDistance = ghostCameraState.distance;
-        currentHeightPercent = ghostCameraState.lookAtHeightPercent;
-        currentManualOffset = ghostCameraState.manualOffset;
-        currentPitch = ghostCameraState.pitch;
     }
 
+    // カメラの更新はキャラクターの移動が完了した後に行うのが望ましいため、LateUpdateを使用
     private void LateUpdate()
     {
-        // PlayerControllerが見つからなければ何もしない
         if (playerController == null) return;
 
+        // 現在操作しているキャラクターのTransformを取得
+        Transform target = playerController.CurrentCharacterTransform;
+        if (target == null) return;
+        
+        // マウス入力で目標となる角度を更新
         HandleRotation();
-        UpdateCameraState();
-        UpdatePosition();
+
+        // --- ここからが新しいロジック ---
+
+        // 1. 憑依状態に応じて、目標となるカメラ設定を決定する
+        CameraState targetState = playerController.IsPossessing() ? possessedCameraState : ghostCameraState;
+
+        // 2. 目標設定に基づいて、「カメラが最終的に到達したい座標と角度」を計算する
+        Vector3 targetLookAtPos;
+        if (target.TryGetComponent<CharacterController>(out var controller))
+        {
+            float height = controller.height * targetState.lookAtHeightPercent;
+            targetLookAtPos = target.position + new Vector3(0, height, 0) + targetState.manualOffset;
+        }
+        else
+        {
+            targetLookAtPos = target.position + targetState.manualOffset;
+        }
+
+        Quaternion desiredRotation = Quaternion.Euler(pitch + targetState.pitch, yaw, 0f);
+        Vector3 desiredOffset = desiredRotation * new Vector3(0f, 0f, -targetState.distance);
+        Vector3 desiredPosition = targetLookAtPos + desiredOffset;
+
+        // 3. 現在のカメラの位置から、「目標座標」に向かって滑らかに移動させる
+        float t = Time.deltaTime * transitionSpeed;
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, t);
+        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, t);
     }
 
     private void HandleRotation()
     {
         yaw += Input.GetAxis("Mouse X") * mouseSensitivityX * Time.deltaTime;
-        pitch -= Input.GetAxis("Mouse Y") * mouseSensitivityY;
-        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
-    }
-
-    private void UpdateCameraState()
-    {
-        // プレイヤーがNPCに憑依しているかどうかに基づいて、目標とするカメラ設定を決める
-        CameraState targetState = playerController.IsPossessing() ? possessedCameraState : ghostCameraState;
-
-        // Lerpを使って、現在のカメラ設定を目標設定に滑らかに近づける
-        float t = Time.deltaTime * transitionSpeed;
-        currentDistance = Mathf.Lerp(currentDistance, targetState.distance, t);
-        currentHeightPercent = Mathf.Lerp(currentHeightPercent, targetState.lookAtHeightPercent, t);
-        currentManualOffset = Vector3.Lerp(currentManualOffset, targetState.manualOffset, t);
-        currentPitch = Mathf.Lerp(currentPitch, targetState.pitch, t); // Pitchも滑らかに
-    }
-
-    private void UpdatePosition()
-    {
-        // PlayerControllerから現在の操作対象を取得
-        Transform target = playerController.CurrentCharacterTransform;
-        if (target == null) return;
-
-        Vector3 targetPos;
-        if (target.TryGetComponent<CharacterController>(out var controller))
-        {
-            float height = controller.height * currentHeightPercent;
-            targetPos = target.position + new Vector3(0, height, 0) + currentManualOffset;
-        }
-        else
-        {
-            targetPos = target.position + currentManualOffset;
-        }
-
-        // マウス操作の角度と、状態に応じたPitchを組み合わせる
-        Quaternion rotation = Quaternion.Euler(pitch + currentPitch, yaw, 0f);
-        Vector3 offset = rotation * new Vector3(0f, 0f, -currentDistance);
-
-        transform.position = targetPos + offset;
-        transform.LookAt(targetPos);
+        // pitchの更新は、マウス操作による相対的な変化のみにする
+        pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * mouseSensitivityY, minPitch, maxPitch);
     }
 }

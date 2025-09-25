@@ -124,9 +124,10 @@ public class PlayerController : MonoBehaviour
 
         if (!currentController || !currentController.enabled) return;
 
-        if (Input.GetButtonDown("Fire3") && currentInteractable != null)
+        if (Input.GetButtonDown("Fire2") && currentInteractable != null)
         {
             currentInteractable.OnInteract(this);
+            return;
         }
 
         float h = Input.GetAxis("Horizontal");

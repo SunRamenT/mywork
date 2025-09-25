@@ -66,12 +66,17 @@ public class StatusManager : MonoBehaviour
     [Tooltip("ヒットエフェクトの高さを調整するオフセット")] 
     public float hitEffectOffsetY = 1.0f;
 
+    [Header("サウンド設定")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("攻撃がヒットした時に再生する効果音")]
+    public AudioClip hitSound;
+    private AudioSource audioSource; // ▼▼▼ 追加 ▼▼▼
+
     private void Awake()
     {
-        // modelRenderer = GetComponentInChildren<Renderer>(); // ← この行を削除またはコメントアウト
         npcMove = GetComponent<NPCMove>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>(); // ▼▼▼ AudioSourceを取得 ▼▼▼
     }
 
 
@@ -124,14 +129,6 @@ public class StatusManager : MonoBehaviour
     {
         if (isInvincible) return;
 
-        // ▼▼▼ ヒットストップを呼び出す処理にログを追加 ▼▼▼
-        if (HitStopManager.Instance != null)
-        {
-            Debug.Log($"[StatusManager] {this.gameObject.name} がダメージを受けました。HitStopManagerにヒットストップを要求します。");
-            HitStopManager.Instance.ApplyHitStop(hitStopDuration);
-        }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
         // ▼▼▼ ダメージアニメーションとノックバック処理を追加 ▼▼▼
 
         // 1. ダメージアニメーションのトリガーを起動
@@ -150,6 +147,14 @@ public class StatusManager : MonoBehaviour
 
         currentHp -= damage;
         UpdateHealthBarVisibility();
+
+        // ▼▼▼ ヒットストップを呼び出す処理にログを追加 ▼▼▼
+        if (HitStopManager.Instance != null)
+        {
+            Debug.Log($"[StatusManager] {this.gameObject.name} がダメージを受けました。HitStopManagerにヒットストップを要求します。");
+            HitStopManager.Instance.ApplyHitStop(hitStopDuration);
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         if (currentHp <= 0)
         {
@@ -358,7 +363,17 @@ public class StatusManager : MonoBehaviour
         AttackInfo attackInfo = other.GetComponent<AttackInfo>();
         // 接触してきたヒットボックスから、攻撃者本体のStatusManagerを探す
         StatusManager attackerStatus = other.GetComponentInParent<StatusManager>();
-        
+                
+        // 攻撃者が見つからなければ処理を中断
+        if (attackerStatus == null) return;
+
+
+        // 2. ヒット音を再生 ▼▼▼ 追加 ▼▼▼
+        if (attackerStatus.audioSource != null && attackerStatus.hitSound != null)
+        {
+            attackerStatus.audioSource.PlayOneShot(attackerStatus.hitSound);
+        }
+
         // 1. ヒットエフェクトを即座に生成
         if (attackerStatus.hitEffectPrefab != null)
         {
@@ -367,10 +382,10 @@ public class StatusManager : MonoBehaviour
             Vector3 hitPoint = other.ClosestPoint(transform.position);
             // そこから、攻撃者側で設定された高さオフセット分だけY座標を上げる
             Vector3 spawnPosition = hitPoint + new Vector3(0, attackerStatus.hitEffectOffsetY, 0);
-            
+
             Quaternion hitRotation = Quaternion.LookRotation(attackerStatus.transform.forward);
             Instantiate(attackerStatus.hitEffectPrefab, spawnPosition, hitRotation);
-            
+
         }
 
         if (attackInfo != null)

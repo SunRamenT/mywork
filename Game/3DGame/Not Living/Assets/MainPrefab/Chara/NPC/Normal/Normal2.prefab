@@ -3079,6 +3079,7 @@ GameObject:
   - component: {fileID: 5291039760763630776}
   - component: {fileID: 1476562089577502268}
   - component: {fileID: 4386807418438897755}
+  - component: {fileID: 1467851958875779094}
   m_Layer: 12
   m_Name: Normal2
   m_TagString: NPC
@@ -3251,7 +3252,9 @@ MonoBehaviour:
   itemDropOffsetY: 2
   characterModelRenderer: {fileID: 4373131464620333864}
   damageTriggerName: Damage
-  hitEffectPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 5024009746357069194, guid: 61e0f601ffc264846b1d456d1db6b655, type: 3}
+  hitEffectOffsetY: 0.2
+  hitSound: {fileID: 8300000, guid: 79f4b8b8ecde82b46a88d8700a1ad428, type: 3}
 --- !u!114 &1476562089577502268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3281,6 +3284,103 @@ MonoBehaviour:
   cooldownDuration: 5
   guardInvincibilityDuration: 2
   abilityName: "\u30E0\u30C6\u30AD"
+--- !u!82 &1467851958875779094
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8628840182001584310}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 0
+  MaxDistance: 3
+  Pan2D: 0
+  rolloffMode: 1
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &8871283303427130236
 GameObject:
   m_ObjectHideFlags: 0
@@ -3564,6 +3664,10 @@ PrefabInstance:
     - target: {fileID: 4716033026942832744, guid: 0ae7df0e9886f80499e9cc558b8423f3, type: 3}
       propertyPath: m_Size.z
       value: 0.14403541
+      objectReference: {fileID: 0}
+    - target: {fileID: 4716033026942832744, guid: 0ae7df0e9886f80499e9cc558b8423f3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4716033026942832744, guid: 0ae7df0e9886f80499e9cc558b8423f3, type: 3}
       propertyPath: m_Center.x
