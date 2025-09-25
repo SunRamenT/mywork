@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3291078349816488384}
   - component: {fileID: 4716033026942832744}
   - component: {fileID: -1946151026897332436}
+  - component: {fileID: 2478164801118783024}
   m_Layer: 15
   m_Name: Hitbox
   m_TagString: punch
@@ -50,7 +51,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.45812598, y: 0.5432627, z: 0.14403477}
   m_Center: {x: 0, y: 0, z: 0}
@@ -66,4 +67,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68e39f30a7906b6438db5f2fdba3dd7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 10
+  damage: 5
+--- !u!114 &2478164801118783024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4697253619490065975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edcb903179d0d394f8b290fb020744fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundType: 1
+  volume: 5
+  possessOnly: 0

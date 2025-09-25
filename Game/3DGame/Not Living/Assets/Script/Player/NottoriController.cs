@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Linq;
 
+[RequireComponent(typeof(AudioSource))]
 public class NottoriController : MonoBehaviour
 {
     [Header("Settings")]
@@ -14,6 +15,16 @@ public class NottoriController : MonoBehaviour
     [Tooltip("乗っ取り対象の消滅時に受ける霊魂ダメージ")]
     public float deathPenaltyAmount = 25f;
     
+    [Header("Sound Settings")]
+    public AudioClip possessSound;
+    public AudioClip releaseSound;
+    
+    [Header("Effect Settings")]
+    public GameObject possessEffectPrefab;
+    public GameObject releaseEffectPrefab;
+    [Tooltip("エフェクトを表示する高さのオフセット")]
+    public float effectYOffset = 1.0f;
+
     [Header("Animator Settings")]
     public string possessionBoolName = "Nottori";
     public string jumpBoolName = "isJump";
@@ -22,6 +33,7 @@ public class NottoriController : MonoBehaviour
 
     [HideInInspector] public bool isPossessing = false;
 
+    // --- Private Variables ---
     private GameObject currentNPC;
     private Renderer[] ghostRenderers;
     private PlayerController playerController;
@@ -29,6 +41,7 @@ public class NottoriController : MonoBehaviour
     private NPCMove npcMove;
     private NavMeshAgent npcAgent;
     private CharacterController npcController;
+    private AudioSource audioSource;
 
     private void Awake()
     {
@@ -36,7 +49,8 @@ public class NottoriController : MonoBehaviour
         ghostRenderers = ghost.GetComponentsInChildren<Renderer>();
         playerController = GetComponent<PlayerController>();
         ghostAnimator = ghost.GetComponent<Animator>();
-        if(ghostAnimator == null) Debug.LogError("GhostにAnimatorコンポーネントがありません！");
+        audioSource = GetComponent<AudioSource>();
+        if(ghostAnimator == null) Debug.LogError("GhostにAnimatorコンポー-ネントがありません！");
     }
 
     private void Update()
@@ -63,23 +77,27 @@ public class NottoriController : MonoBehaviour
 
     private void StartPossess(GameObject npc)
     {
+        if (possessSound != null) audioSource.PlayOneShot(possessSound);
+        
+        if (possessEffectPrefab != null)
+        {
+            // ▼▼▼ 乗っ取り時は「乗っ取る対象のNPCの位置」を基準にする ▼▼▼
+            Vector3 spawnPosition = npc.transform.position + new Vector3(0, effectYOffset, 0);
+            Instantiate(possessEffectPrefab, spawnPosition, Quaternion.identity);
+        }
+
         currentNPC = npc;
         isPossessing = true;
         SetGhostVisible(false);
 
-        if (ghostAnimator != null)
-        {
-            ghostAnimator.SetBool(possessionBoolName, true);
-        }
-
+        if (ghostAnimator != null) ghostAnimator.SetBool(possessionBoolName, true);
+        
         npcMove = currentNPC.GetComponent<NPCMove>();
         if (npcMove != null) npcMove.isNottoried = true;
-
-        // AI用のNavMeshAgentは無効化
+        
         npcAgent = currentNPC.GetComponent<NavMeshAgent>();
         if (npcAgent != null) npcAgent.enabled = false;
-
-        // プレイヤー操作用のCharacterControllerは有効化
+        
         npcController = currentNPC.GetComponent<CharacterController>();
         if (npcController != null) npcController.enabled = true;
 
@@ -90,9 +108,24 @@ public class NottoriController : MonoBehaviour
     public void ForceRelease()
     {
         if (!isPossessing) return;
+        
+        if (releaseSound != null) audioSource.PlayOneShot(releaseSound);
 
         if(currentNPC != null)
         {
+            // ▼▼▼ 乗っ取り解除時は「幽霊が出現する位置」を基準にする ▼▼▼
+            // 先に幽霊の出現位置を計算する
+            Vector3 releasePosition = currentNPC.transform.position + (currentNPC.transform.forward * releaseForwardDistance);
+
+            if (releaseEffectPrefab != null)
+            {
+                Vector3 spawnPosition = releasePosition + new Vector3(0, effectYOffset, 0);
+                Instantiate(releaseEffectPrefab, spawnPosition, Quaternion.identity);
+            }
+            
+            // 計算した出現位置に幽霊を移動させる
+            ghost.transform.position = releasePosition;
+
             Animator npcAnimator = currentNPC.GetComponent<Animator>();
             if (npcAnimator != null)
             {
@@ -101,21 +134,11 @@ public class NottoriController : MonoBehaviour
                 if (HasParameter(npcAnimator, verticalFloatName)) npcAnimator.SetFloat(verticalFloatName, 0f);
             }
             
-            // AI用のNavMeshAgentを有効化
             if (npcAgent != null) npcAgent.enabled = true;
-            // プレイヤー操作用のCharacterControllerを無効化
-            //if (npcController != null) npcController.enabled = false;
-
             if (npcMove != null) npcMove.isNottoried = false;
-
-            Vector3 offset = currentNPC.transform.forward * releaseForwardDistance;
-            ghost.transform.position = currentNPC.transform.position + offset;
         }
 
-        if (ghostAnimator != null)
-        {
-            ghostAnimator.SetBool(possessionBoolName, false);
-        }
+        if (ghostAnimator != null) ghostAnimator.SetBool(possessionBoolName, false);
         
         SetGhostVisible(true);
         playerController.SetTargetNPC(null, null);
@@ -123,7 +146,7 @@ public class NottoriController : MonoBehaviour
         currentNPC = null;
         isPossessing = false;
     }
-
+    
     private void SetGhostVisible(bool visible)
     {
         foreach (var rend in ghostRenderers) rend.enabled = visible;

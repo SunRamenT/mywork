@@ -51,6 +51,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("ダメージモーションのステートに設定したタグ名")] // ▼▼▼ 追加 ▼▼▼
     public string flinchingTagName = "Flinching";
 
+    private bool wasGrounded; 
+
     private void Awake()
     {
         ghost = this.gameObject;
@@ -161,6 +163,8 @@ public class PlayerController : MonoBehaviour
                 // 特殊能力
                 if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
                 {
+                    // ▼▼▼ 特殊能力の音を再生する処理を追加 ▼▼▼
+                    currentCharacter.GetComponent<CharacterSounds>().PlaySpecialAbilitySound();
                     currentSpecialAction.PerformAction(this);
                 }
             }
@@ -177,6 +181,16 @@ public class PlayerController : MonoBehaviour
 
         float currentSpeed = IsPossessing() && npcStatusManager != null ? npcStatusManager.speed : this.moveSpeed;
         Vector3 move = (currentCharacter.transform.forward * v + currentCharacter.transform.right * h).normalized * currentSpeed;
+
+        // ▼▼▼ 着地判定と重力の処理を修正 ▼▼▼
+        bool isGrounded = currentController.isGrounded;
+
+        // もし前のフレームでは空中にいて、今のフレームで地面にいるなら、それは「着地した瞬間」
+        if (!wasGrounded && isGrounded)
+        {
+            // 着地音を再生
+            currentCharacter.GetComponent<CharacterSounds>()?.PlayLandingSound();
+        }
 
         if (currentController.isGrounded)
         {
@@ -201,7 +215,11 @@ public class PlayerController : MonoBehaviour
 
         Vector3 finalMove = move + new Vector3(0, velocity.y, 0);
         currentController.Move(finalMove * Time.deltaTime);
-
+        
+        // --- フレームの最後に、今の地面状態を記録しておく ---
+        wasGrounded = isGrounded;
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        
         if (targetNPC != null)
         {
             ghost.transform.position = targetNPC.transform.position;

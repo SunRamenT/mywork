@@ -1159,6 +1159,8 @@ GameObject:
   - component: {fileID: 66907337915071345}
   - component: {fileID: 1088512767096643754}
   - component: {fileID: 2441561352521377158}
+  - component: {fileID: -1863143727061422308}
+  - component: {fileID: 8384340466187462614}
   m_Layer: 12
   m_Name: Norma1
   m_TagString: NPC
@@ -1275,6 +1277,7 @@ MonoBehaviour:
   power: 10
   speed: 5
   jumpPower: 5
+  footstepVolume: 2
   hourlyHealAmount: 10
   reputation: 50
   currentPopularity: 
@@ -1292,6 +1295,7 @@ MonoBehaviour:
   hitEffectPrefab: {fileID: 5024009746357069194, guid: 73f801d9ef666fb48b857b0c5cb76d9c, type: 3}
   hitEffectOffsetY: 0.2
   hitSound: {fileID: 8300000, guid: 79f4b8b8ecde82b46a88d8700a1ad428, type: 3}
+  footstepSound: {fileID: 8300000, guid: 15ec2b68c30cf524ebdbd30efa56a9c1, type: 3}
 --- !u!65 &1056621011581399881
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1508,6 +1512,32 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-1863143727061422308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2537784867759110673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59a254bc82fb03946991a65eec2e0d52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8384340466187462614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2537784867759110673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f9b8655f3963f3468d99163b7ae393e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  specialAbilitySound: {fileID: 8300000, guid: 1d1c7396867d6c5409f2a9add78e8652, type: 3}
+  landingSound: {fileID: 0}
 --- !u!1 &2664567710390387237
 GameObject:
   m_ObjectHideFlags: 0

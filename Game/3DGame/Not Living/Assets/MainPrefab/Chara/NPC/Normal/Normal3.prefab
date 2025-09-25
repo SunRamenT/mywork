@@ -2334,6 +2334,8 @@ GameObject:
   - component: {fileID: -3549561821803878735}
   - component: {fileID: 813573016541363039}
   - component: {fileID: 4441447027857939831}
+  - component: {fileID: 5811561432925440352}
+  - component: {fileID: 1360222772927693566}
   m_Layer: 12
   m_Name: Normal3
   m_TagString: NPC
@@ -2492,6 +2494,7 @@ MonoBehaviour:
   power: 20
   speed: 3
   jumpPower: 3
+  footstepVolume: 2
   hourlyHealAmount: 10
   reputation: 50
   currentPopularity: 
@@ -2509,6 +2512,7 @@ MonoBehaviour:
   hitEffectPrefab: {fileID: 5024009746357069194, guid: 61e0f601ffc264846b1d456d1db6b655, type: 3}
   hitEffectOffsetY: 0.2
   hitSound: {fileID: 8300000, guid: 79f4b8b8ecde82b46a88d8700a1ad428, type: 3}
+  footstepSound: {fileID: 8300000, guid: 15ec2b68c30cf524ebdbd30efa56a9c1, type: 3}
 --- !u!114 &-3549561821803878735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2635,6 +2639,32 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5811561432925440352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5993942175922792291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59a254bc82fb03946991a65eec2e0d52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1360222772927693566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5993942175922792291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f9b8655f3963f3468d99163b7ae393e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  specialAbilitySound: {fileID: 8300000, guid: 1d1c7396867d6c5409f2a9add78e8652, type: 3}
+  landingSound: {fileID: 0}
 --- !u!1 &6058670739493132970
 GameObject:
   m_ObjectHideFlags: 0

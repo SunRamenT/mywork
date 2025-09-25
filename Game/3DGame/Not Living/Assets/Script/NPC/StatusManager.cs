@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.AI;
+using UniRx;
 
 public class StatusManager : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class StatusManager : MonoBehaviour
     public int power = 10;
     public float speed = 3f;
     public float jumpPower = 5f;
+    [Tooltip("このキャラクターが立てる足音の大きさ（聞こえる半径）")] // ▼▼▼ 追加 ▼▼▼
+    public float footstepVolume = 10f;
 
     [Header("自動回復")]
     public int hourlyHealAmount = 10;
@@ -70,6 +73,9 @@ public class StatusManager : MonoBehaviour
     [Tooltip("攻撃がヒットした時に再生する効果音")]
     public AudioClip hitSound;
     private AudioSource audioSource; // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("このキャラクターの歩行音")] // ▼▼▼ 追加 ▼▼▼
+    public AudioClip footstepSound;
+
 
     private void Awake()
     {
@@ -145,16 +151,32 @@ public class StatusManager : MonoBehaviour
         }
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
+        // 攻撃側の乗っ取り状態を確認
+        bool isAttackerPossessed = false;
+        if (attacker != null)
+        {
+            NPCMove attackerNpcMove = attacker.GetComponent<NPCMove>();
+            if (attackerNpcMove != null)
+            {
+                isAttackerPossessed = attackerNpcMove.isNottoried;
+            }
+        }
+
+        // 自分（受けた側）の乗っ取り状態を確認
+        bool isVictimPossessed = (this.npcMove != null && this.npcMove.isNottoried);
+
+        // どちらかが乗っ取られている場合のみヒットストップを発動
+        if (isAttackerPossessed || isVictimPossessed)
+        {
+            if (HitStopManager.Instance != null)
+            {
+                HitStopManager.Instance.ApplyHitStop(hitStopDuration, this);
+            }
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         currentHp -= damage;
         UpdateHealthBarVisibility();
-
-        // ▼▼▼ ヒットストップを呼び出す処理にログを追加 ▼▼▼
-        if (HitStopManager.Instance != null)
-        {
-            Debug.Log($"[StatusManager] {this.gameObject.name} がダメージを受けました。HitStopManagerにヒットストップを要求します。");
-            HitStopManager.Instance.ApplyHitStop(hitStopDuration);
-        }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         if (currentHp <= 0)
         {
@@ -335,11 +357,24 @@ public class StatusManager : MonoBehaviour
         else currentPopularity = "Worst";
     }
     
+    public void PlayFootstepSound()
+    {
+        // NPCMoveコンポーネントがあり、かつ「乗っ取られている」状態の場合のみ
+        if (npcMove != null && npcMove.isNottoried)
+        {
+            // 設定された足音があれば再生する
+            if (footstepSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(footstepSound);
+            }
+        }
+        // 乗っ取られていない（AIで動いている）場合は、何もせずに処理を終了する
+    }
     
     private void OnTriggerEnter(Collider other)
     {
         // ヒットボックスのタグが "punch" でなければ何もしない
-        if(!other.gameObject.CompareTag("punch")) return;
+        if (!other.gameObject.CompareTag("punch")) return;
 
         // --- ▼▼▼ 自分自身への攻撃判定ロジックを修正 ▼▼▼ ---
 
@@ -348,7 +383,7 @@ public class StatusManager : MonoBehaviour
 
         // 2. 攻撃者のキャラクター本体が見つからない場合は、無効な攻撃なので処理を中断
         if (attackerMoveScript == null) return;
-            
+
         // 3. 攻撃者のキャラクター本体(attackerMoveScript.gameObject)と
         //    ダメージを受ける自分自身(this.gameObject)が同じなら、それは自分自身への攻撃なので処理を中断
         if (attackerMoveScript.gameObject == this.gameObject)
@@ -356,14 +391,21 @@ public class StatusManager : MonoBehaviour
             return;
         }
 
-        // --- ▲▲▲ 修正ここまで ▲▲▲ ---
+
+        // 攻撃者のヒットボックスからSoundEmitterを探す
+        SoundEmitter emitter = other.GetComponent<SoundEmitter>();
+        // もし見つかったら音を発生させる
+        if (emitter != null)
+        {
+            emitter.EmitSound();
+        }
 
         // 自分自身への攻撃でないことが確定したので、ダメージ処理に進む
         GameObject attacker = attackerMoveScript.gameObject;
         AttackInfo attackInfo = other.GetComponent<AttackInfo>();
         // 接触してきたヒットボックスから、攻撃者本体のStatusManagerを探す
         StatusManager attackerStatus = other.GetComponentInParent<StatusManager>();
-                
+
         // 攻撃者が見つからなければ処理を中断
         if (attackerStatus == null) return;
 

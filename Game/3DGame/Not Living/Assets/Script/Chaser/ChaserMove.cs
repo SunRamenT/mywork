@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UniRx; // ▼▼▼ この一行を追加 ▼▼▼
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class ChaserMove : MonoBehaviour
@@ -9,13 +10,10 @@ public class ChaserMove : MonoBehaviour
     private ReikonManager reikonManager;
 
     [Header("コンポーネント参照")]
-    [Tooltip("視界を可視化するためのSpotlight")]
     public Light sightLight;
 
     [Header("Light Settings")]
-    [Tooltip("通常（徘徊）時のライトの色")]
     public Color patrolLightColor = Color.yellow;
-    [Tooltip("プレイヤー発見（追跡）時のライトの色")]
     public Color chasingLightColor = Color.red;
 
     [Header("Agent Type Settings")]
@@ -26,25 +24,33 @@ public class ChaserMove : MonoBehaviour
 
     [Header("AI States")]
     public float humanoidSpeed = 3.5f;
+    public float investigatingSpeed = 5.0f;
     public float chaserSpeed = 7.0f;
     public float chaserAcceleration = 16f;
     private float initialAcceleration;
 
     [Header("AI Settings")]
+    public float hearingSensitivity = 1.0f;
     public float sightRadius = 15f;
     [Range(0, 90)]
     public float sightAngle = 60f;
     public float patrolRadius = 30f;
     public float losePlayerTime = 5.0f;
+    [Tooltip("音の調査を諦めるまでの時間（秒）")] // ▼▼▼ 追加 ▼▼▼
+    public float investigationTimeout = 8.0f;
     public float dangerAuraRadius = 10f;
 
     [Header("遮蔽物チェック用")]
     public LayerMask obstacleMask;
 
-    private enum AIState { Patrolling, Chasing }
+    private enum AIState { Patrolling, Chasing, Investigating }
     private AIState currentState;
     private float timeSinceLastSeenPlayer = 0f;
+    private float investigationTimer = 0f;
     private bool isPlayerInAura = false;
+
+    // MessageBrokerの購読を管理するための変数
+    private CompositeDisposable disposables = new CompositeDisposable();
 
     void Start()
     {
@@ -78,23 +84,52 @@ public class ChaserMove : MonoBehaviour
         {
             sightLight.color = patrolLightColor;
         }
+
+        MessageBroker.Default
+            .Receive<SoundPacket>()
+            .Subscribe(packet => OnSoundHeard(packet))
+            .AddTo(disposables);
     }
+
+
+    private void OnDestroy()
+    {
+        // このオブジェクトが破棄される際に、監視を確実に終了させる
+        disposables.Dispose();
+
+        if (isPlayerInAura && reikonManager != null)
+        {
+            reikonManager.OnChaserExitAura();
+        }
+    }
+
+    private void OnSoundHeard(SoundPacket packet)
+    {
+        if (packet.Type == SoundType.EnemyNoise) return;
+
+        float distanceToSound = Vector3.Distance(transform.position, packet.Position);
+        float audibleRange = packet.Volume * hearingSensitivity;
+        if (distanceToSound > audibleRange) return;
+
+        if (currentState != AIState.Chasing)
+        {
+            currentState = AIState.Investigating;
+            agent.speed = investigatingSpeed;
+            agent.SetDestination(packet.Position);
+            investigationTimer = 0f; // ▼▼▼ 調査タイマーをリセット ▼▼▼
+        }
+    }
+
 
     void Update()
     {
-        // ▼▼▼ この安全確認を追加 ▼▼▼
-        // エージェントが無効、またはNavMesh上にいない場合は、AIのロジックを実行しない
-        if (!agent.enabled || !agent.isOnNavMesh)
-        {
-            return; // このフレームの処理を中断
-        }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        if (!agent.enabled || !agent.isOnNavMesh) return;
 
         switch (currentState)
         {
             case AIState.Patrolling:
+                agent.speed = humanoidSpeed;
                 LookForPlayer();
-                // pathPending: パス計算中かどうか。計算中にremainingDistanceにアクセスするとエラーになることがある
                 if (!agent.pathPending && agent.remainingDistance < 0.5f)
                 {
                     SetNewPatrolDestination();
@@ -103,7 +138,6 @@ public class ChaserMove : MonoBehaviour
 
             case AIState.Chasing:
                 agent.SetDestination(player.position);
-                
                 if (!IsPlayerInSight())
                 {
                     timeSinceLastSeenPlayer += Time.deltaTime;
@@ -114,16 +148,25 @@ public class ChaserMove : MonoBehaviour
                         agent.speed = humanoidSpeed;
                         agent.acceleration = initialAcceleration;
                         SetNewPatrolDestination();
-
-                        if (sightLight != null)
-                        {
-                            sightLight.color = patrolLightColor;
-                        }
+                        if (sightLight != null) sightLight.color = patrolLightColor;
                     }
                 }
                 else
                 {
                     timeSinceLastSeenPlayer = 0f;
+                }
+                break;
+                
+            // ▼▼▼ 調査ステートのロジックを修正 ▼▼▼
+            case AIState.Investigating:
+                LookForPlayer(); // 調査中もプレイヤーを探し続ける
+                investigationTimer += Time.deltaTime; // タイマーを進める
+
+                // 目的地に到着した、または調査時間がタイムアウトした場合
+                if ((!agent.pathPending && agent.remainingDistance < 0.5f) || investigationTimer > investigationTimeout)
+                {
+                    // 徘徊モードに戻る
+                    currentState = AIState.Patrolling;
                 }
                 break;
         }
@@ -139,7 +182,6 @@ public class ChaserMove : MonoBehaviour
             agent.speed = chaserSpeed;
             agent.acceleration = chaserAcceleration;
             timeSinceLastSeenPlayer = 0f;
-
             if (sightLight != null)
             {
                 sightLight.color = chasingLightColor;
@@ -159,9 +201,7 @@ public class ChaserMove : MonoBehaviour
     private void CheckDangerAura()
     {
         if (player == null || reikonManager == null) return;
-
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
         if (distanceToPlayer <= dangerAuraRadius && !isPlayerInAura)
         {
             isPlayerInAura = true;
@@ -170,14 +210,6 @@ public class ChaserMove : MonoBehaviour
         else if (distanceToPlayer > dangerAuraRadius && isPlayerInAura)
         {
             isPlayerInAura = false;
-            reikonManager.OnChaserExitAura();
-        }
-    }
-    
-    private void OnDestroy()
-    {
-        if (isPlayerInAura && reikonManager != null)
-        {
             reikonManager.OnChaserExitAura();
         }
     }
