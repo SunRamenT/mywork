@@ -58,8 +58,13 @@ public class StatusManager : MonoBehaviour
     private NPCMove npcMove;
 
     private NavMeshAgent agent;
-    private Animator animator; // ▼▼▼ Animatorへの参照を追加 ▼▼▼
+    private Animator animator; 
 
+    [Header("エフェクト設定")] 
+    [Tooltip("このキャラクターが攻撃を当てた時に出すヒットエフェクト")]
+    public GameObject hitEffectPrefab;
+    [Tooltip("ヒットエフェクトの高さを調整するオフセット")] 
+    public float hitEffectOffsetY = 1.0f;
 
     private void Awake()
     {
@@ -119,6 +124,14 @@ public class StatusManager : MonoBehaviour
     {
         if (isInvincible) return;
 
+        // ▼▼▼ ヒットストップを呼び出す処理にログを追加 ▼▼▼
+        if (HitStopManager.Instance != null)
+        {
+            Debug.Log($"[StatusManager] {this.gameObject.name} がダメージを受けました。HitStopManagerにヒットストップを要求します。");
+            HitStopManager.Instance.ApplyHitStop(hitStopDuration);
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         // ▼▼▼ ダメージアニメーションとノックバック処理を追加 ▼▼▼
 
         // 1. ダメージアニメーションのトリガーを起動
@@ -134,14 +147,6 @@ public class StatusManager : MonoBehaviour
             ApplyKnockback(knockbackDirection, knockbackForce, knockbackDuration);
         }
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
-        // ▼▼▼ ヒットストップを呼び出す処理にログを追加 ▼▼▼
-        if (HitStopManager.Instance != null)
-        {
-            Debug.Log($"[StatusManager] {this.gameObject.name} がダメージを受けました。HitStopManagerにヒットストップを要求します。");
-            HitStopManager.Instance.ApplyHitStop(hitStopDuration);
-        }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         currentHp -= damage;
         UpdateHealthBarVisibility();
@@ -351,6 +356,23 @@ public class StatusManager : MonoBehaviour
         // 自分自身への攻撃でないことが確定したので、ダメージ処理に進む
         GameObject attacker = attackerMoveScript.gameObject;
         AttackInfo attackInfo = other.GetComponent<AttackInfo>();
+        // 接触してきたヒットボックスから、攻撃者本体のStatusManagerを探す
+        StatusManager attackerStatus = other.GetComponentInParent<StatusManager>();
+        
+        // 1. ヒットエフェクトを即座に生成
+        if (attackerStatus.hitEffectPrefab != null)
+        {
+            // ▼▼▼ エフェクトの生成位置を修正 ▼▼▼
+            // 接触点の最も近い位置を基準にする
+            Vector3 hitPoint = other.ClosestPoint(transform.position);
+            // そこから、攻撃者側で設定された高さオフセット分だけY座標を上げる
+            Vector3 spawnPosition = hitPoint + new Vector3(0, attackerStatus.hitEffectOffsetY, 0);
+            
+            Quaternion hitRotation = Quaternion.LookRotation(attackerStatus.transform.forward);
+            Instantiate(attackerStatus.hitEffectPrefab, spawnPosition, hitRotation);
+            
+        }
+
         if (attackInfo != null)
         {
             TakeDamage(attackInfo.damage, attacker);

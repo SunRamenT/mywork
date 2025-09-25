@@ -6,7 +6,6 @@ public class HitEffectSpawner : MonoBehaviour
     [Tooltip("攻撃がヒットした時に生成するエフェクトのプレハブ")]
     public GameObject hitEffectPrefab;
 
-    // このスクリプトがアタッチされているコライダーが、他のトリガーコライダーに接触した瞬間に呼び出される
     // HitEffectSpawner.cs
     private void OnTriggerEnter(Collider other)
     {
@@ -16,7 +15,7 @@ public class HitEffectSpawner : MonoBehaviour
         Transform victimRoot = other.transform.root;
 
         if (attackerRoot == victimRoot) return;
-
+        
         // ▼▼▼ 接触した相手のTagをログに表示する ▼▼▼
         Debug.Log($"接触した相手の親オブジェクトは '{victimRoot.name}' で、そのTagは '{victimRoot.tag}' です。");
 

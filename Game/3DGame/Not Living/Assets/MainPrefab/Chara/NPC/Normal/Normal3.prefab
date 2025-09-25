@@ -2496,7 +2496,7 @@ MonoBehaviour:
   currentPopularity: 
   invincibilityDuration: 0.7
   invincibilityBlinkInterval: 0.2
-  hitStopDuration: 0.5
+  hitStopDuration: 0.3
   knockbackForce: 5
   knockbackDuration: 0.2
   healthBarCanvas: {fileID: 7941949305875633163}
@@ -2505,6 +2505,7 @@ MonoBehaviour:
   itemDropOffsetY: 1
   characterModelRenderer: {fileID: 5143096160457654761}
   damageTriggerName: Damage
+  hitEffectPrefab: {fileID: 0}
 --- !u!114 &-3549561821803878735
 MonoBehaviour:
   m_ObjectHideFlags: 0
