@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3300000}
   - component: {fileID: 2300000}
   - component: {fileID: -3235613193438238908}
+  - component: {fileID: 9037720299267255215}
   m_Layer: 0
   m_Name: Building_Drug Store
   m_TagString: Building
@@ -108,3 +109,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 11.218784, y: 6.499003, z: 8.825197}
   m_Center: {x: -0.00001859665, y: 3.2494767, z: -0.5114137}
+--- !u!208 &9037720299267255215
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 5.609, y: 3.2500002, z: 5.2860003}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 3.249, z: 0.36200002}
+  m_TimeToStationary: 0.5

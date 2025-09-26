@@ -7,7 +7,7 @@ using System;
 public class ChaserSpawnRule
 {
     public string ruleDescription = "新規ルール";
-    [Tooltip("この善悪値『以下』になったら条件を満たす")]
+    [Tooltip("この善悪値『以上』になったら条件を満たす")]
     public float maxGoodEvilValue = -10f;
     [Tooltip("この日数『以上』になったら条件を満たす")]
     public int minDaysSurvived = 3;
@@ -62,7 +62,7 @@ public class ChaserGenerator : MonoBehaviour
         int targetChaserCount = 0;
         foreach (var rule in spawnRules)
         {
-            if (currentGoodEvil <= rule.maxGoodEvilValue && currentDays >= rule.minDaysSurvived)
+            if (currentGoodEvil >= rule.maxGoodEvilValue && currentDays >= rule.minDaysSurvived)
             {
                 targetChaserCount = rule.chaserCount;
             }

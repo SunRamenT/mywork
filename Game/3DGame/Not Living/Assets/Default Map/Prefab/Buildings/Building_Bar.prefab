@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2300000}
   - component: {fileID: 9500000}
   - component: {fileID: 6467955910797328526}
+  - component: {fileID: 7572537602446522207}
   m_Layer: 0
   m_Name: Building_Bar
   m_TagString: Building
@@ -131,3 +132,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 7.3578935, y: 10.411013, z: 6.1050553}
   m_Center: {x: -0.0225451, y: 5.205495, z: -0.36732268}
+--- !u!208 &7572537602446522207
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 3.6790001, y: 5.2060003, z: 3.7040002}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.023000002, y: 5.2050004, z: 0.284}
+  m_TimeToStationary: 0.5

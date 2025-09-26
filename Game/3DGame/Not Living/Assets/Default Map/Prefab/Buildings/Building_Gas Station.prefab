@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -5071090593057536335}
   - component: {fileID: 4052297654579123048}
   - component: {fileID: 238013774897238308}
+  - component: {fileID: -4311142686273693193}
   m_Layer: 0
   m_Name: Building_Gas Station
   m_TagString: Building
@@ -152,3 +153,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.159246, y: 7.994399, z: 3.039917}
   m_Center: {x: -0.30823636, y: 3.9971995, z: 11.438114}
+--- !u!208 &-4311142686273693193
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 6.5000005, y: 3.9970002, z: 12.801001}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.066, y: 3.9970002, z: 2.4290001}
+  m_TimeToStationary: 0.5

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3300000}
   - component: {fileID: 2300000}
   - component: {fileID: 3267255900231617603}
+  - component: {fileID: 2220713895967981318}
   m_Layer: 0
   m_Name: Building_Fruits  Shop
   m_TagString: Building
@@ -108,3 +109,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 11.293366, y: 11.605602, z: 11.40367}
   m_Center: {x: -0.28183603, y: 5.802828, z: -0.28675222}
+--- !u!208 &2220713895967981318
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 6.063, y: 5.8030005, z: 6.078}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.135, y: 5.8030005, z: 0.089}
+  m_TimeToStationary: 0.5

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3300000}
   - component: {fileID: 2300000}
   - component: {fileID: 1973306438373415903}
+  - component: {fileID: -2306292648062232717}
   m_Layer: 0
   m_Name: Building Sky_big_color03
   m_TagString: Building
@@ -108,3 +109,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 13.659739, y: 24.802341, z: 11.6764}
   m_Center: {x: -0.0000023841858, y: 12.401167, z: -0.18554449}
+--- !u!208 &-2306292648062232717
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 6.8300004, y: 12.401001, z: 6.1480002}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 12.401001, z: 0.124000005}
+  m_TimeToStationary: 0.5

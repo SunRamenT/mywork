@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3300000}
   - component: {fileID: 2300000}
   - component: {fileID: -6821408261773678501}
+  - component: {fileID: -5269106515294481698}
   m_Layer: 0
   m_Name: Building_Bakery
   m_TagString: Building
@@ -108,3 +109,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 13.589754, y: 6.883112, z: 8.395774}
   m_Center: {x: 0.0005578995, y: 3.441556, z: -1.1612657}
+--- !u!208 &-5269106515294481698
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 6.7950006, y: 4.2400002, z: 5.6380005}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.001, y: 4.2400002, z: 0.27800003}
+  m_TimeToStationary: 0.5

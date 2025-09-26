@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3300000}
   - component: {fileID: 2300000}
   - component: {fileID: 3126257253464322962}
+  - component: {fileID: 4466024004967202612}
   m_Layer: 0
   m_Name: Building_Coffee Shop
   m_TagString: Building
@@ -108,3 +109,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 18.494314, y: 7.0017276, z: 11.031774}
   m_Center: {x: 0.113165855, y: 3.5000346, z: -0.5569892}
+--- !u!208 &4466024004967202612
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 9.688001, y: 3.5010002, z: 6.229}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.32700002, y: 3.5000002, z: 0.156}
+  m_TimeToStationary: 0.5

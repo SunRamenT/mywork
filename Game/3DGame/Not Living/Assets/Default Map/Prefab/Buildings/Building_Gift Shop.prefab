@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3300000}
   - component: {fileID: 2300000}
   - component: {fileID: 3836793062746789471}
+  - component: {fileID: -305479276252587571}
   m_Layer: 0
   m_Name: Building_Gift Shop
   m_TagString: Building
@@ -108,3 +109,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 11.218784, y: 5.442493, z: 9.171026}
   m_Center: {x: -0.00001859665, y: 2.7212455, z: -0.33849907}
+--- !u!208 &-305479276252587571
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 5.609, y: 3.2500002, z: 5.2860003}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 3.2500002, z: 0.36200002}
+  m_TimeToStationary: 0.5

@@ -174,7 +174,7 @@ Light:
   m_Type: 0
   m_Color: {r: 1, g: 0.16606326, b: 0, a: 1}
   m_Intensity: 8
-  m_Range: 15
+  m_Range: 7
   m_SpotAngle: 140
   m_InnerSpotAngle: 1
   m_CookieSize: 10
@@ -1113,7 +1113,7 @@ MonoBehaviour:
   chaserSpeed: 7
   chaserAcceleration: 16
   hearingSensitivity: 1
-  sightRadius: 15
+  sightRadius: 7
   sightAngle: 70
   patrolRadius: 60
   losePlayerTime: 5

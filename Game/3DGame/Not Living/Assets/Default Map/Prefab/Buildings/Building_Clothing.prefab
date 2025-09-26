@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3300000}
   - component: {fileID: 2300000}
   - component: {fileID: 3049999798568584655}
+  - component: {fileID: 5884435887399830576}
   m_Layer: 0
   m_Name: Building_Clothing
   m_TagString: Building
@@ -108,3 +109,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 11.85741, y: 11.605602, z: 11.60815}
   m_Center: {x: -0.05159855, y: 5.803236, z: -0.23932695}
+--- !u!208 &5884435887399830576
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 6.063, y: 5.8030005, z: 6.078}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.083000004, y: 5.8030005, z: 0.035}
+  m_TimeToStationary: 0.5

@@ -1277,7 +1277,7 @@ MonoBehaviour:
   power: 10
   speed: 5
   jumpPower: 5
-  footstepVolume: 2
+  footstepVolume: 1.5
   hourlyHealAmount: 10
   reputation: 50
   currentPopularity: 
@@ -1537,7 +1537,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   specialAbilitySound: {fileID: 8300000, guid: 1d1c7396867d6c5409f2a9add78e8652, type: 3}
+  specialAbilityVolume: 15
   landingSound: {fileID: 0}
+  landingVolume: 8
 --- !u!1 &2664567710390387237
 GameObject:
   m_ObjectHideFlags: 0

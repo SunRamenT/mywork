@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1560607187000016578}
   - component: {fileID: 8026348184712558366}
   - component: {fileID: 5381497683841050273}
+  - component: {fileID: -6688153965906009098}
   m_Layer: 0
   m_Name: Building_House_01_color01
   m_TagString: Building
@@ -174,3 +175,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.7886429, y: 9.053619, z: 2.9608903}
   m_Center: {x: -8.065809, y: 4.5260267, z: 0.5492242}
+--- !u!208 &-6688153965906009098
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 8.946, y: 4.5270004, z: 6.301}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.56100005, y: 4.526, z: -0.133}
+  m_TimeToStationary: 0.5
