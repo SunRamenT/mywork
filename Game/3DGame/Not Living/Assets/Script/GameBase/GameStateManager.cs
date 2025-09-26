@@ -9,7 +9,8 @@ public class GameStateManager : MonoBehaviour
     public enum GameState
     {
         Gameplay,      // 通常のプレイ状態
-        MiniGameActive // ミニゲーム実行中
+        MiniGameActive, // ミニゲーム実行中
+        Paused         // ▼▼▼ ポーズ中（設定画面など）を追加 ▼▼▼
     }
 
     public GameState CurrentState { get; private set; }

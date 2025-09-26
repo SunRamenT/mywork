@@ -9,6 +9,8 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
     public float jumpPower = 5f;
+    [Tooltip("この秒数以上、空中にいた場合のみ着地音を鳴らす")] // ▼▼▼ 追加 ▼▼▼
+    public float landingThreshold = 0.1f;
 
     [Header("Item Detection Settings")]
     public LayerMask reikonLayer;
@@ -52,6 +54,11 @@ public class PlayerController : MonoBehaviour
     public string flinchingTagName = "Flinching";
 
     private bool wasGrounded; 
+    private float timeInAir = 0f; // ▼▼▼ 追加 ▼▼▼
+
+    private AudioSource audioSource;
+    [Tooltip("アクションができないときに再生する音")]
+    public AudioClip MissSound;
 
     private void Awake()
     {
@@ -63,6 +70,8 @@ public class PlayerController : MonoBehaviour
         currentCharacter = ghost;
         currentController = ghostController;
         currentAnimator = ghostAnimator;
+        // AudioSourceを自分自身から取得、またはなければ追加する
+        audioSource = GetComponent<AudioSource>();
     }
 
     public void SetTargetNPC(GameObject npc, Animator anim)
@@ -100,11 +109,15 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameStateManager.GameState.MiniGameActive)
+        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState != GameStateManager.GameState.Gameplay)
         {
-            if(targetNPC != null && currentAnimator != null) { currentAnimator.SetFloat(horizontalFloatName, 0); currentAnimator.SetFloat(verticalFloatName, 0); }
+            if(targetNPC != null && currentAnimator != null) {
+                if(HasParameter(currentAnimator, horizontalFloatName)) currentAnimator.SetFloat(horizontalFloatName, 0);
+                if(HasParameter(currentAnimator, verticalFloatName)) currentAnimator.SetFloat(verticalFloatName, 0);
+            }
             return;
         }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
         
         if (nottoriController.isPossessing && targetNPC == null)
         {
@@ -145,7 +158,7 @@ public class PlayerController : MonoBehaviour
         {
             currentAnimator.SetFloat(verticalFloatName, v);
         }
-        
+
         if (IsPossessing())
         {
             AnimatorStateInfo stateInfo = currentAnimator.GetCurrentAnimatorStateInfo(0); // 0はベースレイヤー
@@ -163,13 +176,48 @@ public class PlayerController : MonoBehaviour
                 // 特殊能力
                 if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
                 {
-                    // ▼▼▼ 特殊能力の音を再生する処理を追加 ▼▼▼
-                    currentCharacter.GetComponent<CharacterSounds>().PlaySpecialAbilitySound();
-                    currentSpecialAction.PerformAction(this);
+                    // 1. まずクールタイムが完了しているかチェック
+                    if (currentSpecialAction.CooldownProgress >= 1.0f)
+                    {
+                        // 2. 完了していれば、音を鳴らして能力を発動
+                        currentCharacter.GetComponent<CharacterSounds>()?.PlaySpecialAbilitySound();
+                        currentSpecialAction.PerformAction(this);
+                    }
+                    else
+                    {
+                        // (任意)クールタイム中であることを示す音を鳴らしても良い
+                        Debug.Log("特殊能力はクールタイム中です。");
+                    }
                 }
             }
         }
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        else
+        {
+            //幽霊時使えないボタンを押したとき
+            if (Input.GetButtonDown("Fire1"))
+            {
+                if (MissSound != null)
+                {
+                    audioSource.PlayOneShot(MissSound);
+                }
+            }
+            // 特殊能力
+            if (Input.GetButtonDown("Fire2"))
+            {
+                if (MissSound != null)
+                {
+                    audioSource.PlayOneShot(MissSound);
+                }
+            }
+            if (Input.GetButtonDown("Jump"))
+            {
+                if (MissSound != null)
+                {
+                    audioSource.PlayOneShot(MissSound);
+                }
+            }      
+        }
 
         Vector3 lookDir = Camera.main.transform.forward;
         lookDir.y = 0;
@@ -185,21 +233,25 @@ public class PlayerController : MonoBehaviour
         // ▼▼▼ 着地判定と重力の処理を修正 ▼▼▼
         bool isGrounded = currentController.isGrounded;
 
-        // もし前のフレームでは空中にいて、今のフレームで地面にいるなら、それは「着地した瞬間」
-        if (!wasGrounded && isGrounded)
+        if (isGrounded)
         {
-            // 着地音を再生
-            currentCharacter.GetComponent<CharacterSounds>()?.PlayLandingSound();
-        }
-
-        if (currentController.isGrounded)
-        {
+            // 地面にいる場合
+            // もし前のフレームで空中にいたら（＝着地した瞬間）
+            if (!wasGrounded && timeInAir > landingThreshold)
+            {
+                // 着地音を再生
+                currentCharacter.GetComponent<CharacterSounds>()?.PlayLandingSound();
+            }
+            timeInAir = 0f; // 滞空時間をリセット
             velocity.y = -0.1f;
         }
-        else
+        else 
         {
+            // 空中にいる場合
+            timeInAir += Time.deltaTime; // 滞空時間を加算
             velocity.y += Physics.gravity.y * Time.deltaTime;
         }
+
 
         if (Input.GetButtonDown("Jump") && currentController.isGrounded)
         {

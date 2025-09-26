@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using System.Collections;
 
 public class ReikonManager : MonoBehaviour
 {
@@ -34,15 +35,46 @@ public class ReikonManager : MonoBehaviour
     private bool isPhasing = false;
     private bool isPossessing = false;
     private int nearbyChaserCount = 0;
+    private AudioSource audioSource;
+
+    [Header("UIカラー設定")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("色を変更するUIパネルのImageコンポーネント")]
+    public Image uiPanelImage;
+    [Tooltip("霊魂を取得した時のパネルの色")]
+    public Color healColor = Color.green;
+    [Tooltip("デスペナルティを受けた時のパネルの色")]
+    public Color damageColor = Color.red;
+    [Tooltip("色が元に戻るまでの時間（秒）")]
+    public float colorFlashDuration = 0.5f;
+    private Color originalPanelColor; // 元の色を記憶
+
+    [Header("サウンド設定")] // ▼▼▼ サウンド設定を再度追加 ▼▼▼
+    [Tooltip("霊魂アイテムを取得した時の効果音")]
+    public AudioClip healSound;
+    [Tooltip("デスペナルティを受けた時の効果音")]
+    public AudioClip penaltySound;
+
+    private void Awake()
+    {
+        // AudioSourceを自分自身から取得する
+        audioSource = GetComponent<AudioSource>();
+    }
+
 
     void Start()
     {
         currentSpirit = maxSpirit;
         UpdateSpiritUI();
-        
+
         if (debuffEffect != null)
         {
             debuffEffect.SetActive(false);
+        }
+        
+        // ▼▼▼ パネルの元の色を記憶しておく ▼▼▼
+        if (uiPanelImage != null)
+        {
+            originalPanelColor = uiPanelImage.color;
         }
     }
 
@@ -87,6 +119,35 @@ public class ReikonManager : MonoBehaviour
         }
     }
 
+    // ▼▼▼ 新しいコルーチンを追加 ▼▼▼
+    private void FlashPanelColor(Color flashColor)
+    {
+        if (uiPanelImage != null)
+        {
+            // 既に実行中の色変更があれば停止
+            StopAllCoroutines();
+            StartCoroutine(FlashColorCoroutine(flashColor));
+        }
+    }
+
+    private IEnumerator FlashColorCoroutine(Color flashColor)
+    {
+        uiPanelImage.color = flashColor;
+        float elapsedTime = 0f;
+
+        while(elapsedTime < colorFlashDuration)
+        {
+            // Lerpを使って、フラッシュ色から元の色へ滑らかに変化させる
+            uiPanelImage.color = Color.Lerp(flashColor, originalPanelColor, elapsedTime / colorFlashDuration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // 最後に必ず元の色に戻す
+        uiPanelImage.color = originalPanelColor;
+    }
+
+
     /// <summary>
     /// Chaserの危険オーラに入った時に呼ばれる
     /// </summary>
@@ -128,6 +189,13 @@ public class ReikonManager : MonoBehaviour
     
     public void Heal(float amount)
     {
+        // ▼▼▼ 回復音を再生する処理を再度追加 ▼▼▼
+        if (healSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(healSound);
+        }
+        
+        FlashPanelColor(healColor);
         currentSpirit = Mathf.Clamp(currentSpirit + amount, 0, maxSpirit);
         UpdateSpiritUI();
         Debug.Log($"{amount} の霊魂を回復！ 現在値: {currentSpirit}");
@@ -135,6 +203,13 @@ public class ReikonManager : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        // ▼▼▼ デスペナルティ音を再生する処理を再度追加 ▼▼▼
+        if (penaltySound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(penaltySound);
+        }
+
+        FlashPanelColor(damageColor);
         currentSpirit -= amount;
         UpdateSpiritUI();
         Debug.Log($"{amount} の霊魂ダメージ！ 現在値: {currentSpirit}");

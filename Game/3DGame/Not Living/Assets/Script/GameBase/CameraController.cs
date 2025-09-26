@@ -41,9 +41,18 @@ public class CameraController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
+
         yaw = playerController.transform.eulerAngles.y;
         pitch = ghostCameraState.pitch;
+        
+        if (SettingsManager.Instance != null)
+        {
+            // SettingsManagerの値をX軸感度の「倍率」としてのみ使用する
+            mouseSensitivityX *= SettingsManager.Instance.MouseSensitivityX;
+            // Y軸感度には適用しない！
+            // mouseSensitivityY *= SettingsManager.Instance.MouseSensitivity; // ← この行を削除
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
     }
 
     // カメラの更新はキャラクターの移動が完了した後に行うのが望ましいため、LateUpdateを使用

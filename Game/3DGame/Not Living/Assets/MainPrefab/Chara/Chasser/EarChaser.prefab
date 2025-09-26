@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3290098668201847070}
   - component: {fileID: 6058042978184574841}
   - component: {fileID: 5988382257967409516}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SearchLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 3985757784934188554}
   - component: {fileID: 4090798972533062564}
   - component: {fileID: 7784106212279875748}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EarChaser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -227,7 +227,7 @@ MonoBehaviour:
   investigatingSpeed: 7
   chaserSpeed: 8
   chaserAcceleration: 16
-  hearingSensitivity: 2
+  hearingSensitivity: 5
   sightRadius: 3
   sightAngle: 90
   patrolRadius: 30
@@ -246,7 +246,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3985757785239792849}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -278,7 +278,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3985757785313914848}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: JNTs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -310,7 +310,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3985757785552688905}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -342,7 +342,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3985757786135366144}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,7 +375,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3985757786359685715}
   - component: {fileID: 3985757786359685716}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Little_ghost_ANIMATOR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -430,7 +430,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3985757786503975479}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -462,7 +462,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3985757786561787707}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Joint4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -496,7 +496,7 @@ GameObject:
   - component: {fileID: 3985757786592014491}
   - component: {fileID: 3985757786592014493}
   - component: {fileID: 3985757786592014492}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Angel_Ring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -581,7 +581,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3985757786848526116}
   - component: {fileID: 3985757786848526117}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Little_Ghost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -730,6 +730,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: earfab
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 376cc02e150023d45936487caf44117d, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -803,6 +807,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 376cc02e150023d45936487caf44117d, type: 3}
       propertyPath: m_Name
       value: earfab
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 376cc02e150023d45936487caf44117d, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

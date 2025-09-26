@@ -12,8 +12,7 @@ public class CharacterSounds : MonoBehaviour
     public float specialAbilityVolume = 15f;
 
     [Header("着地サウンド設定")]
-    [Tooltip("地面に着地した時に再生する音")]
-    public AudioClip landingSound;
+    
     [Tooltip("着地音が聞こえる半径")]
     public float landingVolume = 8f;
 
@@ -24,10 +23,6 @@ public class CharacterSounds : MonoBehaviour
     {
         // AudioSourceを自分自身から取得、またはなければ追加する
         audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
     }
 
     /// <summary>
@@ -43,6 +38,8 @@ public class CharacterSounds : MonoBehaviour
 
         // 2. Chaserに聞こえるように、音の情報をMessageBrokerで発信する
         MessageBroker.Default.Publish(new SoundPacket(transform.position, specialAbilityVolume, SoundType.PlayerAction));
+        // デバッグ用にログを表示
+        Debug.Log($"<color=lightblue>{gameObject.name} が音を発生させました (大きさ: {specialAbilityVolume})</color>");
     }
 
     /// <summary>
@@ -50,13 +47,9 @@ public class CharacterSounds : MonoBehaviour
     /// </summary>
     public void PlayLandingSound()
     {
-        // 1. 自分のスピーカーで音を鳴らす
-        if (landingSound != null)
-        {
-            audioSource.PlayOneShot(landingSound);
-        }
 
         // 2. Chaserに聞こえるように、音の情報をMessageBrokerで発信する
         MessageBroker.Default.Publish(new SoundPacket(transform.position, landingVolume, SoundType.PlayerAction));
+        Debug.Log($"<color=lightblue>{gameObject.name} が音を発生させました (大きさ: {landingVolume})</color>");
     }
 }
