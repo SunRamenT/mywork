@@ -224,16 +224,17 @@ MonoBehaviour:
   humanoidAgentTypeIndex: 0
   chaserAgentTypeIndex: 1
   humanoidSpeed: 1
-  investigatingSpeed: 7
-  chaserSpeed: 8
+  investigatingSpeed: 6
+  chaserSpeed: 7
   chaserAcceleration: 16
-  hearingSensitivity: 5
+  hearingSensitivity: 6
   sightRadius: 3
   sightAngle: 90
   patrolRadius: 30
   losePlayerTime: 10
   investigationTimeout: 8
   dangerAuraRadius: 3
+  pathfindingTimeout: 10
   obstacleMask:
     serializedVersion: 2
     m_Bits: 512

@@ -48,6 +48,11 @@ public class NPCMove : MonoBehaviour
     private Vector2 flowAxis;
     private float flowState;
 
+    [Tooltip("目的地に到達できない場合に、諦めるまでの時間（秒）")] // ▼▼▼ 追加 ▼▼▼
+    public float pathfindingTimeout = 8f;
+    private float pathTimer = 0f; // ▼▼▼ 目的地到達タイマーを追加 ▼▼▼
+
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -111,6 +116,23 @@ public class NPCMove : MonoBehaviour
             }
         }
         
+        // ▼▼▼ タイムアウト処理を追加 ▼▼▼
+        // 目的地に向かっている間、タイマーを進める
+        if (agent.hasPath)
+        {
+            pathTimer += Time.deltaTime;
+            // もし設定した時間を超えても目的地に着かなければ
+            if (pathTimer > pathfindingTimeout)
+            {
+                Debug.LogWarning($"{gameObject.name} が目的地に到達できなかったため、新しい目的地を探します。");
+                // ターゲットを諦めて、新しい徘徊場所を探す
+                target = null;
+                isRetaliating = false;
+                SetNewPatrolDestination();
+            }
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         CalculateAndAnimate();
     }
     
@@ -127,6 +149,7 @@ public class NPCMove : MonoBehaviour
         isRetaliating = true;
         target = attackerTransform;
         float retaliationEndTime = Time.time + retaliationDuration;
+        pathTimer = 0f; // 追跡開始時にタイマーをリセット
 
         while (Time.time < retaliationEndTime)
         {
@@ -144,7 +167,7 @@ public class NPCMove : MonoBehaviour
 
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
-            if(direction != Vector3.zero)
+            if (direction != Vector3.zero)
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * agent.angularSpeed);
             }
@@ -180,6 +203,7 @@ public class NPCMove : MonoBehaviour
     void SetNewPatrolDestination()
     {
         if (!agent.isOnNavMesh) return;
+        pathTimer = 0f; // 追跡開始時にタイマーをリセット
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))

@@ -3223,6 +3223,7 @@ MonoBehaviour:
   verticalID: Vert
   stateID: State
   flinchingTagName: Flinching
+  pathfindingTimeout: 8
 --- !u!114 &5291039760763630776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3237,10 +3238,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 30
   currentHp: 0
-  power: 15
-  speed: 4
-  jumpPower: 7
-  footstepVolume: 1.5
+  power: 10
+  speed: 6
+  jumpPower: 5
+  footstepVolume: 2
   hourlyHealAmount: 10
   reputation: 50
   currentPopularity: 
@@ -3411,8 +3412,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   specialAbilitySound: {fileID: 8300000, guid: 1d1c7396867d6c5409f2a9add78e8652, type: 3}
   specialAbilityVolume: 15
-  landingSound: {fileID: 0}
-  landingVolume: 8
+  landingVolume: 4
 --- !u!1 &8871283303427130236
 GameObject:
   m_ObjectHideFlags: 0

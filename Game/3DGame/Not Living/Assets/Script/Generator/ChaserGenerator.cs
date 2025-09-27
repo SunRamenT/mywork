@@ -39,6 +39,9 @@ public class ChaserGenerator : MonoBehaviour
     private List<GameObject> chaserList = new List<GameObject>();
     private int agentTypeID;
 
+    [Tooltip("壁を検知するためのレイヤー")] // ▼▼▼ 追加 ▼▼▼
+    public LayerMask wallLayer; 
+
     private void Start()
     {
         if (agentTypeIndex >= NavMesh.GetSettingsCount())
@@ -99,9 +102,16 @@ public class ChaserGenerator : MonoBehaviour
             {
                 if (hit.position.y <= maxSpawnHeight)
                 {
-                    GameObject newChaser = Instantiate(chaserPrefab, hit.position, Quaternion.identity);
-                    chaserList.Add(newChaser);
-                    return;
+                    // ▼▼▼ 壁の中かどうかを追加でチェック ▼▼▼
+                    // 生成地点の真上から真下に向けてレイキャストを飛ばす
+                    if (!Physics.Raycast(hit.position + Vector3.up * 10f, Vector3.down, 20f, wallLayer))
+                    {
+                        // レイキャストがWallレイヤーに当たらなければ、そこは壁の中ではない
+                        GameObject newNPC = Instantiate(chaserPrefab, hit.position, Quaternion.identity, transform);
+                        chaserList.Add(newNPC);
+                        break; // 生成に成功したのでループを抜ける
+                    }
+                    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
                 }
             }
         }

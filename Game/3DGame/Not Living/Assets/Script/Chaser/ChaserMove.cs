@@ -39,6 +39,8 @@ public class ChaserMove : MonoBehaviour
     [Tooltip("音の調査を諦めるまでの時間（秒）")] // ▼▼▼ 追加 ▼▼▼
     public float investigationTimeout = 8.0f;
     public float dangerAuraRadius = 10f;
+    [Tooltip("目的地に到達できない場合に、諦めるまでの時間（秒）")] // ▼▼▼ 追加 ▼▼▼
+    public float pathfindingTimeout = 10f;
 
     [Header("遮蔽物チェック用")]
     public LayerMask obstacleMask;
@@ -48,6 +50,7 @@ public class ChaserMove : MonoBehaviour
     private float timeSinceLastSeenPlayer = 0f;
     private float investigationTimer = 0f;
     private bool isPlayerInAura = false;
+    private float pathTimer = 0f; // ▼▼▼ 目的地到達タイマーを追加 ▼▼▼
 
     // MessageBrokerの購読を管理するための変数
     private CompositeDisposable disposables = new CompositeDisposable();
@@ -117,6 +120,7 @@ public class ChaserMove : MonoBehaviour
             agent.speed = investigatingSpeed;
             agent.SetDestination(packet.Position);
             investigationTimer = 0f; // ▼▼▼ 調査タイマーをリセット ▼▼▼
+            pathTimer = 0f;
         }
     }
 
@@ -138,6 +142,7 @@ public class ChaserMove : MonoBehaviour
 
             case AIState.Chasing:
                 agent.SetDestination(player.position);
+                pathTimer = 0f;
                 if (!IsPlayerInSight())
                 {
                     timeSinceLastSeenPlayer += Time.deltaTime;
@@ -156,7 +161,7 @@ public class ChaserMove : MonoBehaviour
                     timeSinceLastSeenPlayer = 0f;
                 }
                 break;
-                
+
             // ▼▼▼ 調査ステートのロジックを修正 ▼▼▼
             case AIState.Investigating:
                 LookForPlayer(); // 調査中もプレイヤーを探し続ける
@@ -171,6 +176,17 @@ public class ChaserMove : MonoBehaviour
                 break;
         }
         CheckDangerAura();
+        // ▼▼▼ タイムアウト処理を追加 ▼▼▼
+        if (agent.hasPath)
+        {
+            pathTimer += Time.deltaTime;
+            if (pathTimer > pathfindingTimeout)
+            {
+                Debug.LogWarning($"{gameObject.name} が目的地に到達できなかったため、徘徊に戻ります。");
+                currentState = AIState.Patrolling;
+                SetNewPatrolDestination();
+            }
+        }
     }
     
     void LookForPlayer()
@@ -231,6 +247,7 @@ public class ChaserMove : MonoBehaviour
     void SetNewPatrolDestination()
     {
         if (!agent.isOnNavMesh) return;
+        pathTimer = 0f; // 新しい目的地を設定する際にタイマーをリセット
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))

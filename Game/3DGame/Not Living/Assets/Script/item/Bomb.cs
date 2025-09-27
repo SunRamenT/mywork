@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UniRx; // UniRxを使うために必要
 
 public class Bomb : MonoBehaviour
 {
@@ -12,6 +13,17 @@ public class Bomb : MonoBehaviour
 
     [Header("エフェクト設定")]
     public GameObject explosionEffectPrefab;
+
+    private AudioSource audioSource;
+    public AudioClip BombSound;
+
+    [Tooltip("特殊能力の音が聞こえる半径")]
+    public float specialAbilityVolume = 15f;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
 
     private void Start()
     {
@@ -47,13 +59,15 @@ public class Bomb : MonoBehaviour
                 targetStatus.ApplyKnockback(knockbackDirection, knockbackForce, knockbackDuration);
             }
         }
+        if (BombSound != null)
+        {
+            audioSource.PlayOneShot(BombSound);
+        }
+        // 2. Chaserに聞こえるように、音の情報をMessageBrokerで発信する
+        MessageBroker.Default.Publish(new SoundPacket(transform.position, specialAbilityVolume, SoundType.PlayerAction));
+        // デバッグ用にログを表示
+        Debug.Log($"<color=lightblue>{gameObject.name} が音を発生させました (大きさ: {specialAbilityVolume})</color>");
 
         Destroy(gameObject);
-    }
-    
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, explosionRadius);
     }
 }
