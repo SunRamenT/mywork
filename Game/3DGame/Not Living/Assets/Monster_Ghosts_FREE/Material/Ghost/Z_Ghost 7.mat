@@ -58,8 +58,8 @@ Material:
     - _GlossMapScale: 0.335
     - _Smoothness: 0.335
     m_Colors:
-    - _BaseColor: {r: 0.908592, g: 1, b: 0.0039215684, a: 1}
-    - _Color: {r: 0.908592, g: 1, b: 0.0039215684, a: 1}
+    - _BaseColor: {r: 1, g: 0.0039215684, b: 0.04303037, a: 1}
+    - _Color: {r: 1, g: 0.0039215684, b: 0.04303035, a: 1}
     - _EmissionColor: {r: 2, g: 0.6411908, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -1,2 +1,18 @@
 fileFormatVersion: 2
 guid: 0f3182f25fc87924889f9f9ae1e31082
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - healthBarCanvas: {instanceID: 0}
+  - healthBarSlider: {instanceID: 0}
+  - recoveryItemPrefab: {instanceID: 0}
+  - characterModelRenderer: {instanceID: 0}
+  - hitEffectPrefab: {fileID: 5024009746357069194, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
+  - hitSound: {fileID: 8300000, guid: 79f4b8b8ecde82b46a88d8700a1ad428, type: 3}
+  - footstepSound: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

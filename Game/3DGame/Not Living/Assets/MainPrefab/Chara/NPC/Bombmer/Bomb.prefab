@@ -269,9 +269,10 @@ MonoBehaviour:
   explosionRadius: 5
   knockbackForce: 10
   knockbackDuration: 0.5
-  damage: 50
+  damage: 30
   explosionEffectPrefab: {fileID: 162584487599433031, guid: e0990a35d7801294ab1b810c9a94db46, type: 3}
   BombSound: {fileID: 8300000, guid: ea28c55f3a0668643858264092a4247d, type: 3}
+  specialAbilityVolume: 15
 --- !u!82 &322357514204975049
 AudioSource:
   m_ObjectHideFlags: 0
@@ -293,10 +294,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 0
-  MinDistance: 0
-  MaxDistance: 10
+  MinDistance: 1
+  MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 1
+  rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
