@@ -33433,6 +33433,9 @@ MonoBehaviour:
     triggerHour: 10
   - description: Night
     signalSound: {fileID: 8300000, guid: 5b240fbfa1c6cf449a9bb14bc340444b, type: 3}
+    triggerHour: 17
+  - description: Night2
+    signalSound: {fileID: 8300000, guid: 9c5979a5fac7a0a4f81c583e648a4a0f, type: 3}
     triggerHour: 21
 --- !u!4 &1329855821 stripped
 Transform:
