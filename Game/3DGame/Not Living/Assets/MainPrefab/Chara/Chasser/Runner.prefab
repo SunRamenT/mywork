@@ -317,9 +317,9 @@ MonoBehaviour:
   chasingLightColor: {r: 1, g: 0, b: 0, a: 1}
   humanoidAgentTypeIndex: 0
   chaserAgentTypeIndex: 1
-  humanoidSpeed: 8
-  investigatingSpeed: 8
-  chaserSpeed: 8
+  humanoidSpeed: 10
+  investigatingSpeed: 10
+  chaserSpeed: 10
   chaserAcceleration: 16
   hearingSensitivity: 1
   sightRadius: 10

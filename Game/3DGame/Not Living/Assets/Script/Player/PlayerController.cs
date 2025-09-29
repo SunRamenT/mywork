@@ -82,8 +82,11 @@ public class PlayerController : MonoBehaviour
             npcController = targetNPC.GetComponent<CharacterController>();
             npcAnimator = anim;
             npcStatusManager = targetNPC.GetComponent<StatusManager>();
-            if (npcController == null) { Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！");
-                if (nottoriController != null) nottoriController.ForceRelease(); return; }
+            if (npcController == null)
+            {
+                Debug.LogError("乗っ取り対象のNPCにCharacterControllerがアタッチされていません！");
+                if (nottoriController != null) nottoriController.ForceRelease(); return;
+            }
             HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
             if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0) { punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>(); }
             currentSpecialAction = targetNPC.GetComponent<ISpecialAction>();
@@ -94,16 +97,23 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            // ▼▼▼ このブロックのロジックを修正 ▼▼▼
             ghostController.enabled = true;
-            currentSpecialAction = null;
+            
+            // 幽霊自身の特殊能力（ワープなど）を取得する
+            currentSpecialAction = ghost.GetComponent<ISpecialAction>();
+
             if (currentInteractable != null) { currentInteractable.OnPlayerExitRange(); currentInteractable = null; }
+            
             currentCharacter = ghost;
             currentController = ghostController;
             currentAnimator = ghostAnimator;
+            
             npcController = null;
             npcAnimator = null;
             npcStatusManager = null;
             punchAttackInfo = null;
+            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
         }
     }
 
@@ -205,6 +215,17 @@ public class PlayerController : MonoBehaviour
             // 特殊能力
             if (Input.GetButtonDown("Fire2"))
             {
+                // 1. まずクールタイムが完了しているかチェック
+                if (currentSpecialAction.CooldownProgress >= 1.0f)
+                {
+                    // 2. 完了していれば、音を鳴らして能力を発動
+                    currentSpecialAction.PerformAction(this);
+                }
+                else
+                {
+                    // (任意)クールタイム中であることを示す音を鳴らしても良い
+                    Debug.Log("特殊能力はクールタイム中です。");
+                }
                 if (MissSound != null)
                 {
                     audioSource.PlayOneShot(MissSound);

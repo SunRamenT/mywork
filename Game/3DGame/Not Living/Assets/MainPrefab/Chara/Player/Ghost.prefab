@@ -626,6 +626,7 @@ GameObject:
   - component: {fileID: 3578037317837286858}
   - component: {fileID: 3146789630195236832}
   - component: {fileID: 6176694545385950769}
+  - component: {fileID: 7194498455032594715}
   m_Layer: 3
   m_Name: Ghost
   m_TagString: Player
@@ -937,6 +938,22 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7194498455032594715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7935929637085686173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b9d1d2dc46aad74bbaf5114e051d845, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  warpRadius: 20
+  cooldown: 5
+  warpOutEffectPrefab: {fileID: 0}
+  warpInEffectPrefab: {fileID: 0}
 --- !u!1 &8368496820512572993
 GameObject:
   m_ObjectHideFlags: 0
