@@ -72,6 +72,9 @@ public class PlayerController : MonoBehaviour
         currentAnimator = ghostAnimator;
         // AudioSourceを自分自身から取得、またはなければ追加する
         audioSource = GetComponent<AudioSource>();
+        currentSpecialAction = ghost.GetComponent<ISpecialAction>();
+            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
     }
 
     public void SetTargetNPC(GameObject npc, Animator anim)
@@ -97,23 +100,22 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // ▼▼▼ このブロックのロジックを修正 ▼▼▼
             ghostController.enabled = true;
-            
-            // 幽霊自身の特殊能力（ワープなど）を取得する
+
+            // ▼▼▼ この行を修正 ▼▼▼
+            // currentSpecialAction = null; // ← これが問題の原因だった
+            // 正しくは、幽霊自身の特殊能力（ワープなど）を取得する
             currentSpecialAction = ghost.GetComponent<ISpecialAction>();
+            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
             if (currentInteractable != null) { currentInteractable.OnPlayerExitRange(); currentInteractable = null; }
-            
             currentCharacter = ghost;
             currentController = ghostController;
             currentAnimator = ghostAnimator;
-            
             npcController = null;
             npcAnimator = null;
             npcStatusManager = null;
             punchAttackInfo = null;
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
         }
     }
 
