@@ -2494,7 +2494,7 @@ MonoBehaviour:
   currentHp: 0
   power: 20
   speed: 3
-  jumpPower: 3
+  jumpPower: 4
   footstepVolume: 2
   hourlyHealAmount: 10
   reputation: 50
