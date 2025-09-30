@@ -52,6 +52,8 @@ public class PlayerController : MonoBehaviour
     public ISpecialAction CurrentSpecialAction => currentSpecialAction;
     [Tooltip("ダメージモーションのステートに設定したタグ名")] // ▼▼▼ 追加 ▼▼▼
     public string flinchingTagName = "Flinching";
+    /// 現在乗っ取っているキャラクターのTagを外部に公開する
+    public string PossessedCharacterTag => IsPossessing() ? targetNPC.tag : null;
 
     private bool wasGrounded; 
     private float timeInAir = 0f; // ▼▼▼ 追加 ▼▼▼

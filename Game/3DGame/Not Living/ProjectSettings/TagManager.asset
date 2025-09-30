@@ -11,6 +11,7 @@ TagManager:
   - punch
   - NPC
   - Building
+  - Police
   layers:
   - Default
   - TransparentFX
@@ -28,8 +29,8 @@ TagManager:
   - Character Preview
   - Kanban
   - Punch
-  - 
-  - 
+  - Gun
+  - Bullet
   - 
   - 
   - 

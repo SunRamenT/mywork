@@ -15,8 +15,13 @@ public class CameraController : MonoBehaviour
     [Header("カメラ設定")]
     public CameraState ghostCameraState;
     public CameraState possessedCameraState;
+    [Tooltip("警察官に憑依している時の特別なカメラ設定")] // ▼▼▼ 追加 ▼▼▼
+    public CameraState policeCameraState;
     [Tooltip("カメラが目標に追従する際の滑らかさ。小さいほどゆっくり。")]
-    [SerializeField, Range(0.1f, 20f)] private float transitionSpeed = 5f;
+    [SerializeField, Range(0.1f, 20f)] private float positionTransitionSpeed = 5f;
+    [Tooltip("カメラが目標の向きに追従する際の滑らかさ。")]
+    [SerializeField, Range(0.1f, 20f)] private float rotationTransitionSpeed = 10f;
+
 
     [Header("マウス設定")]
     [SerializeField, Min(0f)] private float mouseSensitivityX = 300f;
@@ -43,34 +48,40 @@ public class CameraController : MonoBehaviour
         Cursor.visible = false;
 
         yaw = playerController.transform.eulerAngles.y;
-        pitch = ghostCameraState.pitch;
+        pitch = 0f; // マウスによる角度は0から始める
         
         if (SettingsManager.Instance != null)
         {
-            // SettingsManagerの値をX軸感度の「倍率」としてのみ使用する
             mouseSensitivityX *= SettingsManager.Instance.MouseSensitivityX;
-            // Y軸感度には適用しない！
-            // mouseSensitivityY *= SettingsManager.Instance.MouseSensitivity; // ← この行を削除
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
     }
 
-    // カメラの更新はキャラクターの移動が完了した後に行うのが望ましいため、LateUpdateを使用
     private void LateUpdate()
     {
         if (playerController == null) return;
-
-        // 現在操作しているキャラクターのTransformを取得
         Transform target = playerController.CurrentCharacterTransform;
         if (target == null) return;
         
-        // マウス入力で目標となる角度を更新
         HandleRotation();
 
-        // --- ここからが新しいロジック ---
-
         // 1. 憑依状態に応じて、目標となるカメラ設定を決定する
-        CameraState targetState = playerController.IsPossessing() ? possessedCameraState : ghostCameraState;
+        CameraState targetState;
+        if (playerController.IsPossessing())
+        {
+            // もし乗っ取っているキャラクターのTagが "Police" なら
+            if (playerController.PossessedCharacterTag == "Police")
+            {
+                targetState = policeCameraState; // 警察用の設定を使用
+            }
+            else
+            {
+                targetState = possessedCameraState; // 通常の憑依設定を使用
+            }
+        }
+        else
+        {
+            targetState = ghostCameraState; // ゴースト用の設定を使用
+        }
 
         // 2. 目標設定に基づいて、「カメラが最終的に到達したい座標と角度」を計算する
         Vector3 targetLookAtPos;
@@ -87,17 +98,17 @@ public class CameraController : MonoBehaviour
         Quaternion desiredRotation = Quaternion.Euler(pitch + targetState.pitch, yaw, 0f);
         Vector3 desiredOffset = desiredRotation * new Vector3(0f, 0f, -targetState.distance);
         Vector3 desiredPosition = targetLookAtPos + desiredOffset;
-
-        // 3. 現在のカメラの位置から、「目標座標」に向かって滑らかに移動させる
-        float t = Time.deltaTime * transitionSpeed;
-        transform.position = Vector3.Lerp(transform.position, desiredPosition, t);
-        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, t);
+        
+        // 3. 現在のカメラの位置・向きから、「目標」に向かって滑らかに移動させる
+        float posT = Time.deltaTime * positionTransitionSpeed;
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, posT);
+        float rotT = Time.deltaTime * rotationTransitionSpeed;
+        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, rotT);
     }
 
     private void HandleRotation()
     {
         yaw += Input.GetAxis("Mouse X") * mouseSensitivityX * Time.deltaTime;
-        // pitchの更新は、マウス操作による相対的な変化のみにする
         pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * mouseSensitivityY, minPitch, maxPitch);
     }
 }
