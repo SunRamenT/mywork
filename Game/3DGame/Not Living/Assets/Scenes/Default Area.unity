@@ -3609,6 +3609,7 @@ GameObject:
   - component: {fileID: 129651624}
   - component: {fileID: 129651625}
   - component: {fileID: 129651626}
+  - component: {fileID: 129651627}
   m_Layer: 12
   m_Name: NPC
   m_TagString: Untagged
@@ -3709,6 +3710,33 @@ MonoBehaviour:
   agentTypeIndex: 0
   sampleDistance: 15
   maxAttempts: 10
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 512
+--- !u!114 &129651627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129651622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bb6fec45635da34cbf98b673fab1ec5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnableNpcs:
+  - description: Bombmer
+    npcPrefab: {fileID: 724712843079168495, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
+    npcTag: NPC
+    spawnCount: 20
+    startHour: 0
+    endHour: 23
+  spawnRadius: 100
+  maxSpawnHeight: 0.5
+  agentTypeIndex: 0
+  sampleDistance: 30
+  maxAttempts: 30
   wallLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -38735,6 +38763,11 @@ MonoBehaviour:
   verticalID: Vert
   stateID: State
   flinchingTagName: Flinching
+  socialCheckRadius: 5
+  greetingTriggerID: Greet
+  greetingDuration: 2
+  fleeFloatID: State
+  fleeDistance: 15
   pathfindingTimeout: 8
 --- !u!195 &1503889071
 NavMeshAgent:
@@ -44611,6 +44644,11 @@ MonoBehaviour:
   verticalID: Vert
   stateID: State
   flinchingTagName: Flinching
+  socialCheckRadius: 5
+  greetingTriggerID: Greet
+  greetingDuration: 2
+  fleeFloatID: State
+  fleeDistance: 15
   pathfindingTimeout: 8
 --- !u!195 &1759351172
 NavMeshAgent:
@@ -46097,75 +46135,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 973470276}
   m_SourcePrefab: {fileID: 100100000, guid: b8ee657c6800ab849bb30b4375d02323, type: 3}
---- !u!1001 &1809868049
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 724712843079168495, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_Name
-      value: Character
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -96.233284
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 19.877573
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 72.357796
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2889707845372095817, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4386450890639415539, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_Speed
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7147973883617937993, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7147973883617937993, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
 --- !u!4 &1810657553 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 2509cc5763ca17f4598bf61fd585a93e, type: 3}
@@ -55538,7 +55507,6 @@ SceneRoots:
   - {fileID: 938008503}
   - {fileID: 1704015174}
   - {fileID: 38147685}
-  - {fileID: 1809868049}
   - {fileID: 864149312}
   - {fileID: 1448239563}
   - {fileID: 1973338515}

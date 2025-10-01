@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using UnityEngine.Animations;
+using System.Collections.Generic;
+using System.Linq;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
@@ -48,6 +50,10 @@ public class NPCMove : MonoBehaviour
     public string greetingTriggerID = "Greet";
     [Tooltip("挨拶アニメーションのおおよその長さ（秒）")]
     public float greetingDuration = 2f;
+    [Tooltip("逃走アニメーション用のboolパラメータ名")] // ▼▼▼ 追加 ▼▼▼
+    public string fleeFloatID = "State";
+    [Tooltip("逃走する距離")] // ▼▼▼ 追加 ▼▼▼
+    public float fleeDistance = 15f;
     private float socialCheckTimer = 0f;
     private const float SOCIAL_CHECK_INTERVAL = 2f; // 2秒ごとに周囲を確認
 
@@ -64,8 +70,8 @@ public class NPCMove : MonoBehaviour
     public float pathfindingTimeout = 8f;
     private float pathTimer = 0f; // ▼▼▼ 目的地到達タイマーを追加 ▼▼▼
 
-    // ▼▼▼ AIの状態を定義 ▼▼▼
-    private enum AIState { Patrolling, Retaliating, Greeting }
+    // ▼▼▼ AIの状態に「逃走中」を追加 ▼▼▼
+    private enum AIState { Patrolling, Retaliating, Greeting, Fleeing }
     private AIState currentState;
 
     private void Awake()
@@ -125,8 +131,106 @@ public class NPCMove : MonoBehaviour
             case AIState.Greeting:
                 // 挨拶中はコルーチンが管理するため、Updateでは何もしない
                 break;
+            case AIState.Fleeing:
+                break;
         }
         CalculateAndAnimate();
+    }
+
+    private void CheckForSocialInteractions()
+    {
+        // 自分の評判に応じて行動を決定
+        if (statusManager.reputation < 40)
+        {
+            // --- 評判が低いNPCの行動 ---
+            // 周囲のNPCを全て見つける
+            Collider[] colliders = Physics.OverlapSphere(transform.position, socialCheckRadius);
+            List<StatusManager> nearbyNpcs = new List<StatusManager>();
+            foreach (var col in colliders)
+            {
+                if (col.transform.root != this.transform.root && col.TryGetComponent<StatusManager>(out StatusManager other))
+                {
+                    nearbyNpcs.Add(other);
+                }
+            }
+            
+            // 優先度1: 評判60以上の相手がいないか探す
+            var scaryNpc = nearbyNpcs.FirstOrDefault(npc => npc.reputation >= 60);
+            if (scaryNpc != null)
+            {
+                StartCoroutine(FleeingRoutine(scaryNpc.transform));
+                return; // 逃げるのが最優先
+            }
+            
+            // 優先度2: 評判40~59の相手がいないか探す
+            var targetNpc = nearbyNpcs.FirstOrDefault(npc => npc.reputation >= 40 && npc.reputation < 60);
+            if (targetNpc != null)
+            {
+                // 攻撃を開始する
+                Debug.Log($"{gameObject.name}が{targetNpc.name}に喧嘩を売りに行きます。");
+                StartRetaliation(targetNpc.gameObject);
+                return;
+            }
+        }
+        else if (statusManager.reputation >= 40)
+        {
+            // --- 評判が普通のNPCの行動 ---
+            CheckForGreeting();
+        }
+    }
+    // ▼▼▼ 逃げる相手を探す新しいメソッド ▼▼▼
+    private void CheckForFleeing()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, socialCheckRadius);
+        foreach (var col in colliders)
+        {
+            if (col.transform.root == this.transform.root) continue;
+
+            // 相手がStatusManagerを持っていて、かつ評判が60以上か確認
+            if (col.TryGetComponent<StatusManager>(out StatusManager otherStatus) && otherStatus.reputation >= 60)
+            {
+                // 条件に合う相手が見つかったら、逃走コルーチンを開始
+                StartCoroutine(FleeingRoutine(otherStatus.transform));
+                break;
+            }
+        }
+    }
+
+    // ▼▼▼ 逃走を実行する新しいコルーチン ▼▼▼
+    private IEnumerator FleeingRoutine(Transform scaryPerson)
+    {
+        currentState = AIState.Fleeing;
+        agent.isStopped = false;
+        animator.SetFloat("State", 1f);// 逃走アニメーション開始
+
+        Debug.Log($"{gameObject.name}が{scaryPerson.name}から逃げ始めました。");
+
+        // 1. 相手から離れる方向を計算
+        Vector3 fleeDirection = (transform.position - scaryPerson.position).normalized;
+        // 2. 逃げる先の目標地点を計算
+        Vector3 destination = transform.position + fleeDirection * fleeDistance;
+
+        // 3. NavMesh上の有効な地点を探して、そこへ向かう
+        if (NavMesh.SamplePosition(destination, out NavMeshHit hit, fleeDistance, NavMesh.AllAreas))
+        {
+            agent.SetDestination(hit.position);
+        }
+        else
+        {
+            // 有効な地点が見つからなければ、とりあえずランダムな場所へ
+            SetNewPatrolDestination();
+        }
+
+        // 目的地に到着するまで待機
+        while (agent.pathPending || agent.remainingDistance > agent.stoppingDistance)
+        {
+            // もし途中で攻撃されたら、このコルーチンはStartRetaliationによって止められる
+            yield return null;
+        }
+
+        // 目的地に着いたら、状態を徘徊に戻す
+        animator.SetFloat("State", 0f); // 逃走アニメーション終了
+        currentState = AIState.Patrolling;
     }
 
     private void HandlePatrolling()
