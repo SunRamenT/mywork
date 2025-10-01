@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using UnityEngine.Animations;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
@@ -40,9 +41,20 @@ public class NPCMove : MonoBehaviour
         }
     }
 
+    [Header("挨拶AI設定")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("他のNPCを探す半径")]
+    public float socialCheckRadius = 5f;
+    [Tooltip("挨拶アニメーションのトリガー名")]
+    public string greetingTriggerID = "Greet";
+    [Tooltip("挨拶アニメーションのおおよその長さ（秒）")]
+    public float greetingDuration = 2f;
+    private float socialCheckTimer = 0f;
+    private const float SOCIAL_CHECK_INTERVAL = 2f; // 2秒ごとに周囲を確認
+
     private NavMeshAgent agent;
     private Animator animator;
     private bool isRetaliating = false;
+    private StatusManager statusManager; // 自分自身のStatusManager
 
     private const float AnimationFlowSpeed = 4.5f;
     private Vector2 flowAxis;
@@ -52,15 +64,20 @@ public class NPCMove : MonoBehaviour
     public float pathfindingTimeout = 8f;
     private float pathTimer = 0f; // ▼▼▼ 目的地到達タイマーを追加 ▼▼▼
 
+    // ▼▼▼ AIの状態を定義 ▼▼▼
+    private enum AIState { Patrolling, Retaliating, Greeting }
+    private AIState currentState;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        statusManager = GetComponent<StatusManager>(); // 自身のStatusManagerを取得
     }
 
     private void Start()
     {
+        currentState = AIState.Patrolling; // 初期状態を「徘徊」に設定
         if (target == null)
         {
             SetNewPatrolDestination();
@@ -78,7 +95,6 @@ public class NPCMove : MonoBehaviour
             return;
         }
 
-        // ▼▼▼ このブロックをUpdateの冒頭に追加 ▼▼▼
         // 現在のアニメーションステートを確認
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         // もしFlinchingタグが付いたステートを再生中なら、AIの思考を停止する
@@ -88,10 +104,7 @@ public class NPCMove : MonoBehaviour
             if (agent.isOnNavMesh) agent.isStopped = true;
             return;
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        
-        // ▼▼▼ この安全確認を強化 ▼▼▼
         // エージェントが無効、またはNavMesh上にいない場合は、AIのロジックを実行しない
         if (!agent.enabled || !agent.isOnNavMesh)
         {
@@ -99,8 +112,25 @@ public class NPCMove : MonoBehaviour
             CalculateAndAnimate();
             return;
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
+        // ▼▼▼ ステートマシンによる処理の分岐 ▼▼▼
+        switch (currentState)
+        {
+            case AIState.Patrolling:
+                HandlePatrolling();
+                break;
+            case AIState.Retaliating:
+                // 反撃はコルーチンが管理するため、Updateでは何もしない
+                break;
+            case AIState.Greeting:
+                // 挨拶中はコルーチンが管理するため、Updateでは何もしない
+                break;
+        }
+        CalculateAndAnimate();
+    }
+
+    private void HandlePatrolling()
+    {
         agent.isStopped = false;
 
         if (target != null)
@@ -109,47 +139,102 @@ public class NPCMove : MonoBehaviour
         }
         else
         {
-            // パス計算中か、目的地に到着した場合
-            if (!isRetaliating && !agent.pathPending && agent.remainingDistance < 0.5f)
+            if (!agent.pathPending && agent.remainingDistance < 0.5f)
             {
                 SetNewPatrolDestination();
             }
         }
-        
-        // ▼▼▼ タイムアウト処理を追加 ▼▼▼
-        // 目的地に向かっている間、タイマーを進める
+
+        // タイムアウト処理
         if (agent.hasPath)
         {
             pathTimer += Time.deltaTime;
-            // もし設定した時間を超えても目的地に着かなければ
             if (pathTimer > pathfindingTimeout)
             {
-                Debug.LogWarning($"{gameObject.name} が目的地に到達できなかったため、新しい目的地を探します。");
-                // ターゲットを諦めて、新しい徘徊場所を探す
                 target = null;
                 isRetaliating = false;
                 SetNewPatrolDestination();
             }
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        CalculateAndAnimate();
+        // 定期的に挨拶相手を探す
+        socialCheckTimer += Time.deltaTime;
+        if (socialCheckTimer > SOCIAL_CHECK_INTERVAL)
+        {
+            socialCheckTimer = 0f;
+            CheckForGreeting();
+        }
     }
+
+    // ▼▼▼ 挨拶相手を探す新しいメソッド ▼▼▼
+    private void CheckForGreeting()
+    {
+        // 自分の評判が40未満なら挨拶しない
+        if (statusManager.reputation < 40) return;
+
+        // 周囲のコライダーを検出
+        Collider[] colliders = Physics.OverlapSphere(transform.position, socialCheckRadius);
+        foreach (var col in colliders)
+        {
+            // 相手が自分自身ではないことを確認
+            if (col.transform.root == this.transform.root) continue;
+
+            // 相手がStatusManagerを持っていて、かつ評判が60以上か確認
+            if (col.TryGetComponent<StatusManager>(out StatusManager otherStatus) && otherStatus.reputation >= 60)
+            {
+                // 条件に合う相手が見つかったら、挨拶コルーチンを開始
+                StartCoroutine(GreetingRoutine(otherStatus.transform));
+                break; // 最初の1人を見つけたらループを抜ける
+            }
+        }
+    }
+
+    // ▼▼▼ 挨拶を実行する新しいコルーチン ▼▼▼
+    private IEnumerator GreetingRoutine(Transform personToGreet)
+    {
+        // 1. 状態を「挨拶中」に切り替え
+        currentState = AIState.Greeting;
+        agent.isStopped = true;
+
+        // 2. 相手の方を向く
+        Vector3 direction = (personToGreet.position - transform.position).normalized;
+        direction.y = 0;
+        if (direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(direction);
+        }
+
+        // 3. 挨拶アニメーションを再生
+        animator.SetTrigger(greetingTriggerID);
+        Debug.Log($"{gameObject.name}が{personToGreet.name}に挨拶しました。");
+
+        // 4. アニメーションが終わるまで待機
+        yield return new WaitForSeconds(greetingDuration);
+
+        // 5. 状態を「徘徊」に戻し、新しい目的地を設定
+        currentState = AIState.Patrolling;
+        SetNewPatrolDestination();
+    }
+
     
     public void StartRetaliation(GameObject attacker)
     {
-        if (isNottoried || isRetaliating) return;
+        if (isNottoried || currentState == AIState.Retaliating) return;
         if (attacker.CompareTag("Player")) return;
 
+        // 実行中の他のコルーチン（挨拶など）を全て停止
+        StopAllCoroutines();
         StartCoroutine(RetaliationRoutine(attacker.transform));
     }
 
     private IEnumerator RetaliationRoutine(Transform attackerTransform)
     {
+        currentState = AIState.Retaliating;
         isRetaliating = true;
         target = attackerTransform;
         float retaliationEndTime = Time.time + retaliationDuration;
         pathTimer = 0f; // 追跡開始時にタイマーをリセット
+        agent.speed = 3f;
 
         while (Time.time < retaliationEndTime)
         {
@@ -177,6 +262,8 @@ public class NPCMove : MonoBehaviour
         
         target = null;
         isRetaliating = false;
+        agent.speed = 1f;
+        currentState = AIState.Patrolling;
     }
 
     private void CalculateAndAnimate()

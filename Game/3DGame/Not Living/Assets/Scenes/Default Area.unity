@@ -43402,7 +43402,7 @@ MonoBehaviour:
     manualOffset: {x: 0, y: 0.2, z: 0}
     distance: 2
     pitch: 2
-  positionTransitionSpeed: 10
+  positionTransitionSpeed: 15
   rotationTransitionSpeed: 15
   mouseSensitivityX: 100
   mouseSensitivityY: 0
