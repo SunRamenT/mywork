@@ -15,6 +15,10 @@ public class NPCMove : MonoBehaviour
     [Header("反撃設定")]
     public float retaliationDuration = 5f;
     public string attackTriggerID = "Attack";
+    [Header("攻撃関連")]
+    [Tooltip("攻撃を開始する距離")]
+    public float attackRange = 2.0f;
+
 
     [Header("自由探索用の設定")]
     public float patrolRadius = 20f;
@@ -38,7 +42,7 @@ public class NPCMove : MonoBehaviour
             {
                 StopAllCoroutines();
                 target = null;
-                isRetaliating = false;
+                //isRetaliating = false;
             }
         }
     }
@@ -59,7 +63,7 @@ public class NPCMove : MonoBehaviour
 
     private NavMeshAgent agent;
     private Animator animator;
-    private bool isRetaliating = false;
+    //private bool isRetaliating = false;
     private StatusManager statusManager; // 自分自身のStatusManager
 
     private const float AnimationFlowSpeed = 4.5f;
@@ -67,7 +71,7 @@ public class NPCMove : MonoBehaviour
     private float flowState;
 
     [Tooltip("目的地に到達できない場合に、諦めるまでの時間（秒）")] // ▼▼▼ 追加 ▼▼▼
-    public float pathfindingTimeout = 8f;
+    public float pathfindingTimeout = 10f;
     private float pathTimer = 0f; // ▼▼▼ 目的地到達タイマーを追加 ▼▼▼
 
     // ▼▼▼ AIの状態に「逃走中」を追加 ▼▼▼
@@ -148,12 +152,14 @@ public class NPCMove : MonoBehaviour
             List<StatusManager> nearbyNpcs = new List<StatusManager>();
             foreach (var col in colliders)
             {
-                if (col.transform.root != this.transform.root && col.TryGetComponent<StatusManager>(out StatusManager other))
+                if (col.transform == this.transform) continue; // 自分自身はスキップ
+
+                if (col.TryGetComponent<StatusManager>(out StatusManager other))
                 {
                     nearbyNpcs.Add(other);
                 }
             }
-            
+
             // 優先度1: 評判60以上の相手がいないか探す
             var scaryNpc = nearbyNpcs.FirstOrDefault(npc => npc.reputation >= 60);
             if (scaryNpc != null)
@@ -161,7 +167,7 @@ public class NPCMove : MonoBehaviour
                 StartCoroutine(FleeingRoutine(scaryNpc.transform));
                 return; // 逃げるのが最優先
             }
-            
+
             // 優先度2: 評判40~59の相手がいないか探す
             var targetNpc = nearbyNpcs.FirstOrDefault(npc => npc.reputation >= 40 && npc.reputation < 60);
             if (targetNpc != null)
@@ -172,27 +178,37 @@ public class NPCMove : MonoBehaviour
                 return;
             }
         }
-        else if (statusManager.reputation >= 40)
+        else if (statusManager.reputation >= 60)
         {
+            Collider[] colliders = Physics.OverlapSphere(transform.position, socialCheckRadius);
+            List<StatusManager> nearbyNpcs = new List<StatusManager>();
+            //Debug.Log(nearbyNpcs.Count);
+            foreach (var col in colliders)
+            {
+                if (col.transform == this.transform) continue; // 自分自身はスキップ
+
+                if (col.TryGetComponent<StatusManager>(out StatusManager other))
+                {
+                    nearbyNpcs.Add(other);
+                }
+            }
+            // 優先度2: 評判30の相手がいないか探す
+            var targetNpc = nearbyNpcs.FirstOrDefault(npc => npc.reputation < 35);
+            if (targetNpc != null)
+            {
+                // 攻撃を開始する
+                Debug.Log($"{gameObject.name}が{targetNpc.name}に喧嘩を売りに行きます。");
+                StartRetaliation(targetNpc.gameObject);
+                return;
+            }
             // --- 評判が普通のNPCの行動 ---
             CheckForGreeting();
         }
-    }
-    // ▼▼▼ 逃げる相手を探す新しいメソッド ▼▼▼
-    private void CheckForFleeing()
-    {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, socialCheckRadius);
-        foreach (var col in colliders)
+        else if (statusManager.reputation >= 40)
         {
-            if (col.transform.root == this.transform.root) continue;
-
-            // 相手がStatusManagerを持っていて、かつ評判が60以上か確認
-            if (col.TryGetComponent<StatusManager>(out StatusManager otherStatus) && otherStatus.reputation >= 60)
-            {
-                // 条件に合う相手が見つかったら、逃走コルーチンを開始
-                StartCoroutine(FleeingRoutine(otherStatus.transform));
-                break;
-            }
+            //Debug.Log("評判が普通のNPCの行動をチェックします。");
+            // --- 評判が普通のNPCの行動 ---
+            CheckForGreeting();
         }
     }
 
@@ -200,13 +216,18 @@ public class NPCMove : MonoBehaviour
     private IEnumerator FleeingRoutine(Transform scaryPerson)
     {
         currentState = AIState.Fleeing;
-        agent.isStopped = false;
-        animator.SetFloat("State", 1f);// 逃走アニメーション開始
+        agent.speed = 5.5f;
 
         Debug.Log($"{gameObject.name}が{scaryPerson.name}から逃げ始めました。");
 
+        // NavMeshAgent が有効になるまで待つ（生成直後などで isOnNavMesh が false の可能性があるため）
+        yield return new WaitUntil(() => agent != null && agent.enabled && agent.isOnNavMesh);
+
+        agent.isStopped = false;
+
         // 1. 相手から離れる方向を計算
         Vector3 fleeDirection = (transform.position - scaryPerson.position).normalized;
+
         // 2. 逃げる先の目標地点を計算
         Vector3 destination = transform.position + fleeDirection * fleeDistance;
 
@@ -222,14 +243,34 @@ public class NPCMove : MonoBehaviour
         }
 
         // 目的地に到着するまで待機
-        while (agent.pathPending || agent.remainingDistance > agent.stoppingDistance)
+        while (true)
         {
-            // もし途中で攻撃されたら、このコルーチンはStartRetaliationによって止められる
+            // NavMesh から外れていたら安全のため抜ける
+            if (agent == null || !agent.enabled || !agent.isOnNavMesh)
+            {
+                Debug.LogWarning($"{gameObject.name} は NavMesh 上にいないため逃走を中断しました。");
+                break;
+            }
+
+            // 経路計算中なら待つ
+            if (agent.pathPending)
+            {
+                yield return null;
+                continue;
+            }
+
+            // 残り距離が到達距離以下なら完了
+            if (agent.remainingDistance <= agent.stoppingDistance)
+            {
+                break;
+            }
+
+            // 途中で攻撃されたら中断
             yield return null;
         }
 
         // 目的地に着いたら、状態を徘徊に戻す
-        animator.SetFloat("State", 0f); // 逃走アニメーション終了
+        agent.speed = 1f;
         currentState = AIState.Patrolling;
     }
 
@@ -256,7 +297,7 @@ public class NPCMove : MonoBehaviour
             if (pathTimer > pathfindingTimeout)
             {
                 target = null;
-                isRetaliating = false;
+                //isRetaliating = false;
                 SetNewPatrolDestination();
             }
         }
@@ -266,32 +307,35 @@ public class NPCMove : MonoBehaviour
         if (socialCheckTimer > SOCIAL_CHECK_INTERVAL)
         {
             socialCheckTimer = 0f;
-            CheckForGreeting();
+            CheckForSocialInteractions();
         }
     }
 
     // ▼▼▼ 挨拶相手を探す新しいメソッド ▼▼▼
     private void CheckForGreeting()
     {
-        // 自分の評判が40未満なら挨拶しない
-        if (statusManager.reputation < 40) return;
-
-        // 周囲のコライダーを検出
         Collider[] colliders = Physics.OverlapSphere(transform.position, socialCheckRadius);
         foreach (var col in colliders)
         {
-            // 相手が自分自身ではないことを確認
-            if (col.transform.root == this.transform.root) continue;
+            if (col.transform == this.transform) continue; // 自分自身はスキップ
 
-            // 相手がStatusManagerを持っていて、かつ評判が60以上か確認
-            if (col.TryGetComponent<StatusManager>(out StatusManager otherStatus) && otherStatus.reputation >= 60)
+            // 親を含めて StatusManager を探す
+            StatusManager otherStatus = col.GetComponentInParent<StatusManager>();
+
+            // null または自分自身のステータスならスキップ
+            if (otherStatus == null || otherStatus == statusManager) continue;
+
+            // 評判が高い NPC に挨拶
+            if (otherStatus.reputation >= 60)
             {
-                // 条件に合う相手が見つかったら、挨拶コルーチンを開始
                 StartCoroutine(GreetingRoutine(otherStatus.transform));
-                break; // 最初の1人を見つけたらループを抜ける
+                break;
             }
         }
     }
+
+
+
 
     // ▼▼▼ 挨拶を実行する新しいコルーチン ▼▼▼
     private IEnumerator GreetingRoutine(Transform personToGreet)
@@ -310,7 +354,7 @@ public class NPCMove : MonoBehaviour
 
         // 3. 挨拶アニメーションを再生
         animator.SetTrigger(greetingTriggerID);
-        Debug.Log($"{gameObject.name}が{personToGreet.name}に挨拶しました。");
+        //Debug.Log($"{gameObject.name}が{personToGreet.name}に挨拶しました。");
 
         // 4. アニメーションが終わるまで待機
         yield return new WaitForSeconds(greetingDuration);
@@ -334,40 +378,100 @@ public class NPCMove : MonoBehaviour
     private IEnumerator RetaliationRoutine(Transform attackerTransform)
     {
         currentState = AIState.Retaliating;
-        isRetaliating = true;
+        //isRetaliating = true;
         target = attackerTransform;
         float retaliationEndTime = Time.time + retaliationDuration;
         pathTimer = 0f; // 追跡開始時にタイマーをリセット
-        agent.speed = 3f;
+        agent.speed = 5.5f;
+
+        // NavMeshAgent が有効になるまで待機（生成直後でも安全にする）
+        yield return new WaitUntil(() => agent != null && agent.enabled && agent.isOnNavMesh);
 
         while (Time.time < retaliationEndTime)
         {
             if (target == null) break;
 
-            // ▼▼▼ ダメージモーション中は攻撃しないように、ここでもチェックを追加 ▼▼▼
+            // ▼ ダメージモーション中は攻撃しない
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
             if (stateInfo.IsTag(flinchingTagName))
             {
-                // Flinching中は待機
                 yield return null;
-                continue; // ループの最初に戻る
+                continue;
             }
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-            Vector3 direction = (target.position - transform.position).normalized;
-            direction.y = 0;
-            if (direction != Vector3.zero)
+            // 距離判定（Yを無視）
+            Vector3 toTarget = target.position - transform.position;
+            toTarget.y = 0f;
+            float distance = toTarget.magnitude;
+
+            if (distance > attackRange)
             {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * agent.angularSpeed);
+                // 射程外 → 追いかける
+                if (agent != null && agent.enabled && agent.isOnNavMesh)
+                {
+                    agent.isStopped = false;
+                    agent.SetDestination(target.position);
+
+                    // 回転も補正
+                    Vector3 dir = toTarget.normalized;
+                    if (dir != Vector3.zero)
+                    {
+                        transform.rotation = Quaternion.Slerp(
+                            transform.rotation,
+                            Quaternion.LookRotation(dir),
+                            Time.deltaTime * agent.angularSpeed
+                        );
+                    }
+                }
             }
-            animator.SetTrigger(attackTriggerID);
+            else
+            {
+                // 射程内 → 移動停止して攻撃
+                if (agent != null && agent.isOnNavMesh) agent.isStopped = true;
+                animator.SetTrigger(attackTriggerID);
+
+                // 相手を向く
+                Vector3 dir = toTarget.normalized;
+                if (dir != Vector3.zero)
+                {
+                    transform.rotation = Quaternion.Slerp(
+                        transform.rotation,
+                        Quaternion.LookRotation(dir),
+                        Time.deltaTime * agent.angularSpeed
+                    );
+                }
+            }
+
+            // タイムアウト処理
+            if (agent != null && agent.enabled && agent.isOnNavMesh)
+            {
+                if (agent.hasPath)
+                {
+                    pathTimer += Time.deltaTime;
+                    if (pathTimer > pathfindingTimeout)
+                    {
+                        // 追跡失敗
+                        break;
+                    }
+                }
+                else
+                {
+                    // パスがない場合はタイマーをリセット
+                    pathTimer = 0f;
+                }
+            }
+
             yield return null;
         }
-        
+
+        // 終了処理
         target = null;
-        isRetaliating = false;
+        //isRetaliating = false;
         agent.speed = 1f;
         currentState = AIState.Patrolling;
+
+        // 徘徊先を再設定
+        SetNewPatrolDestination();
     }
 
     private void CalculateAndAnimate()

@@ -2380,13 +2380,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  retaliationDuration: 5
+  retaliationDuration: 30
   attackTriggerID: Attack
+  attackRange: 1
   patrolRadius: 20
   horizontalID: Hor
   verticalID: Vert
   stateID: State
   flinchingTagName: Flinching
+  socialCheckRadius: 5
+  greetingTriggerID: Greet
+  greetingDuration: 2
+  fleeFloatID: State
+  fleeDistance: 15
   pathfindingTimeout: 8
 --- !u!143 &4813538748215057760
 CharacterController:

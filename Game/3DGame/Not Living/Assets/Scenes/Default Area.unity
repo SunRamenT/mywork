@@ -3609,7 +3609,6 @@ GameObject:
   - component: {fileID: 129651624}
   - component: {fileID: 129651625}
   - component: {fileID: 129651626}
-  - component: {fileID: 129651627}
   m_Layer: 12
   m_Name: NPC
   m_TagString: Untagged
@@ -3650,7 +3649,7 @@ MonoBehaviour:
     npcTag: NPC
     spawnCount: 15
     startHour: 0
-    endHour: 19
+    endHour: 23
   spawnRadius: 200
   maxSpawnHeight: 0.4
   agentTypeIndex: 0
@@ -3677,7 +3676,7 @@ MonoBehaviour:
     npcTag: NPC
     spawnCount: 15
     startHour: 0
-    endHour: 15
+    endHour: 23
   spawnRadius: 200
   maxSpawnHeight: 0.4
   agentTypeIndex: 0
@@ -3699,37 +3698,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnableNpcs:
-  - description: NormalHuman3
+  - description: Normal3
     npcPrefab: {fileID: 5993942175922792291, guid: a9d9126323be8ac4487d7374b6e920f0, type: 3}
     npcTag: NPC
     spawnCount: 15
-    startHour: 0
-    endHour: 23
-  spawnRadius: 200
-  maxSpawnHeight: 1
-  agentTypeIndex: 0
-  sampleDistance: 15
-  maxAttempts: 10
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 512
---- !u!114 &129651627
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 129651622}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8bb6fec45635da34cbf98b673fab1ec5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  spawnableNpcs:
-  - description: Bombmer
-    npcPrefab: {fileID: 724712843079168495, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
-    npcTag: NPC
-    spawnCount: 20
     startHour: 0
     endHour: 23
   spawnRadius: 100
@@ -5695,6 +5667,89 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4f32dfddb033d3e40b5841bc53cc1689, type: 3}
+--- !u!1 &218319292
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 218319293}
+  - component: {fileID: 218319295}
+  - component: {fileID: 218319294}
+  m_Layer: 0
+  m_Name: SpecialNPC
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &218319293
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218319292}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1259289464}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &218319294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218319292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a228f91d688a1743b4aa3665b4263de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  specialNpcs:
+  - description: Bombmer
+    npcPrefab: {fileID: 724712843079168495, guid: aaf01f2cb3217774f832e052a9c09738, type: 3}
+    spawnChance: 30
+    spawnCount: 3
+  spawnRadius: 100
+  maxSpawnHeight: 0.5
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  agentTypeIndex: 0
+  sampleDistance: 30
+  maxAttemptsPerSpawn: 30
+--- !u!114 &218319295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218319292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a228f91d688a1743b4aa3665b4263de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  specialNpcs:
+  - description: Police
+    npcPrefab: {fileID: 6279802642772558393, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
+    spawnChance: 100
+    spawnCount: 3
+  spawnRadius: 100
+  maxSpawnHeight: 0.5
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  agentTypeIndex: 0
+  sampleDistance: 30
+  maxAttemptsPerSpawn: 30
 --- !u!1001 &218487123
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15082,6 +15137,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: b74c48c2e73e17c418c9394124b75daf, type: 3}
   m_PrefabInstance: {fileID: 124949740}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &606314272 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 958032846697608173, guid: c058853254da53547b7626a695f1afca, type: 3}
+  m_PrefabInstance: {fileID: 1425742398}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &609802461
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20796,7 +20856,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 864149307}
   serializedVersion: 4
-  m_Mass: 0.005
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -22229,8 +22289,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 478e6c1f28422dd45bfb27c3a92777dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  miniGamePrefab: {fileID: 1085294872}
-  soulReward: 50
+  miniGamePrefabs:
+  - {fileID: 1085294872}
+  - {fileID: 606314272}
+  possibleDifficulties:
+  - difficultyName: easy
+    numberOfButtons: 5
+    needleSpeed: 100
+    successZoneWidth: 30
+    soulReward: 30
+  - difficultyName: Normal
+    numberOfButtons: 7
+    needleSpeed: 130
+    successZoneWidth: 30
+    soulReward: 40
+  - difficultyName: Hard
+    numberOfButtons: 9
+    needleSpeed: 150
+    successZoneWidth: 30
+    soulReward: 50
   targetCanvas: {fileID: 377517139}
 --- !u!65 &938008500
 BoxCollider:
@@ -31180,6 +31257,7 @@ Transform:
   m_Children:
   - {fileID: 129651623}
   - {fileID: 422789771}
+  - {fileID: 218319293}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1259941086
@@ -38758,6 +38836,7 @@ MonoBehaviour:
   target: {fileID: 0}
   retaliationDuration: 5
   attackTriggerID: Attack
+  attackRange: 2
   patrolRadius: 50
   horizontalID: Hor
   verticalID: Vert
@@ -41365,6 +41444,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ff558025e228454db28cfc481ece1ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pushPower: 2
 --- !u!1001 &1638829743
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44639,6 +44719,7 @@ MonoBehaviour:
   target: {fileID: 0}
   retaliationDuration: 5
   attackTriggerID: Attack
+  attackRange: 2
   patrolRadius: 20
   horizontalID: Hor
   verticalID: Vert
@@ -50184,75 +50265,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: b14aef9a05449784da6735de9ec90b24, type: 3}
   m_PrefabInstance: {fileID: 273599203}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &1973338515
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 706934725023990833, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_Speed
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3634591298869911087, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3634591298869911087, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6279802642772558393, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_Name
-      value: Police
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -94.624
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 20.842
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 74.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
 --- !u!1001 &1974814033
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -55330,6 +55342,10 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7194498455032594715, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
+      propertyPath: maxHeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7194498455032594715, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: warpRadius
       value: 25
       objectReference: {fileID: 0}
@@ -55509,4 +55525,3 @@ SceneRoots:
   - {fileID: 38147685}
   - {fileID: 864149312}
   - {fileID: 1448239563}
-  - {fileID: 1973338515}

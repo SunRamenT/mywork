@@ -31,6 +31,6 @@ public class FootstepEmitter : MonoBehaviour
         MessageBroker.Default.Publish(new SoundPacket(transform.position, volume, SoundType.PlayerFootstep));
         
         // デバッグ用にログを表示
-        Debug.Log($"<color=lightblue>{gameObject.name} が足音を発生させました (大きさ: {volume})</color>");
+        //Debug.Log($"<color=lightblue>{gameObject.name} が足音を発生させました (大きさ: {volume})</color>");
     }
 }

@@ -391,15 +391,18 @@ public class StatusManager : MonoBehaviour
             return;
         }
 
-
-        // 攻撃者のヒットボックスからSoundEmitterを探す
-        SoundEmitter emitter = other.GetComponent<SoundEmitter>();
-        // もし見つかったら音を発生させる
-        if (emitter != null)
+        // もし攻撃してきた相手が乗っ取られている（＝プレイヤー操作）場合のみ
+        if (attackerMoveScript.isNottoried)
         {
-            emitter.EmitSound();
+            // 攻撃者のヒットボックスからSoundEmitterを探す
+            SoundEmitter emitter = other.GetComponent<SoundEmitter>();
+            // もし見つかったら音を発生させる
+            if (emitter != null)
+            {
+                emitter.EmitSound();
+            }
         }
-
+       
         // 自分自身への攻撃でないことが確定したので、ダメージ処理に進む
         GameObject attacker = attackerMoveScript.gameObject;
         AttackInfo attackInfo = other.GetComponent<AttackInfo>();

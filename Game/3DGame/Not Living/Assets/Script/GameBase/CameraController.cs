@@ -62,6 +62,15 @@ public class CameraController : MonoBehaviour
         Transform target = playerController.CurrentCharacterTransform;
         if (target == null) return;
         
+        // ▼▼▼ このブロックを追加 ▼▼▼
+        // ゲームの状態が「通常プレイ」でない場合（ミニゲーム中やポーズ中など）は、
+        // カメラの回転処理をスキップする
+        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState != GameStateManager.GameState.Gameplay)
+        {
+            return; // ここで処理を中断
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         HandleRotation();
 
         // 1. 憑依状態に応じて、目標となるカメラ設定を決定する

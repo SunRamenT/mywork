@@ -327,8 +327,8 @@ MonoBehaviour:
   sightRadius: 10
   sightAngle: 5
   patrolRadius: 30
-  losePlayerTime: 2
-  investigationTimeout: 2
+  losePlayerTime: 5
+  investigationTimeout: 5
   dangerAuraRadius: 3
   pathfindingTimeout: 10
   obstacleMask:

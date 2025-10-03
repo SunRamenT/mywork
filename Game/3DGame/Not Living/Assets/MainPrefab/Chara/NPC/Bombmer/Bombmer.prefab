@@ -687,7 +687,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 1
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -712,8 +712,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  retaliationDuration: 5
+  retaliationDuration: 30
   attackTriggerID: Attack
+  attackRange: 1
   patrolRadius: 20
   horizontalID: Hor
   verticalID: Vert
@@ -724,7 +725,7 @@ MonoBehaviour:
   greetingDuration: 2
   fleeFloatID: State
   fleeDistance: 15
-  pathfindingTimeout: 8
+  pathfindingTimeout: 10
 --- !u!114 &9106778607080042191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -875,7 +876,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -905,7 +906,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
