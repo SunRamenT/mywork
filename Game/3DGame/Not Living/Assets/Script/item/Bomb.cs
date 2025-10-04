@@ -68,6 +68,13 @@ public class Bomb : MonoBehaviour
         // デバッグ用にログを表示
         Debug.Log($"<color=lightblue>{gameObject.name} が音を発生させました (大きさ: {specialAbilityVolume})</color>");
 
-        Destroy(gameObject);
+        // オブジェクトを「非表示・無効化」にする
+        foreach (var renderer in GetComponentsInChildren<Renderer>())
+            renderer.enabled = false;
+
+        foreach (var collider in GetComponentsInChildren<Collider>())
+            collider.enabled = false;
+
+        Destroy(gameObject, 2f);
     }
 }

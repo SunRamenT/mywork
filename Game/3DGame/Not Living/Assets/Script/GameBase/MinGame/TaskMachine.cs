@@ -7,16 +7,20 @@ using System.Collections.Generic; // Listを使うために必要
 public class TaskDifficulty
 {
     public string difficultyName = "Easy";
-    [Header("Number Order Game Settings")]
+
+    [Header("Number Order Game")]
     public int numberOfButtons = 3;
 
-    [Header("Skill Check Game Settings")] // ▼▼▼ 追加 ▼▼▼
+    [Header("Skill Check Game")]
     public float needleSpeed = 200f;
     public float successZoneWidth = 45f;
+    [Tooltip("スキルチェックで表示される成功ゾーンの数")] // ▼▼▼ 名前を変更 ▼▼▼
+    public int numberOfSuccessZones = 1;
 
-    [Header("Common Settings")]
+    [Header("Common Reward")]
     public int soulReward = 25;
 }
+
 // IInteractableインターフェースを実装
 public class TaskMachine : MonoBehaviour, IInteractable
 {

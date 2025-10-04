@@ -1,4 +1,3 @@
-// AlignmentManager.cs
 using UnityEngine;
 using System;
 
@@ -7,7 +6,8 @@ public class AlignmentManager : MonoBehaviour
     public static AlignmentManager Instance { get; private set; }
 
     [Header("座標の範囲設定")]
-    [SerializeField] private Vector2 goodEvilRange = new Vector2(-100, 100);
+    [Tooltip("悪(-100)から善(100)への値の範囲")] // ▼▼▼ ツールチップを修正 ▼▼▼
+    [SerializeField] private Vector2 evilGoodRange = new Vector2(-100, 100);
     [SerializeField] private Vector2 chaosRange = new Vector2(-100, 100);
 
     private float _timeValue;
@@ -48,21 +48,27 @@ public class AlignmentManager : MonoBehaviour
         NotifyAlignmentChange();
     }
 
-    // ▼▼▼ このメソッドのロジックを変更 ▼▼▼
     /// <summary>
-    /// 敵を倒した際に呼ばれる。相手の評判に関わらず、善行として+1する
+    /// NPCを倒した際に呼ばれる。悪行として値をプラスする。
     /// </summary>
     private void HandleTargetDefeated(StatusManager defeatedStatus)
     {
-        AddGoodEvilValue(1f);
+        // ▼▼▼ 悪行として+10する（値は調整可能） ▼▼▼
+        AddGoodEvilValue(10f);
     }
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
-    private void HandleGoodDeed() => AddGoodEvilValue(2f);
+    
+    /// <summary>
+    /// ミニゲームクリアなど、善行を行った際に呼ばれる。善行として値をマイナスする。
+    /// </summary>
+    private void HandleGoodDeed()
+    {
+        // ▼▼▼ 善行として-5する（値は調整可能） ▼▼▼
+        AddGoodEvilValue(-5f);
+    }
     
     public void AddGoodEvilValue(float amount)
     {
-        _goodEvilValue = Mathf.Clamp(_goodEvilValue + amount, goodEvilRange.x, goodEvilRange.y);
+        _goodEvilValue = Mathf.Clamp(_goodEvilValue + amount, evilGoodRange.x, evilGoodRange.y);
         Debug.Log($"[善悪値更新] {amount}変動しました。現在の善悪値: {_goodEvilValue}");
         NotifyAlignmentChange();
     }
