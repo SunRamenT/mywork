@@ -84,8 +84,8 @@ public class WorldTintController : MonoBehaviour
         if (Mathf.Abs(currentAlignment) < alignmentThreshold || currentDay < dayThreshold)
         {
             // Color Adjustmentsエフェクト自体をオフにする
-            colorAdjustments.active = false;
-            return; // これで通常の色（白）になる
+            //colorAdjustments.active = false;
+            //return; // これで通常の色（白）になる
         }
         
         // --- 色計算 ---

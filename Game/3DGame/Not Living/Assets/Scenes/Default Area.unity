@@ -8701,8 +8701,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   postProcessVolume: {fileID: 351614116}
-  goodTintColor: {r: 1, g: 0.9108727, b: 0.6949685, a: 1}
-  evilTintColor: {r: 0.28415203, g: 0, b: 1, a: 0.20392157}
+  goodTintColor: {r: 1, g: 1, b: 0, a: 0.39215687}
+  evilTintColor: {r: 0.39215687, g: 0, b: 1, a: 0.39215687}
   alignmentThreshold: 40
   dayThreshold: 3
 --- !u!114 &351614116
@@ -35046,7 +35046,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 494705349101313075, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: message
-      value: "E\u30DC\u30BF\u30F3\u3067\u306E\u3063\u3068\u308B"
+      value: "E\u30DC\u30BF\u30F3"
       objectReference: {fileID: 0}
     - target: {fileID: 494705349101313075, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: targetCanvas
@@ -35282,7 +35282,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5282904531694418444, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: message
-      value: "\u5DE6\u30AF\u30EA\u30C3\u30AF\u3067\u3053\u3046\u3052\u304D"
+      value: "\u5DE6\u30AF\u30EA\u30C3\u30AF"
       objectReference: {fileID: 0}
     - target: {fileID: 5282904531694418444, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: targetCanvas
@@ -38990,7 +38990,6 @@ MonoBehaviour:
   retaliationDuration: 5
   attackTriggerID: Attack
   attackRange: 2
-  attackInterval: 2
   attackWarningTime: 0.5
   alertPanel: {fileID: 0}
   patrolRadius: 50
@@ -43638,12 +43637,12 @@ MonoBehaviour:
     manualOffset: {x: 0, y: 0.2, z: 0}
     distance: 2
     pitch: 2
-  positionTransitionSpeed: 15
-  rotationTransitionSpeed: 15
+  positionTransitionSpeed: 20
+  rotationTransitionSpeed: 20
   mouseSensitivityX: 100
-  mouseSensitivityY: 0
-  minPitch: -20
-  maxPitch: 60
+  mouseSensitivityY: 3
+  minPitch: -10
+  maxPitch: 25
 --- !u!1001 &1704196083
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44843,7 +44842,6 @@ MonoBehaviour:
   retaliationDuration: 5
   attackTriggerID: Attack
   attackRange: 2
-  attackInterval: 2
   attackWarningTime: 0.5
   alertPanel: {fileID: 0}
   patrolRadius: 20

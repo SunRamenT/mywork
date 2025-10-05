@@ -18,10 +18,9 @@ public class NPCMove : MonoBehaviour
     [Header("攻撃関連")]
     [Tooltip("攻撃を開始する距離")]
     public float attackRange = 2.0f;
-    [Tooltip("攻撃間隔（秒）")]
-    public float attackInterval = 2.0f;
+    
     [Tooltip("攻撃の予兆を出す時間（秒）")]
-    public float attackWarningTime = 0.5f;
+    public float attackWarningTime = 0.3f;
     [Tooltip("頭上の[!]パネル（Canvasの子にあるPanel）")]
     public GameObject alertPanel;
 
@@ -432,7 +431,8 @@ public class NPCMove : MonoBehaviour
                 // 一定間隔で攻撃
                 if (Time.time >= nextAttackTime)
                 {
-                    nextAttackTime = Time.time + attackInterval;
+                    float randomInterval = Random.Range(1f, 5f); // ランダム間隔を決定
+                    nextAttackTime = Time.time + randomInterval;
                     // 攻撃予兆（[!]マークを出す→0.5秒待って攻撃）
                     StartCoroutine(AttackWithWarning());
                 }
