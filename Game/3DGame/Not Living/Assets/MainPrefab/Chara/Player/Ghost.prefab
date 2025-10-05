@@ -951,7 +951,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   warpRadius: 20
-  cooldown: 5
+  cooldownDuration: 5
+  abilityName: "\u30EF\u30FC\u30D7"
+  maxHeightDifference: 3
+  maxWarpAttempts: 10
   warpOutEffectPrefab: {fileID: 0}
   warpInEffectPrefab: {fileID: 0}
 --- !u!1 &8368496820512572993

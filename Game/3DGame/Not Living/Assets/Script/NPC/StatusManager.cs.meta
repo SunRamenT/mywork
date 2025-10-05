@@ -11,6 +11,7 @@ MonoImporter:
   - hitEffectPrefab: {fileID: 5024009746357069194, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
   - hitSound: {fileID: 8300000, guid: 79f4b8b8ecde82b46a88d8700a1ad428, type: 3}
   - footstepSound: {instanceID: 0}
+  - spawnSound: {fileID: 8300000, guid: e532fb3f9ab454f4cb7b3ff3ed3effcb, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

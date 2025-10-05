@@ -1,2 +1,13 @@
 fileFormatVersion: 2
 guid: bb69c75c3f67c2f43bc7cf7f3f647fc8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - target: {instanceID: 0}
+  - alertPanel: {fileID: 2705628107422014672, guid: c66ce8d8840b4714e8c936d62fa1e728, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

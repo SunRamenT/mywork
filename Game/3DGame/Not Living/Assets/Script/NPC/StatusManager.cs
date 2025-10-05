@@ -36,9 +36,6 @@ public class StatusManager : MonoBehaviour
     [Tooltip("ダメージを受けた際のノックバックの時間")] // ▼▼▼ 追加 ▼▼▼
     public float knockbackDuration = 0.2f;
 
-
-
-
     [Header("UI設定")]
     public GameObject healthBarCanvas; 
     public Slider healthBarSlider; 
@@ -54,6 +51,9 @@ public class StatusManager : MonoBehaviour
     
     [Tooltip("ダメージアニメーションのトリガー名")] // ▼▼▼ 追加 ▼▼▼
     public string damageTriggerName = "Damage";
+
+    [Tooltip("ダメージアニメーションのトリガー名")] // ▼▼▼ 追加 ▼▼▼
+    private string deathTriggerName = "Death";
 
 
     //private Renderer modelRenderer;
@@ -75,6 +75,21 @@ public class StatusManager : MonoBehaviour
     private AudioSource audioSource; // ▼▼▼ 追加 ▼▼▼
     [Tooltip("このキャラクターの歩行音")] // ▼▼▼ 追加 ▼▼▼
     public AudioClip footstepSound;
+
+    [Header("ランダム追跡者スポーン設定")]
+    [Tooltip("追跡者として出現させる敵Prefabリスト")]
+    public GameObject[] chaserPrefabs;
+
+    [Tooltip("追跡者が出現する確率（0〜1）")]
+    [Range(0f, 1f)]
+    public float chaserSpawnChance = 0.3f;
+
+    [Tooltip("追跡者が出現する距離（倒された位置から）")]
+    public float chaserSpawnRadius = 1f;
+
+    [Tooltip("追跡者が出現する時に再生する効果音")]
+    public AudioClip spawnSound;
+
 
 
     private void Awake()
@@ -200,6 +215,8 @@ public class StatusManager : MonoBehaviour
         if (!this.enabled) return;
         this.enabled = false;
 
+        animator.SetTrigger(deathTriggerName);
+
         Debug.Log($"{gameObject.name} は倒れた。");
 
         if (attacker != null)
@@ -223,15 +240,68 @@ public class StatusManager : MonoBehaviour
                     Vector3 dropPosition = transform.position + new Vector3(0, itemDropOffsetY, 0);
                     Instantiate(recoveryItemPrefab, dropPosition, Quaternion.identity);
                 }
+                // ▼▼▼ 一定確率でランダム追跡者をスポーン ▼▼▼
+                TrySpawnRandomChaser();
             }
         }
-        Destroy(gameObject);
+        Destroy(gameObject,10f);
     }
     
+    private void TrySpawnRandomChaser()
+    {
+        // 出現確率チェック
+        if (chaserPrefabs == null || chaserPrefabs.Length == 0) return;
+        if (Random.value > chaserSpawnChance) return;
+
+        // ランダムにPrefabを選択
+        GameObject prefab = chaserPrefabs[Random.Range(0, chaserPrefabs.Length)];
+        if (prefab == null) return;
+        
+
+        // 出現音を再生
+        if (spawnSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(spawnSound);
+        }
+
+        // 出現位置をランダムにずらす
+        Vector3 randomOffset = new Vector3(
+            Random.Range(-chaserSpawnRadius, chaserSpawnRadius),
+            0.5f,
+            Random.Range(-chaserSpawnRadius, chaserSpawnRadius)
+        );
+
+        Vector3 spawnPos = transform.position + randomOffset;
+
+        // NavMesh上の位置を補正
+        if (NavMesh.SamplePosition(spawnPos, out NavMeshHit hit, 3f, NavMesh.AllAreas))
+        {
+            spawnPos = hit.position;
+        }
+
+        // 一定時間後に出現させる（例：5〜9秒のランダムディレイ）
+        float delay = Random.Range(5f, 9f);
+        StartCoroutine(SpawnChaserAfterDelay(prefab, spawnPos, delay));
+    }
+
+    private IEnumerator SpawnChaserAfterDelay(GameObject prefab, Vector3 spawnPos, float delay)
+    {
+        Debug.Log($"追跡者 {prefab.name} は {delay:F1} 秒後に出現予定…");
+        yield return new WaitForSeconds(delay);
+
+        if (prefab != null)
+        {
+            GameObject chaser = Instantiate(prefab, spawnPos, Quaternion.identity);
+            Debug.Log($"ランダム追跡者 {chaser.name} が出現しました！（{delay:F1} 秒後）");
+        }
+    }
+
+
+
     public void UpdateReputationOnDefeat(StatusManager victimStatus)
     {
         int reputationChange = 0;
-        
+
         if (victimStatus.reputation >= 30) // Bad, Normal, Good...
         {
             reputationChange = -10;
@@ -244,7 +314,7 @@ public class StatusManager : MonoBehaviour
         {
             reputationChange = 40;
         }
-        
+
         this.reputation = Mathf.Clamp(this.reputation + reputationChange, 0, 100);
         Debug.Log($"[評判更新] {victimStatus.gameObject.name}を倒したため、{this.gameObject.name}の評判が{reputationChange}変動しました。現在の評判: {this.reputation}");
     }

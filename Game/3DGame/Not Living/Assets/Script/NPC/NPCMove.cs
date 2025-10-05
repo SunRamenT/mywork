@@ -18,6 +18,12 @@ public class NPCMove : MonoBehaviour
     [Header("攻撃関連")]
     [Tooltip("攻撃を開始する距離")]
     public float attackRange = 2.0f;
+    [Tooltip("攻撃間隔（秒）")]
+    public float attackInterval = 2.0f;
+    [Tooltip("攻撃の予兆を出す時間（秒）")]
+    public float attackWarningTime = 0.5f;
+    [Tooltip("頭上の[!]パネル（Canvasの子にあるPanel）")]
+    public GameObject alertPanel;
 
 
     [Header("自由探索用の設定")]
@@ -83,6 +89,8 @@ public class NPCMove : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         statusManager = GetComponent<StatusManager>(); // 自身のStatusManagerを取得
+        if (alertPanel != null)
+            alertPanel.SetActive(false);
     }
 
     private void Start()
@@ -93,7 +101,7 @@ public class NPCMove : MonoBehaviour
             SetNewPatrolDestination();
         }
     }
-    
+
     private void Update()
     {
         if (isNottoried)
@@ -139,6 +147,10 @@ public class NPCMove : MonoBehaviour
                 break;
         }
         CalculateAndAnimate();
+        if (statusManager.currentHp <= 0)
+        {
+            agent.speed = 0f;
+        }
     }
 
     private void CheckForSocialInteractions()
@@ -378,20 +390,18 @@ public class NPCMove : MonoBehaviour
     private IEnumerator RetaliationRoutine(Transform attackerTransform)
     {
         currentState = AIState.Retaliating;
-        //isRetaliating = true;
         target = attackerTransform;
         float retaliationEndTime = Time.time + retaliationDuration;
-        pathTimer = 0f; // 追跡開始時にタイマーをリセット
+        float nextAttackTime = 0f;
+        pathTimer = 0f;
         agent.speed = 5.5f;
 
-        // NavMeshAgent が有効になるまで待機（生成直後でも安全にする）
         yield return new WaitUntil(() => agent != null && agent.enabled && agent.isOnNavMesh);
 
         while (Time.time < retaliationEndTime)
         {
             if (target == null) break;
 
-            // ▼ ダメージモーション中は攻撃しない
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
             if (stateInfo.IsTag(flinchingTagName))
             {
@@ -399,66 +409,38 @@ public class NPCMove : MonoBehaviour
                 continue;
             }
 
-            // 距離判定（Yを無視）
+            // Y軸を無視して距離判定
             Vector3 toTarget = target.position - transform.position;
             toTarget.y = 0f;
             float distance = toTarget.magnitude;
 
             if (distance > attackRange)
             {
-                // 射程外 → 追いかける
-                if (agent != null && agent.enabled && agent.isOnNavMesh)
+                // 攻撃範囲外：追跡
+                if (agent.enabled && agent.isOnNavMesh)
                 {
                     agent.isStopped = false;
                     agent.SetDestination(target.position);
-
-                    // 回転も補正
-                    Vector3 dir = toTarget.normalized;
-                    if (dir != Vector3.zero)
-                    {
-                        transform.rotation = Quaternion.Slerp(
-                            transform.rotation,
-                            Quaternion.LookRotation(dir),
-                            Time.deltaTime * agent.angularSpeed
-                        );
-                    }
                 }
             }
             else
             {
-                // 射程内 → 移動停止して攻撃
-                if (agent != null && agent.isOnNavMesh) agent.isStopped = true;
-                animator.SetTrigger(attackTriggerID);
+                // 攻撃範囲内
+                if (agent.enabled && agent.isOnNavMesh)
+                    agent.isStopped = true;
 
-                // 相手を向く
+                // 一定間隔で攻撃
+                if (Time.time >= nextAttackTime)
+                {
+                    nextAttackTime = Time.time + attackInterval;
+                    // 攻撃予兆（[!]マークを出す→0.5秒待って攻撃）
+                    StartCoroutine(AttackWithWarning());
+                }
+
+                // 向きを補正
                 Vector3 dir = toTarget.normalized;
                 if (dir != Vector3.zero)
-                {
-                    transform.rotation = Quaternion.Slerp(
-                        transform.rotation,
-                        Quaternion.LookRotation(dir),
-                        Time.deltaTime * agent.angularSpeed
-                    );
-                }
-            }
-
-            // タイムアウト処理
-            if (agent != null && agent.enabled && agent.isOnNavMesh)
-            {
-                if (agent.hasPath)
-                {
-                    pathTimer += Time.deltaTime;
-                    if (pathTimer > pathfindingTimeout)
-                    {
-                        // 追跡失敗
-                        break;
-                    }
-                }
-                else
-                {
-                    // パスがない場合はタイマーをリセット
-                    pathTimer = 0f;
-                }
+                    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * agent.angularSpeed);
             }
 
             yield return null;
@@ -466,19 +448,30 @@ public class NPCMove : MonoBehaviour
 
         // 終了処理
         target = null;
-        //isRetaliating = false;
         agent.speed = 1f;
         currentState = AIState.Patrolling;
-
-        // 徘徊先を再設定
         SetNewPatrolDestination();
     }
+
+    private IEnumerator AttackWithWarning()
+    {
+        if (alertPanel != null)
+            alertPanel.SetActive(true); // ← Panelをオン
+
+        yield return new WaitForSeconds(attackWarningTime); // 攻撃予兆時間
+
+        animator.SetTrigger(attackTriggerID); // 攻撃発動
+
+        if (alertPanel != null)
+            alertPanel.SetActive(false); // ← 攻撃後にオフ
+    }
+
 
     private void CalculateAndAnimate()
     {
         // エージェントが無効な場合は、速度を0としてアニメーションを更新
         Vector3 velocity = (agent.enabled && agent.isOnNavMesh) ? agent.velocity : Vector3.zero;
-        
+
         Vector3 localVelocity = transform.InverseTransformDirection(velocity);
         Vector2 targetAxis = new Vector2(localVelocity.x / agent.speed, localVelocity.z / agent.speed);
         float targetState = (target != null) ? 1.0f : 0.0f;

@@ -10406,10 +10406,6 @@ MonoBehaviour:
     maxGoodEvilValue: 0
     minDaysSurvived: 0
     chaserCount: 1
-  - ruleDescription: Normal
-    maxGoodEvilValue: 3
-    minDaysSurvived: 1
-    chaserCount: 2
   spawnRadius: 100
   maxSpawnHeight: 0.5
   agentTypeIndex: 0
@@ -10436,10 +10432,6 @@ MonoBehaviour:
     maxGoodEvilValue: 0
     minDaysSurvived: 0
     chaserCount: 1
-  - ruleDescription: Ear
-    maxGoodEvilValue: 3
-    minDaysSurvived: 0
-    chaserCount: 2
   spawnRadius: 100
   maxSpawnHeight: 0.5
   agentTypeIndex: 0
@@ -10466,10 +10458,6 @@ MonoBehaviour:
     maxGoodEvilValue: 0
     minDaysSurvived: 0
     chaserCount: 1
-  - ruleDescription: Run
-    maxGoodEvilValue: 3
-    minDaysSurvived: 0
-    chaserCount: 2
   spawnRadius: 100
   maxSpawnHeight: 0.5
   agentTypeIndex: 1
@@ -10496,10 +10484,6 @@ MonoBehaviour:
     maxGoodEvilValue: 0
     minDaysSurvived: 0
     chaserCount: 1
-  - ruleDescription: Weep
-    maxGoodEvilValue: 3
-    minDaysSurvived: 0
-    chaserCount: 2
   spawnRadius: 100
   maxSpawnHeight: 0.5
   agentTypeIndex: 1
@@ -35325,6 +35309,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: spawnSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e532fb3f9ab454f4cb7b3ff3ed3effcb, type: 3}
+    - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: footstepSound
       value: 
       objectReference: {fileID: 8300000, guid: 15ec2b68c30cf524ebdbd30efa56a9c1, type: 3}
@@ -35341,9 +35329,33 @@ PrefabInstance:
       value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: chaserSpawnChance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: characterModelRenderer
       value: 
       objectReference: {fileID: 1647443818}
+    - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: chaserPrefabs.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: 'chaserPrefabs.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8954800359469898617, guid: 8cff910570119b549b0f2098b6eaa2a5, type: 3}
+    - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: 'chaserPrefabs.Array.data[1]'
+      value: 
+      objectReference: {fileID: 3985757784934188552, guid: 3b51614271f46794a96217d221052727, type: 3}
+    - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: 'chaserPrefabs.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2676405798547930095, guid: 82d8fd755b99f4142950d7009ae50a4f, type: 3}
+    - target: {fileID: 5527902192923712802, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: 'chaserPrefabs.Array.data[3]'
+      value: 
+      objectReference: {fileID: 6007180743642840513, guid: b667d232a7f291745851775ea69b5fc9, type: 3}
     - target: {fileID: 5573484867216858863, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: m_LocalPosition.x
       value: -93
@@ -38978,6 +38990,9 @@ MonoBehaviour:
   retaliationDuration: 5
   attackTriggerID: Attack
   attackRange: 2
+  attackInterval: 2
+  attackWarningTime: 0.5
+  alertPanel: {fileID: 0}
   patrolRadius: 50
   horizontalID: Hor
   verticalID: Vert
@@ -44828,6 +44843,9 @@ MonoBehaviour:
   retaliationDuration: 5
   attackTriggerID: Attack
   attackRange: 2
+  attackInterval: 2
+  attackWarningTime: 0.5
+  alertPanel: {fileID: 0}
   patrolRadius: 20
   horizontalID: Hor
   verticalID: Vert
