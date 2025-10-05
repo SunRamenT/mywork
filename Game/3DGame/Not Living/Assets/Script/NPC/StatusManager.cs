@@ -90,7 +90,7 @@ public class StatusManager : MonoBehaviour
     [Tooltip("追跡者が出現する時に再生する効果音")]
     public AudioClip spawnSound;
 
-
+    public bool IsDead { get; private set; } = false;
 
     private void Awake()
     {
@@ -168,7 +168,7 @@ public class StatusManager : MonoBehaviour
 
         // 攻撃側の乗っ取り状態を確認
         bool isAttackerPossessed = false;
-        if (attacker != null)
+        if (attacker != null && attacker.GetComponent<NPCMove>() != null)
         {
             NPCMove attackerNpcMove = attacker.GetComponent<NPCMove>();
             if (attackerNpcMove != null)
@@ -214,7 +214,8 @@ public class StatusManager : MonoBehaviour
     {
         if (!this.enabled) return;
         this.enabled = false;
-
+        IsDead = true;
+        
         animator.SetTrigger(deathTriggerName);
 
         Debug.Log($"{gameObject.name} は倒れた。");
@@ -244,6 +245,8 @@ public class StatusManager : MonoBehaviour
                 TrySpawnRandomChaser();
             }
         }
+        // CharacterControllerを無効化
+        GetComponent<CharacterController>().enabled = false;
         Destroy(gameObject,10f);
     }
     

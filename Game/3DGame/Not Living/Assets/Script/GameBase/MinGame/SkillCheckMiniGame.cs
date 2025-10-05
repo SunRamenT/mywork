@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using TMPro; 
 public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
 {
     public event Action<bool> OnTaskCompleted;
@@ -22,9 +22,13 @@ public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
     // --- 内部変数 ---
     private List<Image> spawnedZones = new List<Image>();
 
+    public TextMeshProUGUI successCountText;
+    public TextMeshProUGUI playText;
+
     public void StartTask(TaskMachine machine)
     {
         StartCoroutine(SkillCheckRoutine(machine.SelectedDifficulty));
+        successCountText.text = $"成功数:";
     }
 
     private IEnumerator SkillCheckRoutine(TaskDifficulty difficulty)
@@ -48,9 +52,9 @@ public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
             // ゾーンの幅を設定
             zoneImage.fillAmount = currentSuccessZoneWidth / 360f;
             
-            // ゾーンの開始位置をランダムに設定 (最初の45度は避ける)
+            // ゾーンの開始位置をランダムに設定 (最初の90度は避ける)
             // 他のゾーンと重ならないように、配置可能な範囲を考慮
-            float randomAngle = 45f + (360f - 45f) * ((float)i + UnityEngine.Random.value) / zoneCount;
+            float randomAngle = 0f + (360f - 90f) * ((float)i + UnityEngine.Random.value) / zoneCount;
             zoneImage.rectTransform.localEulerAngles = new Vector3(0, 0, randomAngle);
             
             spawnedZones.Add(zoneImage);
@@ -60,52 +64,66 @@ public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
 
         // --- ゲームループ ---
         float elapsed = 0f;
+        int consecutiveSuccess = 0; // 連続成功カウント
+
+        int requiredSuccess = difficulty.numberOfSuccessZones; // 例えば3回連続成功が必要
+
         while (true)
         {
             elapsed += Time.deltaTime;
             float angle = elapsed * currentNeedleSpeed;
-            needle.rectTransform.localEulerAngles = new Vector3(0, 0, -angle);
-
+            needle.rectTransform.localEulerAngles = new Vector3(0, 0, -angle); // 
+            
+            playText.text = $"左クリック";
             if (angle >= 360f)
             {
-                OnTaskCompleted?.Invoke(false); // 時間切れで失敗
+                OnTaskCompleted?.Invoke(false);
                 yield break;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetButtonDown("Fire1"))
             {
-                float needleAngle = angle % 360;
-                bool isSuccess = false;
+                float needleAngle = (-angle) % 360f;
+                if (needleAngle < 0) needleAngle += 360f;
 
-                // 全ての成功ゾーンをチェック
+                bool hit = false;
+
+                // 全てのゾーンをチェック
                 foreach (var zone in spawnedZones)
                 {
-                    float successMin = zone.rectTransform.localEulerAngles.z;
-                    float successMax = successMin + currentSuccessZoneWidth;
+                    float successMin = zone.rectTransform.localEulerAngles.z - 10f; // ゾーン少し広め
+                    float successMax = (successMin + currentSuccessZoneWidth) % 360f;
 
-                    // ゾーンが一周をまたぐかどうかの判定
-                    if (successMax >= 360f)
-                    {
-                        successMax -= 360f;
-                        if (needleAngle >= successMin || needleAngle <= successMax)
-                        {
-                            isSuccess = true;
-                            break; // いずれかのゾーンに入っていれば成功
-                        }
-                    }
+                    if (successMax >= successMin)
+                        hit = needleAngle >= successMin && needleAngle <= successMax;
                     else
-                    {
-                        if (needleAngle >= successMin && needleAngle <= successMax)
-                        {
-                            isSuccess = true;
-                            break; // いずれかのゾーンに入っていれば成功
-                        }
-                    }
+                        hit = needleAngle >= successMin || needleAngle <= successMax;
+
+                    if (hit) break;
                 }
 
-                OnTaskCompleted?.Invoke(isSuccess);
-                yield break;
+                if (hit)
+                {
+                    consecutiveSuccess++;
+
+                    // --- UI 更新 ---
+                    if (successCountText != null)
+                        successCountText.text = $"成功数: {consecutiveSuccess}";
+
+                    if (consecutiveSuccess >= requiredSuccess)
+                    {
+                        OnTaskCompleted?.Invoke(true);
+                        yield break;
+                    }
+                }
+                else
+                {
+                    OnTaskCompleted?.Invoke(false); // 一度でも失敗したら終了
+                    yield break;
+                }
             }
+
+
             yield return null;
         }
     }

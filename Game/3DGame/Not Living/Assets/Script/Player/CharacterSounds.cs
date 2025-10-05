@@ -39,7 +39,7 @@ public class CharacterSounds : MonoBehaviour
         // 2. Chaserに聞こえるように、音の情報をMessageBrokerで発信する
         MessageBroker.Default.Publish(new SoundPacket(transform.position, specialAbilityVolume, SoundType.PlayerAction));
         // デバッグ用にログを表示
-        Debug.Log($"<color=lightblue>{gameObject.name} が音を発生させました (大きさ: {specialAbilityVolume})</color>");
+        //Debug.Log($"<color=lightblue>{gameObject.name} が音を発生させました (大きさ: {specialAbilityVolume})</color>");
     }
 
     /// <summary>
@@ -50,6 +50,6 @@ public class CharacterSounds : MonoBehaviour
 
         // 2. Chaserに聞こえるように、音の情報をMessageBrokerで発信する
         MessageBroker.Default.Publish(new SoundPacket(transform.position, landingVolume, SoundType.PlayerAction));
-        Debug.Log($"<color=lightblue>{gameObject.name} が音を発生させました (大きさ: {landingVolume})</color>");
+        //Debug.Log($"<color=lightblue>{gameObject.name} が音を発生させました (大きさ: {landingVolume})</color>");
     }
 }

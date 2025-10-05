@@ -709,6 +709,7 @@ MonoBehaviour:
   verticalFloatName: Vert
   flinchingTagName: Flinching
   MissSound: {fileID: 8300000, guid: ceb7cd9bbf7cdb84d9c7e669e76dc316, type: 3}
+  warpSound: {fileID: 8300000, guid: d348c012ecba3044798c0db962d629fa, type: 3}
 --- !u!95 &7332317644238901132
 Animator:
   serializedVersion: 7
@@ -950,13 +951,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b9d1d2dc46aad74bbaf5114e051d845, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  warpRadius: 20
-  cooldownDuration: 5
+  warpRadius: 33
+  cooldownDuration: 180
   abilityName: "\u30EF\u30FC\u30D7"
-  maxHeightDifference: 3
-  maxWarpAttempts: 10
-  warpOutEffectPrefab: {fileID: 0}
-  warpInEffectPrefab: {fileID: 0}
+  maxHeightDifference: 0.5
+  maxWarpAttempts: 5
+  warpOutEffectPrefab: {fileID: 7275548786892498063, guid: 5bc9a0bf98f67d240a936bf476ba2082, type: 3}
+  warpInEffectPrefab: {fileID: 7275548786892498063, guid: 5bc9a0bf98f67d240a936bf476ba2082, type: 3}
 --- !u!1 &8368496820512572993
 GameObject:
   m_ObjectHideFlags: 0

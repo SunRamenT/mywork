@@ -61,6 +61,8 @@ public class PlayerController : MonoBehaviour
     private AudioSource audioSource;
     [Tooltip("アクションができないときに再生する音")]
     public AudioClip MissSound;
+    [Tooltip("アクションができないときに再生する音")]
+    public AudioClip warpSound;
 
     private void Awake()
     {
@@ -75,7 +77,7 @@ public class PlayerController : MonoBehaviour
         // AudioSourceを自分自身から取得、またはなければ追加する
         audioSource = GetComponent<AudioSource>();
         currentSpecialAction = ghost.GetComponent<ISpecialAction>();
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     }
 
@@ -125,28 +127,34 @@ public class PlayerController : MonoBehaviour
     {
         if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState != GameStateManager.GameState.Gameplay)
         {
-            if(targetNPC != null && currentAnimator != null) {
-                if(HasParameter(currentAnimator, horizontalFloatName)) currentAnimator.SetFloat(horizontalFloatName, 0);
-                if(HasParameter(currentAnimator, verticalFloatName)) currentAnimator.SetFloat(verticalFloatName, 0);
+            if (targetNPC != null && currentAnimator != null)
+            {
+                if (HasParameter(currentAnimator, horizontalFloatName)) currentAnimator.SetFloat(horizontalFloatName, 0);
+                if (HasParameter(currentAnimator, verticalFloatName)) currentAnimator.SetFloat(verticalFloatName, 0);
             }
             return;
         }
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
         
         if (nottoriController.isPossessing && targetNPC == null)
         {
             Debug.LogWarning("乗っ取り対象が消滅したため、強制的に憑依解除します。");
+            // 憑依解除処理を呼び出す
+            nottoriController.ForceRelease();
+            return;
+        }
+        if (targetNPC != null && npcStatusManager.IsDead)
+        {
             // 霊魂ダメージなどのペナルティ処理
             if (reikonManager != null && nottoriController != null)
             {
                 reikonManager.TakeDamage(nottoriController.deathPenaltyAmount);
             }
-            // 憑依解除処理を呼び出す
+            // 憑依解除
             nottoriController.ForceRelease();
             return;
         }
-
-
+        
         CheckForRecoveryItems();
         CheckForInteractables();
         UpdatePhasingState();
@@ -201,9 +209,13 @@ public class PlayerController : MonoBehaviour
                     {
                         // (任意)クールタイム中であることを示す音を鳴らしても良い
                         Debug.Log("特殊能力はクールタイム中です。");
+                        if (MissSound != null)
+                        {
+                            audioSource.PlayOneShot(MissSound);
+                        }
                     }
                 }
-            }
+            }   
         }
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
         else
@@ -224,16 +236,21 @@ public class PlayerController : MonoBehaviour
                 {
                     // 2. 完了していれば、音を鳴らして能力を発動
                     currentSpecialAction.PerformAction(this);
+                    if (warpSound != null)
+                    {
+                        audioSource.PlayOneShot(warpSound);
+                    }
                 }
                 else
                 {
                     // (任意)クールタイム中であることを示す音を鳴らしても良い
                     Debug.Log("特殊能力はクールタイム中です。");
+                    if (MissSound != null)
+                    {
+                        audioSource.PlayOneShot(MissSound);
+                    }
                 }
-                if (MissSound != null)
-                {
-                    audioSource.PlayOneShot(MissSound);
-                }
+                
             }
             if (Input.GetButtonDown("Jump"))
             {
@@ -241,7 +258,7 @@ public class PlayerController : MonoBehaviour
                 {
                     audioSource.PlayOneShot(MissSound);
                 }
-            }      
+            }
         }
 
         Vector3 lookDir = Camera.main.transform.forward;
