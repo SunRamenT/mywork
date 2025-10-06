@@ -2474,7 +2474,6 @@ MonoBehaviour:
   retaliationDuration: 30
   attackTriggerID: Attack
   attackRange: 1
-  attackInterval: 2
   attackWarningTime: 0.5
   alertPanel: {fileID: 5965495268974278764}
   patrolRadius: 20
@@ -2503,10 +2502,10 @@ MonoBehaviour:
   maxHp: 50
   currentHp: 0
   power: 20
-  speed: 3
+  speed: 4
   jumpPower: 4
   footstepVolume: 2
-  hourlyHealAmount: 10
+  hourlyHealAmount: 5
   reputation: 50
   currentPopularity: 
   invincibilityDuration: 0.7
@@ -2559,7 +2558,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cooldownDuration: 5
-  guardInvincibilityDuration: 2
+  guardInvincibilityDuration: 1
   abilityName: "\u30E0\u30C6\u30AD"
 --- !u!82 &4441447027857939831
 AudioSource:

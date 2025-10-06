@@ -13,14 +13,14 @@ public class NPCMove : MonoBehaviour
     public Transform target;
 
     [Header("反撃設定")]
-    public float retaliationDuration = 5f;
+    public float retaliationDuration = 30f;
     public string attackTriggerID = "Attack";
     [Header("攻撃関連")]
     [Tooltip("攻撃を開始する距離")]
-    public float attackRange = 2.0f;
+    public float attackRange = 1.0f;
     
     [Tooltip("攻撃の予兆を出す時間（秒）")]
-    public float attackWarningTime = 0.3f;
+    public float attackWarningTime = 0.5f;
     [Tooltip("頭上の[!]パネル（Canvasの子にあるPanel）")]
     public GameObject alertPanel;
 
@@ -466,18 +466,22 @@ public class NPCMove : MonoBehaviour
             alertPanel.SetActive(false); // ← 攻撃後にオフ
     }
 
-
     private void CalculateAndAnimate()
     {
-        // エージェントが無効な場合は、速度を0としてアニメーションを更新
+        // エージェントが無効な場合は速度0として扱う
         Vector3 velocity = (agent.enabled && agent.isOnNavMesh) ? agent.velocity : Vector3.zero;
 
         Vector3 localVelocity = transform.InverseTransformDirection(velocity);
-        Vector2 targetAxis = new Vector2(localVelocity.x / agent.speed, localVelocity.z / agent.speed);
+
+        // --- 安全な除算（speedが0の場合でもNaNにならない） ---
+        float safeSpeed = Mathf.Max(agent.speed, 0.01f);
+        Vector2 targetAxis = new Vector2(localVelocity.x / safeSpeed, localVelocity.z / safeSpeed);
+
+        // --- 状態値を設定 ---
         float targetState = (target != null) ? 1.0f : 0.0f;
         UpdateAnimation(targetAxis, targetState);
     }
-    
+
     private void UpdateAnimation(Vector2 axis, float state)
     {
         float deltaTime = Time.deltaTime;

@@ -25,12 +25,12 @@ public class StatusManager : MonoBehaviour
 
     [Header("ダメージと無敵")]
     [Tooltip("ダメージを受けた際の、デフォルトの無敵時間")]
-    public float invincibilityDuration = 1.0f;
+    public float invincibilityDuration = 0.7f;
     [Tooltip("無敵時間中の点滅間隔（秒）")]
     public float invincibilityBlinkInterval = 0.2f;
     private bool isInvincible = false;    
     [Tooltip("このキャラクターに攻撃が当たった時のヒットストップ時間")] // ▼▼▼ 追加 ▼▼▼
-    public float hitStopDuration = 0.05f;
+    public float hitStopDuration = 0.3f;
     [Tooltip("ダメージを受けた際のノックバックの強さ")] // ▼▼▼ 追加 ▼▼▼
     public float knockbackForce = 5f;
     [Tooltip("ダメージを受けた際のノックバックの時間")] // ▼▼▼ 追加 ▼▼▼
