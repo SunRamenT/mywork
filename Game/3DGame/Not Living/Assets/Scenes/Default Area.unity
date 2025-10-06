@@ -9117,17 +9117,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ee6d569ec3227e40888e8151b331e0f, type: 3}
---- !u!114 &364203986 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6759430284842738216, guid: c058853254da53547b7626a695f1afca, type: 3}
-  m_PrefabInstance: {fileID: 1425742398}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &366228379 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 47ef019eb3bddab469e56e5a31eebf68, type: 3}
@@ -37266,7 +37255,7 @@ PrefabInstance:
     - target: {fileID: 5601594921605803440, guid: c058853254da53547b7626a695f1afca, type: 3}
       propertyPath: successCountText
       value: 
-      objectReference: {fileID: 364203986}
+      objectReference: {fileID: 1799384526}
     - target: {fileID: 5694803822118843352, guid: c058853254da53547b7626a695f1afca, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -46420,6 +46409,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 4f32dfddb033d3e40b5841bc53cc1689, type: 3}
   m_PrefabInstance: {fileID: 1058124908}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1799384526 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3101136167007276931, guid: c058853254da53547b7626a695f1afca, type: 3}
+  m_PrefabInstance: {fileID: 1425742398}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1799934678 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: b82e76f4092b7d24aaeecddf36fe8d3b, type: 3}

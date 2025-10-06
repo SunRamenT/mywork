@@ -212,7 +212,11 @@ class SingleStockStrategy(Strategy):
             exit()
 
         if isinstance(df_raw.columns, pd.MultiIndex):
-            df_raw.columns = df_raw.columns.droplevel(0)
+            # MultiIndex の順序を確認して 'Close' がどこにあるか判定
+            if 'Close' in df_raw.columns.get_level_values(0):
+                df_raw.columns = df_raw.columns.droplevel(1)
+            elif 'Close' in df_raw.columns.get_level_values(1):
+                df_raw.columns = df_raw.columns.droplevel(0)
 
         self.df = self.feature_engineer.calculate_for_single_stock(df_raw)
         self.df.dropna(inplace=True)
