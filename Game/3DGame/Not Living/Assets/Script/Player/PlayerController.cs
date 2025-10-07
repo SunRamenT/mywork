@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Linq; // OrderByを使うために必要
+using System.Collections;
+using NUnit.Framework;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Animator))]
@@ -8,9 +10,13 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
-    public float jumpPower = 5f;
-    [Tooltip("この秒数以上、空中にいた場合のみ着地音を鳴らす")] // ▼▼▼ 追加 ▼▼▼
+    //public float jumpPower = 5f;
+    [Tooltip("この秒数以上、空中にいた場合のみ着地音を鳴らす")] //
     public float landingThreshold = 0.1f;
+    [Tooltip("ジャンプボタンを離した時の、重力のかかり具合")] // ▼▼▼ 追加 ▼▼▼
+    public float lowJumpGravityMultiplier = 2.5f;
+    [Tooltip("落下中の重力のかかり具合")] // ▼▼▼ 追加 ▼▼▼
+    public float fallGravityMultiplier = 2f;
 
     [Header("Item Detection Settings")]
     public LayerMask reikonLayer;
@@ -63,6 +69,31 @@ public class PlayerController : MonoBehaviour
     public AudioClip MissSound;
     [Tooltip("アクションができないときに再生する音")]
     public AudioClip warpSound;
+    public AudioClip dodgeSound;
+
+    [Header("回避設定")]
+    [Tooltip("回避アニメーションのトリガー名")]
+    
+    public string stateID = "State";
+    [Tooltip("回避のクールタイム（秒）")]
+    public float dodgeCooldown = 1.5f;
+    [Tooltip("回避の移動速度")]
+    public float dodgeSpeed = 10f;
+    [Tooltip("回避の持続時間（秒）")]
+    public float dodgeDuration = 0.3f;
+    [Tooltip("回避開始時の無敵時間（秒）")]
+    public float dodgeInvincibilityTime = 0.1f;
+    
+    private float nextDodgeTime = 0f;
+    public bool isDodging = false;
+
+    private bool isAttack = false;
+
+    // PlayerController.csにGetCurrentAnimator()を追加
+    public Animator GetCurrentAnimator()
+    {
+        return currentAnimator;
+    }
 
     private void Awake()
     {
@@ -125,6 +156,15 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        float playerTimeScale = PlayerTimeManager.Instance?.PlayerTimeScale ?? 1f;
+        float playerDeltaTime = Time.deltaTime * playerTimeScale;
+
+        // 現在のアニメーターの再生速度を、プレイヤーの時間倍率に合わせる
+        if (currentAnimator != null)
+        {
+            currentAnimator.speed = playerTimeScale;
+        }
+        
         if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState != GameStateManager.GameState.Gameplay)
         {
             if (targetNPC != null && currentAnimator != null)
@@ -166,9 +206,12 @@ public class PlayerController : MonoBehaviour
             currentInteractable.OnInteract(this);
             return;
         }
-
+        // isDodgingがtrueの場合は、移動入力を無視
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
+
+        //float h = isDodging ? 0f : Input.GetAxis("Horizontal");
+        //float v = isDodging ? 0f : Input.GetAxis("Vertical");
 
         // ▼▼▼ アニメーションパラメータの更新ロジックを修正 ▼▼▼
         // currentAnimatorにパラメータが存在する場合のみ値を設定する
@@ -190,10 +233,12 @@ public class PlayerController : MonoBehaviour
             if (!isFlinching)
             {
                 // 攻撃
-                if (Input.GetButtonDown("Fire1"))
+                if (Input.GetButtonDown("Fire1") && isAttack == false)
                 {
                     if (npcStatusManager != null && punchAttackInfo != null) { punchAttackInfo.damage = npcStatusManager.power; }
+                    isAttack = true;
                     currentAnimator.SetTrigger(attackTriggerName);
+                    StartCoroutine(canAttack());
                 }
                 // 特殊能力
                 if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
@@ -214,6 +259,11 @@ public class PlayerController : MonoBehaviour
                             audioSource.PlayOneShot(MissSound);
                         }
                     }
+                }
+                // ▼▼▼ 回避入力の判定を追加 ▼▼▼
+                if (Input.GetButtonDown("Jump") && Time.time >= nextDodgeTime)
+                {
+                    StartCoroutine(Dodge());
                 }
             }   
         }
@@ -261,58 +311,55 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // ▼▼▼ 時間の取得方法を変更 ▼▼▼
+        float deltaTime = Time.deltaTime * (PlayerTimeManager.Instance?.PlayerTimeScale ?? 1f);
+
         Vector3 lookDir = Camera.main.transform.forward;
         lookDir.y = 0;
         if (lookDir.sqrMagnitude > 0.001f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(lookDir);
-            currentCharacter.transform.rotation = Quaternion.Slerp(currentCharacter.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            currentCharacter.transform.rotation = Quaternion.Slerp(currentCharacter.transform.rotation, targetRotation, rotationSpeed * playerDeltaTime);
         }
 
         float currentSpeed = IsPossessing() && npcStatusManager != null ? npcStatusManager.speed : this.moveSpeed;
         Vector3 move = (currentCharacter.transform.forward * v + currentCharacter.transform.right * h).normalized * currentSpeed;
 
-        // ▼▼▼ 着地判定と重力の処理を修正 ▼▼▼
+        // ▼▼▼ ジャンプと重力のロジックを修正 ▼▼▼
         bool isGrounded = currentController.isGrounded;
 
         if (isGrounded)
         {
-            // 地面にいる場合
-            // もし前のフレームで空中にいたら（＝着地した瞬間）
-            if (!wasGrounded && timeInAir > landingThreshold)
-            {
-                // 着地音を再生
-                currentCharacter.GetComponent<CharacterSounds>()?.PlayLandingSound();
-            }
-            timeInAir = 0f; // 滞空時間をリセット
-            velocity.y = -0.1f;
+            if (!wasGrounded && timeInAir > landingThreshold) { /* 着地音 */ }
+            timeInAir = 0f;
+            // 地面にいる間、Y速度がマイナスに溜まり続けないようにする
+            if (velocity.y < 0) velocity.y = -2f; 
         }
         else 
         {
-            // 空中にいる場合
-            timeInAir += Time.deltaTime; // 滞空時間を加算
-            velocity.y += Physics.gravity.y * Time.deltaTime;
-        }
-
-
-        if (Input.GetButtonDown("Jump") && currentController.isGrounded)
-        {
-            if (IsPossessing()) // ジャンプは憑依中のみ可能
+            timeInAir += Time.deltaTime;
+            // --- ここからが可変ジャンプの核 ---
+            // 上昇中（velocity.y > 0）にジャンプボタン(Fire2)が離されたら
+            if (velocity.y > 0 && Input.GetButtonUp("Fire2"))
             {
-                if (HasParameter(currentAnimator, jumpTriggerName))
-                {
-                    currentAnimator.SetTrigger(jumpTriggerName);
-                }
-                PerformJump(npcStatusManager != null ? npcStatusManager.jumpPower : this.jumpPower);
+                // 上昇の勢いを弱める
+                velocity.y *= 0.5f; 
+            }
+            // 落下中（velocity.y < 0）は、少し強い重力をかけてスピーディーに落とす
+            else if (velocity.y < 0)
+            {
+                velocity.y += Physics.gravity.y * fallGravityMultiplier * playerDeltaTime;
+            }
+            // それ以外（上昇中にボタンを押し続けている場合など）
+            else
+            {
+                velocity.y += Physics.gravity.y * playerDeltaTime; // 通常の重力
             }
         }
-
-        Vector3 finalMove = move + new Vector3(0, velocity.y, 0);
-        currentController.Move(finalMove * Time.deltaTime);
         
-        // --- フレームの最後に、今の地面状態を記録しておく ---
+        Vector3 finalMove = move + new Vector3(0, velocity.y, 0);
+        currentController.Move(finalMove * playerDeltaTime);
         wasGrounded = isGrounded;
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
         
         if (targetNPC != null)
         {
@@ -321,6 +368,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// ジャンプ能力から呼び出され、上方向の初速を設定する
+    /// </summary>
+    public void ApplyJumpForce(float force)
+    {
+        if (currentController.isGrounded)
+        {
+            velocity.y = force;
+        }
+        
+    }
     
     private void CheckForInteractables()
     {
@@ -337,7 +395,7 @@ public class PlayerController : MonoBehaviour
             Collider closestCollider = hitColliders
                 .OrderBy(c => (transform.position - c.transform.position).sqrMagnitude)
                 .FirstOrDefault(); // 並び替えた後、リストの先頭（＝最も近いもの）を1つだけ取り出す
-            
+
             // 最も近いコライダーが確實に存在する場合
             if (closestCollider != null)
             {
@@ -345,7 +403,7 @@ public class PlayerController : MonoBehaviour
                 closestInteractable = closestCollider.GetComponent<IInteractable>();
             }
         }
-        
+
         // --- ここから、前のフレームの状態と比較して、イベントを通知する ---
 
         // 「今フレームで見つけた最も近い対象」が存在し、かつ「前のフレームでフォーカスしていた対象」と違う場合
@@ -373,6 +431,69 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private IEnumerator canAttack()
+    {
+        // 30フレーム待つ
+        for (var i = 0; i < 60; i++)
+        {
+            yield return null;
+        }
+        Debug.Log("Attack OK");
+        isAttack = false;
+    }
+
+    private IEnumerator Dodge()
+    {
+        //isDodging = true;
+        nextDodgeTime = Time.time + dodgeCooldown;
+        // Dodgeフラグをセット（Animatorに伝える）
+        if (HasParameter(currentAnimator, "Dodge"))
+            currentAnimator.SetTrigger("Dodge");
+
+        if (dodgeSound != null)
+        {
+            audioSource.PlayOneShot(dodgeSound);
+        }
+
+        // --- 無敵処理 ---
+        // StatusManagerの回避専用無敵化メソッドを呼び出す
+        if (npcStatusManager != null)
+        {
+            npcStatusManager.StartCoroutine(npcStatusManager.BecomeDodgeInvincible(dodgeInvincibilityTime));
+        }
+
+        // --- 回避の方向を決定 ---
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+
+        Vector3 dodgeDirection;
+        if (h != 0 || v != 0)
+        {
+            dodgeDirection = (currentCharacter.transform.forward * v + currentCharacter.transform.right * h).normalized;
+        }
+        else
+        {
+            dodgeDirection = currentCharacter.transform.forward;
+        }
+        if (HasParameter(currentAnimator, horizontalFloatName))
+            currentAnimator.SetFloat(horizontalFloatName, h);
+        if (HasParameter(currentAnimator, verticalFloatName))
+            currentAnimator.SetFloat(verticalFloatName, v);
+
+        // --- 移動処理 ---
+        float elapsedTime = 0f;
+        while (elapsedTime < dodgeDuration)
+        {
+            float deltaTime = Time.deltaTime * (PlayerTimeManager.Instance?.PlayerTimeScale ?? 1f);
+            // CharacterController.Moveを使うことで、壁との衝突判定が行われる
+            currentController.Move(dodgeDirection * dodgeSpeed * deltaTime);
+            elapsedTime += deltaTime;
+            yield return null;
+        }
+
+        //isDodging = false;
+    }
+
     /// 指定された力でジャンプを実行する
     public void PerformJump(float customJumpPower)
     {
@@ -382,7 +503,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private bool HasParameter(Animator animator, string paramName)
+    public bool HasParameter(Animator animator, string paramName)
     {
         if (animator == null || string.IsNullOrEmpty(paramName)) return false;
         foreach (AnimatorControllerParameter param in animator.parameters)

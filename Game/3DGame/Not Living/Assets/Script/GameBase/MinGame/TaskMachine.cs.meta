@@ -1,2 +1,14 @@
 fileFormatVersion: 2
 guid: 478e6c1f28422dd45bfb27c3a92777dd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - targetCanvas: {instanceID: 0}
+  - introUIPrefab: {instanceID: 0}
+  - failClip: {fileID: 8300000, guid: 3d2d2b32631a21b4da9239cf077f9d59, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

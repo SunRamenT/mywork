@@ -20,7 +20,7 @@ public class NPCMove : MonoBehaviour
     public float attackRange = 1.0f;
     
     [Tooltip("攻撃の予兆を出す時間（秒）")]
-    public float attackWarningTime = 0.5f;
+    public float attackWarningTime = 0.3f;
     [Tooltip("頭上の[!]パネル（Canvasの子にあるPanel）")]
     public GameObject alertPanel;
 
@@ -37,6 +37,7 @@ public class NPCMove : MonoBehaviour
 
     [Header("乗っ取り判定")]
     private bool _isNottoried = false;
+
     public bool isNottoried
     {
         get { return _isNottoried; }
@@ -45,12 +46,28 @@ public class NPCMove : MonoBehaviour
             _isNottoried = value;
             if (_isNottoried)
             {
+                // 実行中の処理をすべて停止
                 StopAllCoroutines();
+
+                // 反撃などのターゲット情報をリセット
                 target = null;
-                //isRetaliating = false;
+                if (alertPanel != null)
+                    alertPanel.SetActive(false);
+
+                // 状態を強制的にPatrollingに戻す
+                currentState = AIState.Patrolling;
+
+                // NavMeshAgentを安全に再開
+                if (agent != null && agent.enabled && agent.isOnNavMesh)
+                {
+                    agent.isStopped = false;
+                    agent.speed = 1f;
+                    SetNewPatrolDestination();
+                }
             }
         }
     }
+
 
     [Header("挨拶AI設定")] // ▼▼▼ 追加 ▼▼▼
     [Tooltip("他のNPCを探す半径")]
@@ -180,7 +197,7 @@ public class NPCMove : MonoBehaviour
             }
 
             // 優先度2: 評判40~59の相手がいないか探す
-            var targetNpc = nearbyNpcs.FirstOrDefault(npc => npc.reputation >= 40 && npc.reputation < 60);
+            var targetNpc = nearbyNpcs.FirstOrDefault(npc => npc.reputation < 60);
             if (targetNpc != null)
             {
                 // 攻撃を開始する
@@ -217,6 +234,27 @@ public class NPCMove : MonoBehaviour
         }
         else if (statusManager.reputation >= 40)
         {
+            // --- 評判が普通のNPCの行動 ---
+            // 周囲のNPCを全て見つける
+            Collider[] colliders = Physics.OverlapSphere(transform.position, socialCheckRadius);
+            List<StatusManager> nearbyNpcs = new List<StatusManager>();
+            foreach (var col in colliders)
+            {
+                if (col.transform == this.transform) continue; // 自分自身はスキップ
+
+                if (col.TryGetComponent<StatusManager>(out StatusManager other))
+                {
+                    nearbyNpcs.Add(other);
+                }
+            }
+
+            // 優先度1: 評判30以下の相手がいないか探す
+            var scaryNpc = nearbyNpcs.FirstOrDefault(npc => npc.reputation <= 30);
+            if (scaryNpc != null)
+            {
+                StartCoroutine(FleeingRoutine(scaryNpc.transform));
+                return; // 逃げるのが最優先
+            }
             //Debug.Log("評判が普通のNPCの行動をチェックします。");
             // --- 評判が普通のNPCの行動 ---
             CheckForGreeting();

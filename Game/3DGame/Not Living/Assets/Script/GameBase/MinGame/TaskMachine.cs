@@ -37,7 +37,8 @@ public class TaskMachine : MonoBehaviour, IInteractable
     public GameObject introUIPrefab;
     [Tooltip("告知UIを表示する時間（秒）")] // ▼▼▼ 追加 ▼▼▼
     public float introDisplayDuration = 2.0f;
-    
+    AudioSource audioSource;
+    public AudioClip failClip;
 
     private ITaskMiniGame currentMiniGame;
 
@@ -127,6 +128,8 @@ public class TaskMachine : MonoBehaviour, IInteractable
         }
         else
         {
+            if (audioSource != null && failClip != null)
+                audioSource.PlayOneShot(failClip);
             Debug.Log("タスク失敗...");
         }
 

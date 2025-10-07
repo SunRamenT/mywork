@@ -24,11 +24,15 @@ public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
 
     public TextMeshProUGUI successCountText;
     public TextMeshProUGUI playText;
-
+    AudioSource audioSource;
+    public AudioClip successClip;
+ 
     public void StartTask(TaskMachine machine)
     {
         StartCoroutine(SkillCheckRoutine(machine.SelectedDifficulty));
         successCountText.text = $"成功数:";
+        playText.text = $"左クリック";
+        audioSource = GetComponent<AudioSource>();
     }
 
     private IEnumerator SkillCheckRoutine(TaskDifficulty difficulty)
@@ -74,7 +78,7 @@ public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
             float angle = elapsed * currentNeedleSpeed;
             needle.rectTransform.localEulerAngles = new Vector3(0, 0, -angle); // 
             
-            playText.text = $"左クリック";
+            // 360度回ったら失敗として終了
             if (angle >= 360f)
             {
                 OnTaskCompleted?.Invoke(false);
@@ -105,6 +109,8 @@ public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
                 if (hit)
                 {
                     consecutiveSuccess++;
+                    if (audioSource != null && successClip != null)
+                        audioSource.PlayOneShot(successClip);
 
                     // --- UI 更新 ---
                     if (successCountText != null)

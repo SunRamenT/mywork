@@ -1152,7 +1152,6 @@ GameObject:
   - component: {fileID: 604080185063912904}
   - component: {fileID: 5352929828545597810}
   - component: {fileID: 9116713377002223569}
-  - component: {fileID: 1056621011581399881}
   - component: {fileID: 2638272930962425478}
   - component: {fileID: 6278243313125652799}
   - component: {fileID: 6372908637256394061}
@@ -1285,14 +1284,15 @@ MonoBehaviour:
   invincibilityDuration: 0.7
   invincibilityBlinkInterval: 0.2
   hitStopDuration: 0.3
-  knockbackForce: 5
+  knockbackForce: 3
   knockbackDuration: 0.2
   healthBarCanvas: {fileID: 5114173676631748830}
   healthBarSlider: {fileID: 8235865001266984467}
   recoveryItemPrefab: {fileID: 7458564200767833722, guid: 042ea798028c08b47bf6027199839b7a, type: 3}
-  itemDropOffsetY: 1
+  itemDropOffsetY: 0.4
   characterModelRenderer: {fileID: 5362982110468254550}
   damageTriggerName: Damage
+  dodgeStopDuration: 0.4
   hitEffectPrefab: {fileID: 5024009746357069194, guid: 73f801d9ef666fb48b857b0c5cb76d9c, type: 3}
   hitEffectOffsetY: 0.2
   hitSound: {fileID: 8300000, guid: 79f4b8b8ecde82b46a88d8700a1ad428, type: 3}
@@ -1305,27 +1305,6 @@ MonoBehaviour:
   chaserSpawnChance: 0.3
   chaserSpawnRadius: 1
   spawnSound: {fileID: 8300000, guid: e532fb3f9ab454f4cb7b3ff3ed3effcb, type: 3}
---- !u!65 &1056621011581399881
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2537784867759110673}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.6391611, y: 1.9878371, z: 0.44711018}
-  m_Center: {x: 0, y: 1.0379752, z: 0}
 --- !u!195 &2638272930962425478
 NavMeshAgent:
   m_ObjectHideFlags: 0

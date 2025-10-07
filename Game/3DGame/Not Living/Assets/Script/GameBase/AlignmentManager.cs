@@ -53,8 +53,8 @@ public class AlignmentManager : MonoBehaviour
     /// </summary>
     private void HandleTargetDefeated(StatusManager defeatedStatus)
     {
-        // ▼▼▼ 悪行として+10する（値は調整可能） ▼▼▼
-        AddGoodEvilValue(10f);
+        // ▼▼▼ 悪行として+1する（値は調整可能） ▼▼▼
+        AddGoodEvilValue(1f);
     }
     
     /// <summary>
@@ -62,8 +62,8 @@ public class AlignmentManager : MonoBehaviour
     /// </summary>
     private void HandleGoodDeed()
     {
-        // ▼▼▼ 善行として-5する（値は調整可能） ▼▼▼
-        AddGoodEvilValue(-5f);
+        // ▼▼▼ 善行として-3する（値は調整可能） ▼▼▼
+        AddGoodEvilValue(-3f);
     }
     
     public void AddGoodEvilValue(float amount)

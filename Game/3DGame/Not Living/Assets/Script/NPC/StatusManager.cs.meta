@@ -8,6 +8,7 @@ MonoImporter:
   - healthBarSlider: {instanceID: 0}
   - recoveryItemPrefab: {instanceID: 0}
   - characterModelRenderer: {instanceID: 0}
+  - dodgeSuccessSound: {fileID: 8300000, guid: ed01763dc4e3d30468cfb4eff15d4113, type: 3}
   - hitEffectPrefab: {fileID: 5024009746357069194, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
   - hitSound: {fileID: 8300000, guid: 79f4b8b8ecde82b46a88d8700a1ad428, type: 3}
   - footstepSound: {instanceID: 0}

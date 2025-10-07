@@ -32,7 +32,7 @@ public class StatusManager : MonoBehaviour
     [Tooltip("このキャラクターに攻撃が当たった時のヒットストップ時間")] // ▼▼▼ 追加 ▼▼▼
     public float hitStopDuration = 0.3f;
     [Tooltip("ダメージを受けた際のノックバックの強さ")] // ▼▼▼ 追加 ▼▼▼
-    public float knockbackForce = 5f;
+    public float knockbackForce = 3f;
     [Tooltip("ダメージを受けた際のノックバックの時間")] // ▼▼▼ 追加 ▼▼▼
     public float knockbackDuration = 0.2f;
 
@@ -43,18 +43,23 @@ public class StatusManager : MonoBehaviour
     [Header("その他")]
     [Tooltip("乗っ取り中に倒した時に落とす霊魂アイテム")]
     public GameObject recoveryItemPrefab;
-    [Tooltip("アイテムをドロップする高さのオフセット")] // ▼▼▼ 変数を追加 ▼▼▼
+    [Tooltip("アイテムをドロップする高さのオフセット")] // 
     public float itemDropOffsetY = 1.0f;
-    [Header("コンポーネント参照")] // ▼▼▼ 新しいヘッダーを追加 ▼▼▼
+    [Header("コンポーネント参照")] // 
     [Tooltip("点滅させるキャラクター本体のレンダラー")]
     public Renderer characterModelRenderer;
     
-    [Tooltip("ダメージアニメーションのトリガー名")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("ダメージアニメーションのトリガー名")]
     public string damageTriggerName = "Damage";
 
-    [Tooltip("ダメージアニメーションのトリガー名")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("ダメージアニメーションのトリガー名")]
     private string deathTriggerName = "Death";
 
+    private bool isDodgeInvincible = false; // ▼▼▼ 回避無敵中のフラグを追加 ▼▼▼
+    [Tooltip("このキャラクターに攻撃が当たった時のヒットストップ時間")] // ▼▼▼ 追加 ▼▼▼
+    public float dodgeStopDuration = 0.7f;
+    [Tooltip("回避成功時に発動する無敵時間")] // ▼▼▼ 追加 ▼▼▼
+    public AudioClip dodgeSuccessSound;
 
     //private Renderer modelRenderer;
     private int lastHealHour = -1;
@@ -67,7 +72,7 @@ public class StatusManager : MonoBehaviour
     [Tooltip("このキャラクターが攻撃を当てた時に出すヒットエフェクト")]
     public GameObject hitEffectPrefab;
     [Tooltip("ヒットエフェクトの高さを調整するオフセット")] 
-    public float hitEffectOffsetY = 1.0f;
+    public float hitEffectOffsetY = 0.4f;
 
     [Header("サウンド設定")] // ▼▼▼ 追加 ▼▼▼
     [Tooltip("攻撃がヒットした時に再生する効果音")]
@@ -148,6 +153,25 @@ public class StatusManager : MonoBehaviour
 
     public void TakeDamage(int damage, GameObject attacker)
     {
+        // 1. 回避無敵中か？
+        if (isDodgeInvincible)
+        {
+            Debug.Log("ジャスト回避成功！");
+            
+            if (dodgeSuccessSound != null)
+            {
+                audioSource.PlayOneShot(dodgeSuccessSound);
+            }
+            // PlayerTimeManagerにスローモーションの開始を命令
+            // (例: 0.1倍速で2秒間)
+            if (PlayerTimeManager.Instance != null)
+            {
+                PlayerTimeManager.Instance.StartSlowMotion(0.1f, 5f);
+            }
+            return; 
+        }
+
+        // 2. 通常の無敵時間中か？
         if (isInvincible) return;
 
         // ▼▼▼ ダメージアニメーションとノックバック処理を追加 ▼▼▼
@@ -180,15 +204,6 @@ public class StatusManager : MonoBehaviour
         // 自分（受けた側）の乗っ取り状態を確認
         bool isVictimPossessed = (this.npcMove != null && this.npcMove.isNottoried);
 
-        // どちらかが乗っ取られている場合のみヒットストップを発動
-        if (isAttackerPossessed || isVictimPossessed)
-        {
-            if (HitStopManager.Instance != null)
-            {
-                HitStopManager.Instance.ApplyHitStop(hitStopDuration, this);
-            }
-        }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         currentHp -= damage;
         UpdateHealthBarVisibility();
@@ -202,7 +217,29 @@ public class StatusManager : MonoBehaviour
         if (attacker != null && npcMove != null && attacker != this.gameObject)
         {
             npcMove.StartRetaliation(attacker);
+            
         }
+
+        if (attacker != null)
+        {
+            PlayerController playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+            if (playerController.isDodging == true)
+            {
+                Debug.Log("攻撃者は回避無敵中！");
+                return; // 攻撃者が回避無敵中であれば、ここで終了
+            }
+        }
+
+        
+        // どちらかが乗っ取られている場合のみヒットストップを発動
+        if (isAttackerPossessed || isVictimPossessed)
+        {
+            if (HitStopManager.Instance != null)
+            {
+                HitStopManager.Instance.ApplyHitStop(hitStopDuration, this);
+            }
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         if (currentHp > 0)
         {
@@ -210,12 +247,23 @@ public class StatusManager : MonoBehaviour
         }
     }
     
+    // ▼▼▼ 回避用の新しい無敵化コルーチンを追加 ▼▼▼
+    /// <summary>
+    /// 回避専用の無敵状態を、指定した時間だけ有効にする
+    /// </summary>
+    public IEnumerator BecomeDodgeInvincible(float duration)
+    {
+        isDodgeInvincible = true;
+        yield return new WaitForSeconds(duration);
+        isDodgeInvincible = false;
+    }
+
     private void Die(GameObject attacker)
     {
         if (!this.enabled) return;
         this.enabled = false;
         IsDead = true;
-        
+
         animator.SetTrigger(deathTriggerName);
 
         Debug.Log($"{gameObject.name} は倒れた。");
@@ -247,7 +295,7 @@ public class StatusManager : MonoBehaviour
         }
         // CharacterControllerを無効化
         GetComponent<CharacterController>().enabled = false;
-        Destroy(gameObject,10f);
+        Destroy(gameObject, 10f);
     }
     
     private void TrySpawnRandomChaser()
@@ -509,6 +557,10 @@ public class StatusManager : MonoBehaviour
         if (attackInfo != null)
         {
             TakeDamage(attackInfo.damage, attacker);
+            if (isDodgeInvincible)
+            { 
+                other.enabled = false;// ヒットボックスを無効化して二重ヒットを防止
+            }
         }
     }
 }
