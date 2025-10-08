@@ -9,6 +9,10 @@ public class MiniGameIntroUI : MonoBehaviour
     public TextMeshProUGUI gameNameText;
     [Tooltip("難易度を表示するテキスト")]
     public TextMeshProUGUI difficultyText;
+    
+    public TextMeshProUGUI successCountText;
+    public TextMeshProUGUI playText;
+
 
     /// <summary>
     /// TaskMachineから呼び出され、UIの表示を開始する
@@ -24,7 +28,9 @@ public class MiniGameIntroUI : MonoBehaviour
         {
             difficultyText.text = difficultyName;
         }
-        
+        successCountText.text = $" ";
+        playText.text = $" ";
+
         // 指定された時間後に、このUIを破棄する
         Destroy(gameObject, duration);
     }

@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic; // Listを使うために必要
-
+using TMPro; 
 
 // --- 難易度設定用のクラス定義 ---
 [System.Serializable]
@@ -16,6 +16,11 @@ public class TaskDifficulty
     public float successZoneWidth = 45f;
     [Tooltip("スキルチェックで表示される成功ゾーンの数")] // ▼▼▼ 名前を変更 ▼▼▼
     public int numberOfSuccessZones = 1;
+
+    [Header("Mash Game")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("連打ゲームのノルマ回数")]
+    public int mashQuota = 15;
+
 
     [Header("Common Reward")]
     public int soulReward = 25;

@@ -58,10 +58,13 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
+        float playerTimeScale = PlayerTimeManager.Instance?.PlayerTimeScale ?? 1f;
+        float playerDeltaTime = Time.deltaTime * playerTimeScale;
+
         if (playerController == null) return;
         Transform target = playerController.CurrentCharacterTransform;
         if (target == null) return;
-        
+
         // ▼▼▼ このブロックを追加 ▼▼▼
         // ゲームの状態が「通常プレイ」でない場合（ミニゲーム中やポーズ中など）は、
         // カメラの回転処理をスキップする
@@ -107,17 +110,19 @@ public class CameraController : MonoBehaviour
         Quaternion desiredRotation = Quaternion.Euler(pitch + targetState.pitch, yaw, 0f);
         Vector3 desiredOffset = desiredRotation * new Vector3(0f, 0f, -targetState.distance);
         Vector3 desiredPosition = targetLookAtPos + desiredOffset;
-        
+
         // 3. 現在のカメラの位置・向きから、「目標」に向かって滑らかに移動させる
-        float posT = Time.deltaTime * positionTransitionSpeed;
+        float posT = playerDeltaTime * positionTransitionSpeed;
         transform.position = Vector3.Lerp(transform.position, desiredPosition, posT);
-        float rotT = Time.deltaTime * rotationTransitionSpeed;
+        float rotT = playerDeltaTime * rotationTransitionSpeed;
         transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, rotT);
     }
 
     private void HandleRotation()
     {
-        yaw += Input.GetAxis("Mouse X") * mouseSensitivityX * Time.deltaTime;
+        float playerTimeScale = PlayerTimeManager.Instance?.PlayerTimeScale ?? 1f;
+        float playerDeltaTime = Time.deltaTime * playerTimeScale;
+        yaw += Input.GetAxis("Mouse X") * mouseSensitivityX * playerDeltaTime;
         pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * mouseSensitivityY, minPitch, maxPitch);
     }
 }

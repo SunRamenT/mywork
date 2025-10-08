@@ -52,18 +52,18 @@ public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
             // プレハブから成功ゾーンを生成
             GameObject zoneObj = Instantiate(successZonePrefab, zonesParent);
             Image zoneImage = zoneObj.GetComponent<Image>();
-            
+
             // ゾーンの幅を設定
             zoneImage.fillAmount = currentSuccessZoneWidth / 360f;
-            
+
             // ゾーンの開始位置をランダムに設定 (最初の90度は避ける)
             // 他のゾーンと重ならないように、配置可能な範囲を考慮
             float randomAngle = 0f + (360f - 90f) * ((float)i + UnityEngine.Random.value) / zoneCount;
             zoneImage.rectTransform.localEulerAngles = new Vector3(0, 0, randomAngle);
-            
+
             spawnedZones.Add(zoneImage);
         }
-        
+
         yield return new WaitForSeconds(startDelay);
 
         // --- ゲームループ ---
@@ -77,7 +77,7 @@ public class SkillCheckMiniGame : MonoBehaviour, ITaskMiniGame
             elapsed += Time.deltaTime;
             float angle = elapsed * currentNeedleSpeed;
             needle.rectTransform.localEulerAngles = new Vector3(0, 0, -angle); // 
-            
+
             // 360度回ったら失敗として終了
             if (angle >= 360f)
             {
