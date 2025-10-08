@@ -22521,7 +22521,7 @@ MonoBehaviour:
     needleSpeed: 40
     successZoneWidth: 20
     numberOfSuccessZones: 1
-    mashQuota: 5
+    mashQuota: 10
     soulReward: 30
   - difficultyName: Normal
     numberOfButtons: 5
@@ -22531,11 +22531,11 @@ MonoBehaviour:
     mashQuota: 7
     soulReward: 40
   - difficultyName: Hard
-    numberOfButtons: 7
+    numberOfButtons: 9
     needleSpeed: 50
     successZoneWidth: 20
     numberOfSuccessZones: 3
-    mashQuota: 10
+    mashQuota: 15
     soulReward: 50
   targetCanvas: {fileID: 377517139}
   introUIPrefab: {fileID: 1211699751}
