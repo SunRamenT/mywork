@@ -434,7 +434,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator canAttack()
     {
         // 30フレーム待つ
-        for (var i = 0; i < 60; i++)
+        for (var i = 0; i < 30; i++)
         {
             yield return null;
         }
