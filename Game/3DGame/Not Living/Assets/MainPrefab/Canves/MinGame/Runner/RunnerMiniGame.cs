@@ -5,6 +5,14 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 
+public static class HitboxExtensions
+{
+    public static bool Overlaps(this Hitbox box1, Hitbox box2)
+    {
+        if (box1 == null || box2 == null) return false;
+        return box1.GetWorldRect().Overlaps(box2.GetWorldRect(), true);
+    }
+}
 public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
 {
 
@@ -15,13 +23,16 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
     public RectTransform spawnPoint;
     public RectTransform despawnPoint;
     public TextMeshProUGUI timerText;
+    public TextMeshProUGUI messageText;
+    public TextMeshProUGUI countdownText; // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("ゲーム開始前のカウントダウン秒数")]
+    public int startCountdown = 3;
 
     [Header("Prefabs")]
     public GameObject playerPrefab;
     public GameObject groundPrefab;
     public GameObject obstaclePrefab;
-    public GameObject sparkPrefab; // ▼▼▼ 追加 ▼▼▼
-
+    public GameObject sparkPrefab; 
     [Header("コース設定")]
     [Range(0, 1f)]
     public float obstacleSpawnChance = 0.4f;
@@ -40,6 +51,7 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
 
     private float _survivalTime;
     private float _scrollSpeed;
+    private int _sparkCount;
     private float _timer;
 
     public static List<RectTransform> GroundRects { get; private set; }
@@ -48,48 +60,73 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
     private List<GameObject> _obstacleObjects = new List<GameObject>();
     private List<GameObject> _activeSparks = new List<GameObject>(); // ▼▼▼ 追加 ▼▼▼
     private bool _isGameActive = false;
-    private RectTransform _rightmostGround; 
+    private RectTransform _rightmostGround;
 
     void Awake()
     {
         if (GroundRects == null) GroundRects = new List<RectTransform>();
     }
-    
+
     public void StartTask(TaskMachine machine)
     {
+        messageText.text = "左クリックでジャンプ!\n左右キーで移動!";
         _survivalTime = machine.SelectedDifficulty.survivalTime;
         _scrollSpeed = machine.SelectedDifficulty.scrollSpeed;
+        _sparkCount = machine.SelectedDifficulty.sparkCount;
         _timer = _survivalTime;
+        StartCoroutine(GameSequenceRoutine());
+    }
+    
+    private IEnumerator GameSequenceRoutine()
+    {
+        // 1. オブジェクトの準備
         InitializeGame();
+
+        // 2. カウントダウンの実行
+        if (countdownText != null)
+        {
+            countdownText.gameObject.SetActive(true);
+            for (int i = startCountdown; i > 0; i--)
+            {
+                countdownText.text = i.ToString();
+                yield return new WaitForSeconds(1.0f);
+            }
+            countdownText.text = "START!";
+            yield return new WaitForSeconds(0.5f);
+            countdownText.gameObject.SetActive(false);
+        }
+
+        // 3. ゲームのメインループを開始
+        _isGameActive = true;
+        StartCoroutine(SpawnSparksRoutine());
     }
 
+    // ▼▼▼ 変更点: InitializeGameからゲーム開始ロジックを削除 ▼▼▼
     private void InitializeGame()
     {
-        foreach (var obj in _groundObjects) Destroy(obj); // クリーンアップ
+        foreach (var obj in _groundObjects) Destroy(obj);
         foreach (var obj in _obstacleObjects) Destroy(obj);
-        foreach (var obj in _activeSparks) Destroy(obj); 
+        foreach (var obj in _activeSparks) Destroy(obj);
         _groundObjects.Clear();
         _obstacleObjects.Clear();
         _activeSparks.Clear();
         GroundRects.Clear();
-        if(_playerInstance != null) Destroy(_playerInstance);
-        
+        if (_playerInstance != null) Destroy(_playerInstance);
+
         _rightmostGround = null;
         _playerInstance = Instantiate(playerPrefab, movingObjectsParent);
 
-        SpawnGround(true); 
-        while(GetRightmostGroundEdgeX() < spawnPoint.anchoredPosition.x)
+        SpawnGround(true);
+        while (GetRightmostGroundEdgeX() < spawnPoint.anchoredPosition.x)
         {
             SpawnGround(false);
         }
-
-        _isGameActive = true;
-        StartCoroutine(SpawnSparksRoutine()); // ▼▼▼ 追加: 火の粉生成コルーチンを開始 ▼▼▼
+        // ここにあった _isGameActive = true; などをGameSequenceRoutineに移動
     }
 
     void Update()
     {
-        if (!_isGameActive) return;
+        if (!_isGameActive) return; // この判定はそのまま
 
         _timer -= Time.deltaTime;
         timerText.text = $"残り: {_timer:F1}秒";
@@ -109,69 +146,99 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
     {
         if (!_isGameActive) return;
         _isGameActive = false;
-        
+
         StopAllCoroutines(); // ▼▼▼ 追加: ゲーム終了時に全てのコルーチンを停止 ▼▼▼
 
         timerText.text = success ? "クリア！" : "失敗...";
         OnTaskCompleted?.Invoke(success);
     }
-    
+
     // ▼▼▼ 追加: 火の粉を定期的に生成するコルーチン ▼▼▼
     IEnumerator SpawnSparksRoutine()
     {
-        // 最初の1回は少し待ってから
+        // 最初の攻撃まで少し待つ
         yield return new WaitForSeconds(sparkSpawnInterval);
 
         while (_isGameActive)
         {
             if (_playerInstance != null)
             {
-                // 火の粉を生成し、リストに追加
-                GameObject spark = Instantiate(sparkPrefab, movingObjectsParent);
-                spark.GetComponent<RectTransform>().anchoredPosition = sparkSpawnPosition;
-                _activeSparks.Add(spark);
+                // 1. 今回発射する火の粉の数を1〜3個の間でランダムに決定
+                int sparkCount = UnityEngine.Random.Range(1, _sparkCount + 1); //
 
-                // プレイヤーの現在位置を狙わせる
-                Vector2 targetPos = _playerInstance.GetComponent<RectTransform>().position;
-                spark.GetComponent<SparkMover>().Initialize(targetPos, sparkSpeed);
+                // 2. 決定した数だけ火の粉を生成するループ
+                for (int i = 0; i < sparkCount; i++)
+                {
+                    Vector2 targetPos;
+
+                    // 3. 最初の1個目(i=0)はプレイヤーを、残りはランダムな位置を狙う
+                    if (i == 0)
+                    {
+                        // プレイヤーの現在地をターゲットにする
+                        targetPos = _playerInstance.GetComponent<RectTransform>().position;
+                    }
+                    else
+                    {
+                        // ▼▼▼ ここからが変更点 ▼▼▼
+                        // 指定されたUI座標の範囲内でランダムなターゲットを決定
+                        float randomX = UnityEngine.Random.Range(-250f, 300f);
+                        float randomY = UnityEngine.Random.Range(-150f, 100f);
+                        
+                        // UI座標をワールド座標に変換してターゲットを設定
+                        // (CanvasがScreen Space - Overlayで中央基準の場合)
+                        float worldX = (Screen.width / 2f) + randomX;
+                        float worldY = (Screen.height / 2f) + randomY;
+                        targetPos = new Vector2(worldX, worldY);
+                        // ▲▲▲ ここまでが変更点 ▲▲▲
+                    }
+
+                    // 4. 火の粉を生成し、ターゲットと速度を設定して発射
+                    GameObject spark = Instantiate(sparkPrefab, movingObjectsParent);
+                    spark.GetComponent<RectTransform>().anchoredPosition = sparkSpawnPosition;
+                    _activeSparks.Add(spark);
+                    spark.GetComponent<SparkMover>().Initialize(targetPos, sparkSpeed);
+                }
             }
             
-            // 指定した秒数だけ待機
+            // 5. 次の攻撃（ウェーブ）まで待機
             yield return new WaitForSeconds(sparkSpawnInterval);
         }
     }
-    
+
     private void CheckForFailure()
     {
         if (_playerInstance == null) return;
-        var playerRect = _playerInstance.GetComponent<RectTransform>();
+        
+        // ▼▼▼ 変更点: RectTransformではなくHitboxコンポーネントを取得 ▼▼▼
+        var playerHitbox = _playerInstance.GetComponent<Hitbox>();
 
-        // (落下判定と障害物判定はそのまま)
-        if (playerRect.anchoredPosition.y < fallThresholdY)
+        // 落下判定はそのまま
+        if (_playerInstance.GetComponent<RectTransform>().anchoredPosition.y < fallThresholdY)
         {
             EndGame(false); return;
         }
+
+        // 障害物との当たり判定
         foreach (var obstacle in _obstacleObjects)
         {
-            if (playerRect.Overlaps(obstacle.GetComponent<RectTransform>()))
+            // ▼▼▼ 変更点: Hitboxを使って判定 ▼▼▼
+            if (playerHitbox.Overlaps(obstacle.GetComponent<Hitbox>()))
             {
                 EndGame(false); return;
             }
         }
         
-        // ▼▼▼ 追加: 火の粉との当たり判定 ▼▼▼
-        // リストを逆からループして、nullチェックと当たり判定を同時に行う
+        // 火の粉との当たり判定
         for (int i = _activeSparks.Count - 1; i >= 0; i--)
         {
-            // 火の粉が画面外に出て破棄された場合、リスト内ではnullになる
             if (_activeSparks[i] == null)
             {
                 _activeSparks.RemoveAt(i);
                 continue;
             }
 
-            var sparkRect = _activeSparks[i].GetComponent<RectTransform>();
-            if (playerRect.Overlaps(sparkRect))
+            // ▼▼▼ 変更点: Hitboxを使って判定 ▼▼▼
+            if (playerHitbox.Overlaps(_activeSparks[i].GetComponent<Hitbox>()))
             {
                 EndGame(false);
                 return;
@@ -218,39 +285,39 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
     void SpawnGround(bool isInitial)
     {
         float lastEdgeX = GetRightmostGroundEdgeX();
-        
+
         float groundY = UnityEngine.Random.Range(groundHeightRange.x, groundHeightRange.y);
         float groundWidth = isInitial ? 600f : UnityEngine.Random.Range(groundWidthRange.x, groundWidthRange.y);
         float gapWidth = isInitial ? 0f : UnityEngine.Random.Range(gapWidthRange.x, gapWidthRange.y);
-        
+
         // 最初の地面か、2個目以降かでX座標の計算を分ける
         float spawnX = isInitial ? -300f : lastEdgeX + gapWidth + (groundWidth / 2f);
 
         GameObject ground = Instantiate(groundPrefab, movingObjectsParent);
         RectTransform rt = ground.GetComponent<RectTransform>();
-        
+
         rt.sizeDelta = new Vector2(groundWidth, 50f);
         rt.anchoredPosition = new Vector2(spawnX, groundY);
-        
+
         _groundObjects.Add(ground);
         GroundRects.Add(rt);
-        
+
         // 新しく生成した地面を「一番右の地面」として記録する
-        _rightmostGround = rt; 
+        _rightmostGround = rt;
 
         if (!isInitial && UnityEngine.Random.value < obstacleSpawnChance)
         {
             SpawnObstacleOnGround(rt);
         }
     }
-    
+
     // 一番右にある地面の、現在の右端X座標を取得する
     float GetRightmostGroundEdgeX()
     {
         if (_rightmostGround == null)
         {
             // 最初の1個目を生成する場合
-            return -Mathf.Infinity; 
+            return -Mathf.Infinity;
         }
         // 現在の位置 + 幅の半分 = 右端の座標
         return _rightmostGround.anchoredPosition.x + _rightmostGround.rect.width / 2f;

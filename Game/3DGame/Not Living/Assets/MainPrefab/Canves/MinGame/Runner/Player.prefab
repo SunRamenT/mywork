@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 8604342036259180810}
   - component: {fileID: 6385707801077346068}
   - component: {fileID: -2629821888839217244}
+  - component: {fileID: 7299844466290968351}
+  - component: {fileID: -8726331242968709246}
   m_Layer: 5
   m_Name: Player
   m_TagString: Untagged
@@ -66,7 +68,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -477496112, guid: 19ee84d13b28f0e40b76c766f2acb028, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -88,3 +90,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 573032247861249419e502f93bc0bcfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpForce: 800
+  gravity: 2500
+  maxJumps: 2
+  moveSpeed: 400
+  minX: -450
+  maxX: 450
+--- !u!95 &7299844466290968351
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2772295809711337611}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 7a23c33a7b879794f9dad3b90fc183d1, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-8726331242968709246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2772295809711337611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c55f2e99ef234c349953ba6e97cf0575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerOffset: {x: 0, y: 0}
+  size: {x: 30, y: 30}

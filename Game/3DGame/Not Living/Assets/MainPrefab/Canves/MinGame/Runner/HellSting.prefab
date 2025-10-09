@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8624132688544831050}
   - component: {fileID: 1754807981779079339}
   - component: {fileID: 7013230903083992993}
+  - component: {fileID: -6755636655386874882}
   m_Layer: 5
   m_Name: HellSting
   m_TagString: Obstacle
@@ -75,3 +76,17 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &-6755636655386874882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3471718598495882887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c55f2e99ef234c349953ba6e97cf0575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerOffset: {x: 0, y: 0}
+  size: {x: 30, y: 50}

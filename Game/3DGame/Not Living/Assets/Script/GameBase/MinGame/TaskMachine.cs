@@ -8,6 +8,9 @@ public class TaskDifficulty
 {
     public string difficultyName = "Easy";
 
+    [Tooltip("この難易度が選択される重み。値が大きいほど選ばれやすい。")]
+    public int selectionWeight = 1;
+
     [Header("Number Order Game")]
     public int numberOfButtons = 3;
 
@@ -27,7 +30,7 @@ public class TaskDifficulty
     public float survivalTime = 15f;
     [Tooltip("地面や障害物が流れてくる速さ")]
     public float scrollSpeed = 400f;
-    // ▲▲▲ ここまで追加 ▲▲▲
+    public int sparkCount = 3;
 
 
     [Header("Common Reward")]
@@ -37,10 +40,22 @@ public class TaskDifficulty
 // IInteractableインターフェースを実装
 public class TaskMachine : MonoBehaviour, IInteractable
 {
+    [Header("頻度設定")]
+    [Tooltip("このマシンが最後に使用された日付を記録します（デバッグ用）")]
+    [SerializeField] private int dayLastUsed = -1; // -1は「まだ一度も使われていない」ことを示す
     [Header("タスク設定")]
     [Tooltip("この機械が提供するミニゲームのUIプレハブのリスト")] // ▼▼▼ 複数形に変更 ▼▼▼
+
+    [Header("ワールド空間UI")]
+    public GameObject statusUIPrefab;
+    [Tooltip("オブジェクトの基点からのUIのオフセット")]
+    public Vector3 statusUIOffset = new Vector3(0, 1.5f, 0);
+    // ▼▼▼ 変更点 ▼▼▼
+    private GameObject _statusUIInstance; // UIのインスタンスを保持
+    private TextMeshProUGUI _statusUIText;
+
+
     public List<GameObject> miniGamePrefabs;
-    [Tooltip("この機械で選択される可能性のある難易度のリスト")] // ▼▼▼ 追加 ▼▼▼
     public List<TaskDifficulty> possibleDifficulties;
 
     [Header("UI設定")]
@@ -58,35 +73,138 @@ public class TaskMachine : MonoBehaviour, IInteractable
      // ▼▼▼ 選択された難易度を保持するプロパティを追加 ▼▼▼
     public TaskDifficulty SelectedDifficulty { get; private set; }
 
+    // ▼▼▼ Start, OnEnable, OnDisable, HandleDayChangeメソッドを追加 ▼▼▼
+    void Start()
+    {
+        if (statusUIPrefab != null)
+        {
+            // ▼▼▼ 変更点: 生成したUIを保持し、最初は非表示にする ▼▼▼
+            _statusUIInstance = Instantiate(statusUIPrefab, transform);
+            _statusUIInstance.transform.localPosition = statusUIOffset;
+            _statusUIText = _statusUIInstance.GetComponentInChildren<TextMeshProUGUI>();
+            _statusUIInstance.SetActive(false); // ★最初は非表示
+        }
+        UpdateStatusUI();
+    }
+
+    void OnEnable()
+    {
+        // 日付変更イベントを購読
+        GameTimeManager.OnDayChanged += HandleDayChange;
+    }
+
+    void OnDisable()
+    {
+        // 日付変更イベントの購読を解除
+        GameTimeManager.OnDayChanged -= HandleDayChange;
+    }
+
+    // 日付が変わったときに呼び出される
+    private void HandleDayChange(int newDay)
+    {
+        UpdateStatusUI();
+    }
+    
+    // ▼▼▼ 新しいメソッドを追加 ▼▼▼
+    /// <summary>
+    /// 頭上UIのテキストを現在の状態で更新する
+    /// </summary>
+    private void UpdateStatusUI()
+    {
+        if (_statusUIText == null) return;
+
+        int currentDay = GameTimeManager.Instance.daysSurvived;
+        if (dayLastUsed < currentDay)
+        {
+            _statusUIText.text = "右クリック"; // 未使用時のテキスト
+        }
+        else
+        {
+            _statusUIText.text = "使用済み"; // 使用済み時のテキスト
+        }
+    }
 
 
     /// <summary>
     /// PlayerControllerから、プレイヤーが検知範囲に入った時に呼び出される
     /// </summary>
+     // ▼▼▼ OnPlayerEnterRangeメソッドを変更 ▼▼▼
     public void OnPlayerEnterRange()
     {
-        // ▼▼▼ デバッグログを追加 ▼▼▼
         Debug.Log($"<color=green>[TaskMachine] プレイヤーが {this.gameObject.name} の範囲内に入りました。</color>", this.gameObject);
-        // ここで「SHIFTキーでタスク開始」などのUIヒントを表示しても良い
+        if (_statusUIInstance != null)
+        {
+            _statusUIInstance.SetActive(true); // UIを表示する
+        }
     }
 
-    /// <summary>
-    /// PlayerControllerから、プレイヤーが検知範囲から出た時に呼び出される
-    /// </summary>
+    // ▼▼▼ OnPlayerExitRangeメソッドを変更 ▼▼▼
     public void OnPlayerExitRange()
     {
-        // ▼▼▼ デバッグログを追加 ▼▼▼
         Debug.Log($"<color=orange>[TaskMachine] プレイヤーが {this.gameObject.name} の範囲外に出ました。</color>", this.gameObject);
-        // UIヒントを非表示にする
+        if (_statusUIInstance != null)
+        {
+            _statusUIInstance.SetActive(false); // UIを非表示にする
+        }
     }
 
-    // OnInteractはコルーチンを直接開始できないため、ラッパーメソッドを呼ぶ
+    // ▼▼▼ OnInteractメソッドのロジックを変更 ▼▼▼
     public void OnInteract(PlayerController playerController)
     {
-        // 既にミニゲームが実行中でないか確認
-        if (currentMiniGame != null) return;
-        
-        StartCoroutine(StartMiniGameSequence());
+        // 現在のゲーム内日付を取得
+        int currentDay = GameTimeManager.Instance.daysSurvived;
+
+        // 「最後に使用した日」が「現在の日」より前であれば、タスクは利用可能
+        if (dayLastUsed < currentDay)
+        {
+            if (currentMiniGame != null) return;
+
+            // ★重要：タスクを開始する直前に、今日使ったことを記録する
+            dayLastUsed = currentDay;
+            
+            StartCoroutine(StartMiniGameSequence());
+        }
+        else
+        {
+            // 今日は既に使用済みの場合
+            Debug.Log($"TaskMachine '{this.gameObject.name}' は今日は使用済みです。明日また利用できます。");
+            // ここで効果音を鳴らすなどのフィードバックをしても良い
+        }
+    }
+    
+    private TaskDifficulty SelectDifficultyByWeight()
+    {
+        // 1. 全ての難易度の重みの合計を計算する
+        int totalWeight = 0;
+        foreach (var difficulty in possibleDifficulties)
+        {
+            totalWeight += difficulty.selectionWeight;
+        }
+
+        // (もし全ての重みが0なら、等確率で返す)
+        if (totalWeight == 0)
+        {
+            Debug.LogWarning("全ての難易度の重みが0です。等確率で選択します。");
+            return possibleDifficulties[Random.Range(0, possibleDifficulties.Count)];
+        }
+
+        // 2. 0から合計の重み-1までの間でランダムな数値を生成
+        int randomValue = Random.Range(0, totalWeight);
+
+        // 3. 難易度を順番に見ていき、ランダムな数値から重みを引いていく
+        foreach (var difficulty in possibleDifficulties)
+        {
+            // ランダムな値が現在の難易度の重みの範囲内に入ったら、その難易度を返す
+            if (randomValue < difficulty.selectionWeight)
+            {
+                return difficulty;
+            }
+            // 入らなかった場合、ランダムな値からその難易度の重みを引いて、次の難易度へ
+            randomValue -= difficulty.selectionWeight;
+        }
+
+        // (エラーケースのフォールバック)
+        return possibleDifficulties[0];
     }
     private System.Collections.IEnumerator StartMiniGameSequence()
     {
@@ -97,7 +215,7 @@ public class TaskMachine : MonoBehaviour, IInteractable
         }
 
         // --- 1. ゲームと難易度を決定 ---
-        SelectedDifficulty = possibleDifficulties[Random.Range(0, possibleDifficulties.Count)];
+        SelectedDifficulty = SelectDifficultyByWeight(); 
         GameObject selectedMiniGamePrefab = miniGamePrefabs[Random.Range(0, miniGamePrefabs.Count)];
         
         // --- 2. ゲームの状態を切り替え、マウスを表示 ---
@@ -115,7 +233,7 @@ public class TaskMachine : MonoBehaviour, IInteractable
                 // UIにゲーム名と難易度を渡して表示させる
                 introUI.ShowIntro(selectedMiniGamePrefab.name, SelectedDifficulty.difficultyName, introDisplayDuration);
             }
-            
+
             // UIが表示されている間、待機する
             yield return new WaitForSeconds(introDisplayDuration);
         }
@@ -123,11 +241,19 @@ public class TaskMachine : MonoBehaviour, IInteractable
         // --- 4. 実際のミニゲームを開始 ---
         GameObject miniGameInstance = Instantiate(selectedMiniGamePrefab, targetCanvas.transform);
         currentMiniGame = miniGameInstance.GetComponent<ITaskMiniGame>();
-        
+
         if (currentMiniGame != null)
         {
+            // ▼▼▼ ここからが変更点 ▼▼▼
+
+            // 1. ゲームロジックを開始する直前に、ゲームオブジェクトを有効化（表示）する
+            miniGameInstance.SetActive(true);
+
+            // 2. イベントを購読し、タスクを開始する
             currentMiniGame.OnTaskCompleted += HandleTaskCompletion;
             currentMiniGame.StartTask(this);
+
+            // ▲▲▲ ここまでが変更点 ▲▲▲
         }
     }
     private void HandleTaskCompletion(bool success)

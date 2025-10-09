@@ -27,7 +27,7 @@ public class PlayerController_Runner : MonoBehaviour
     private void Awake()
     {
         _rect = GetComponent<RectTransform>();
-        _rect.anchoredPosition = new Vector2(-300f, 300f);
+        _rect.anchoredPosition = new Vector2(-300f, 100f);
     }
 
     private void Update()

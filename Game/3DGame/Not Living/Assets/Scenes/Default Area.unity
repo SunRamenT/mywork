@@ -12005,6 +12005,265 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d4cfcf659200d7548b90a5580c3ab18f, type: 3}
+--- !u!1 &478397763
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 478397769}
+  - component: {fileID: 478397768}
+  - component: {fileID: 478397767}
+  - component: {fileID: 478397766}
+  - component: {fileID: 478397765}
+  - component: {fileID: 478397764}
+  m_Layer: 14
+  m_Name: MinGameBox (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &478397764
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478397763}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 7779826707895974237, guid: 60e8cffccd008a043881a5b4a830ae49, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &478397765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478397763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 478e6c1f28422dd45bfb27c3a92777dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dayLastUsed: -1
+  statusUIPrefab: {fileID: 8578348210149917390, guid: 3883e78609a6dbd4f8729292fc61a244, type: 3}
+  statusUIOffset: {x: 0, y: 1.5, z: 0}
+  miniGamePrefabs:
+  - {fileID: 1951038903}
+  possibleDifficulties:
+  - difficultyName: easy
+    selectionWeight: 1
+    numberOfButtons: 3
+    needleSpeed: 40
+    successZoneWidth: 20
+    numberOfSuccessZones: 1
+    mashQuota: 10
+    survivalTime: 15
+    scrollSpeed: 400
+    soulReward: 30
+  - difficultyName: Normal
+    selectionWeight: 1
+    numberOfButtons: 5
+    needleSpeed: 45
+    successZoneWidth: 20
+    numberOfSuccessZones: 2
+    mashQuota: 7
+    survivalTime: 30
+    scrollSpeed: 420
+    soulReward: 40
+  - difficultyName: Hard
+    selectionWeight: 1
+    numberOfButtons: 9
+    needleSpeed: 50
+    successZoneWidth: 20
+    numberOfSuccessZones: 3
+    mashQuota: 15
+    survivalTime: 45
+    scrollSpeed: 450
+    soulReward: 50
+  targetCanvas: {fileID: 377517139}
+  introUIPrefab: {fileID: 1211699751}
+  introDisplayDuration: 2
+  failClip: {fileID: 8300000, guid: 3d2d2b32631a21b4da9239cf077f9d59, type: 3}
+--- !u!65 &478397766
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478397763}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3, y: 3, z: 3}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &478397767
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478397763}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &478397768
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478397763}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &478397769
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478397763}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -95, y: 21, z: 51}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &478540840 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: e0e851c58997b9c438fae494e3412749, type: 3}
@@ -22511,31 +22770,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 478e6c1f28422dd45bfb27c3a92777dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dayLastUsed: -1
+  statusUIPrefab: {fileID: 8578348210149917390, guid: 3883e78609a6dbd4f8729292fc61a244, type: 3}
+  statusUIOffset: {x: 0, y: 1.5, z: 0}
   miniGamePrefabs:
   - {fileID: 606314272}
   - {fileID: 1085294872}
   - {fileID: 781484514}
   possibleDifficulties:
   - difficultyName: easy
+    selectionWeight: 1
     numberOfButtons: 3
     needleSpeed: 40
     successZoneWidth: 20
     numberOfSuccessZones: 1
     mashQuota: 10
+    survivalTime: 15
+    scrollSpeed: 400
     soulReward: 30
   - difficultyName: Normal
+    selectionWeight: 1
     numberOfButtons: 5
     needleSpeed: 45
     successZoneWidth: 20
     numberOfSuccessZones: 2
     mashQuota: 7
+    survivalTime: 15
+    scrollSpeed: 400
     soulReward: 40
   - difficultyName: Hard
+    selectionWeight: 1
     numberOfButtons: 9
     needleSpeed: 50
     successZoneWidth: 20
     numberOfSuccessZones: 3
     mashQuota: 15
+    survivalTime: 15
+    scrollSpeed: 400
     soulReward: 50
   targetCanvas: {fileID: 377517139}
   introUIPrefab: {fileID: 1211699751}
@@ -22624,7 +22895,7 @@ Transform:
   m_GameObject: {fileID: 938008498}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -93, y: 21, z: 51}
+  m_LocalPosition: {x: -89, y: 22, z: 51}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22651,10 +22922,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 0
-  MinDistance: 0
-  MaxDistance: 5
+  MinDistance: 1
+  MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 1
+  rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -50474,6 +50745,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 2dbee28eacba7dd42845e0153c4da642, type: 3}
   m_PrefabInstance: {fileID: 1496775005}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1951038903 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6123449214114865641, guid: c058853254da53547b7626a695f1afca, type: 3}
+  m_PrefabInstance: {fileID: 1425742398}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1951599637 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: e0e851c58997b9c438fae494e3412749, type: 3}
@@ -56290,6 +56566,7 @@ SceneRoots:
   - {fileID: 2992737133878898046}
   - {fileID: 1381967480}
   - {fileID: 938008503}
+  - {fileID: 478397769}
   - {fileID: 1704015174}
   - {fileID: 38147685}
   - {fileID: 864149312}
