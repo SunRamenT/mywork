@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: df2959c138cfb2249b56c986ff2598ce
+guid: 1d9f6a1e2d3eef142ad4eadabc722add
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SplitFire_0
+      name: SparkleFire_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 779
-        width: 220
-        height: 220
+        x: 65
+        y: 435
+        width: 130
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,20 +125,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6baa412b64c297f43b08e1090e93c718
-      internalID: -1759104305
+      spriteID: 8a93d28a5d434aa47af2a5b60f80ba60
+      internalID: -1405965322
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SplitFire_1
+      name: SparkleFire_1
       rect:
         serializedVersion: 2
-        x: 250
-        y: 768
-        width: 220
-        height: 220
+        x: 198
+        y: 435
+        width: 130
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,42 +147,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1ab11c8f6b54f3147aa38ca3edf83bb6
-      internalID: -1710162490
+      spriteID: a58af4af5abe99a42bf63de4e7038d94
+      internalID: -2024199077
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SplitFire_2
+      name: SparkleFire_2
       rect:
         serializedVersion: 2
-        x: 490
-        y: 764
-        width: 520
-        height: 260
-      alignment: 9
-      pivot: {x: 0.5327153, y: 0.50768226}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 99c5c560e88396c418a2b91e5982d5f9
-      internalID: 707545443
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SplitFire_3
-      rect:
-        serializedVersion: 2
-        x: 20
-        y: 512
-        width: 220
-        height: 220
+        x: 331
+        y: 435
+        width: 130
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -191,20 +169,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a878900483bd5d2448017e7d2f72d309
-      internalID: 980435468
+      spriteID: 333e3b37e0015924aa7587d63850b5f8
+      internalID: -1027754336
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SplitFire_4
+      name: SparkleFire_3
       rect:
         serializedVersion: 2
-        x: 250
-        y: 512
-        width: 220
-        height: 220
+        x: 464
+        y: 435
+        width: 130
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -213,20 +191,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d9c91d58f759a024799cd1fa586e7e5d
-      internalID: 733842432
+      spriteID: e1a3bd82d1416d84b84a3cc42981cfdd
+      internalID: 1185587286
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SplitFire_5
+      name: SparkleFire_4
       rect:
         serializedVersion: 2
-        x: 490
-        y: 512
-        width: 520
-        height: 256
+        x: 597
+        y: 435
+        width: 130
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -235,20 +213,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 795f3195ca175d34c84a355a2b8539e2
-      internalID: -1984110375
+      spriteID: 12dc666d9a276c647958f640258131c2
+      internalID: 1899194645
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SplitFire_6
+      name: SparkleFire_5
       rect:
         serializedVersion: 2
-        x: 20
-        y: 256
-        width: 220
-        height: 220
+        x: 730
+        y: 435
+        width: 130
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -257,20 +235,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 884c5ff6d1ebc274fb8cd573ab99558d
-      internalID: -282653108
+      spriteID: 5b4edd79ae41c4a4b98dfd5f4b15d5b9
+      internalID: -292080640
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SplitFire_7
+      name: SparkleFire_6
       rect:
         serializedVersion: 2
-        x: 250
-        y: 256
-        width: 220
-        height: 220
+        x: 863
+        y: 435
+        width: 130
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -279,96 +257,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ed2f63d5d22f61641a3b9cd85eda1fb2
-      internalID: -1632933101
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SplitFire_8
-      rect:
-        serializedVersion: 2
-        x: 490
-        y: 256
-        width: 520
-        height: 256
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4d761feabc1248e45a4a33f8ec508c52
-      internalID: -1729114016
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SplitFire_9
-      rect:
-        serializedVersion: 2
-        x: 20
-        y: 0
-        width: 220
-        height: 220
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: b48f88e7a18a6234d86ddad76409b3d7
-      internalID: 363498
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SplitFire_10
-      rect:
-        serializedVersion: 2
-        x: 250
-        y: 0
-        width: 220
-        height: 220
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f43b1f5502e26094ca3e097bbf4fc99c
-      internalID: -937331436
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SplitFire_11
-      rect:
-        serializedVersion: 2
-        x: 490
-        y: 0
-        width: 520
-        height: 256
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2c5ccd829e7342044907204c18ab7df6
-      internalID: -653077850
+      spriteID: d4a7acba33ca3424fb4fa0ece55501f5
+      internalID: -634140521
       vertices: []
       indices: 
       edges: []
@@ -377,7 +267,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 137daa40bc0c19d4bb40f7a9a1f2dc3a
+    spriteID: a902a4b47e2e61b44a45dbed1d20de4b
     internalID: 0
     vertices: []
     indices: 
@@ -387,19 +277,13 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SplitFire_0: -1759104305
-      SplitFire_1: -1710162490
-      SplitFire_10: -937331436
-      SplitFire_11: -653077850
-      SplitFire_12: -270948378
-      SplitFire_2: 707545443
-      SplitFire_3: 980435468
-      SplitFire_4: 733842432
-      SplitFire_5: -1984110375
-      SplitFire_6: -282653108
-      SplitFire_7: -1632933101
-      SplitFire_8: -1729114016
-      SplitFire_9: 363498
+      SparkleFire_0: -1405965322
+      SparkleFire_1: -2024199077
+      SparkleFire_2: -1027754336
+      SparkleFire_3: 1185587286
+      SparkleFire_4: 1899194645
+      SparkleFire_5: -292080640
+      SparkleFire_6: -634140521
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

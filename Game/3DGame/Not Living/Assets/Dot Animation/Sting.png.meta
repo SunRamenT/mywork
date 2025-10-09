@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9fdd0019b3bdbcd4dbabd19d7db600fb
+guid: d91b88ea4b13f174b84389a172d42bac
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,14 +110,14 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: HellSting_0
+      name: Sting_0
       rect:
         serializedVersion: 2
-        x: 215
-        y: 200
-        width: 600
-        height: 600
-      alignment: 0
+        x: 115
+        y: 130
+        width: 790
+        height: 790
+      alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
@@ -125,8 +125,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9a7b1e0d0dfd95f47b0c72b61b24bb5f
-      internalID: -1368224753
+      spriteID: aca3dcb10b7696444b0dd96c03d14505
+      internalID: 1355918806
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 924027c79fe49a745b7255a4f82aca55
+    spriteID: c496a0413340a664583c2dec26628f24
     internalID: 0
     vertices: []
     indices: 
@@ -145,7 +145,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      HellSting_0: -1368224753
+      Sting_0: 1355918806
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

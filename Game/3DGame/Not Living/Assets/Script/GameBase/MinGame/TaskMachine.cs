@@ -21,6 +21,14 @@ public class TaskDifficulty
     [Tooltip("連打ゲームのノルマ回数")]
     public int mashQuota = 15;
 
+    // ▼▼▼ 以下をクラスの末尾に追加 ▼▼▼
+    [Header("Runner Game")]
+    [Tooltip("クリアまでの生存時間（秒）")]
+    public float survivalTime = 15f;
+    [Tooltip("地面や障害物が流れてくる速さ")]
+    public float scrollSpeed = 400f;
+    // ▲▲▲ ここまで追加 ▲▲▲
+
 
     [Header("Common Reward")]
     public int soulReward = 25;

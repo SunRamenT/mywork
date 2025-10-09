@@ -12,6 +12,8 @@ TagManager:
   - NPC
   - Building
   - Police
+  - DeathZone
+  - Obstacle
   layers:
   - Default
   - TransparentFX
