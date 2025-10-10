@@ -2306,6 +2306,8 @@ MonoBehaviour:
   itemDropOffsetY: 1
   characterModelRenderer: {fileID: 5772880106276931203}
   damageTriggerName: Damage
+  dodgeStopDuration: 0.7
+  dodgeSuccessSound: {fileID: 8300000, guid: e31849b88c21a5d438610466bbe46694, type: 3}
   hitEffectPrefab: {fileID: 5024009746357069194, guid: 73f801d9ef666fb48b857b0c5cb76d9c, type: 3}
   hitEffectOffsetY: 1
   hitSound: {fileID: 8300000, guid: 79f4b8b8ecde82b46a88d8700a1ad428, type: 3}
@@ -2390,7 +2392,6 @@ MonoBehaviour:
   retaliationDuration: 30
   attackTriggerID: Attack
   attackRange: 1
-  attackInterval: 2
   attackWarningTime: 0.5
   alertPanel: {fileID: 5864577430642725380}
   patrolRadius: 20

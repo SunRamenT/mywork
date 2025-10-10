@@ -32,7 +32,14 @@ public class TaskDifficulty
     public float scrollSpeed = 400f;
     public int sparkCount = 3;
 
-
+    [Header("Maze Game")]
+    [Tooltip("迷路の幅（奇数）")]
+    public int mazeWidth = 15;
+    [Tooltip("迷路の高さ（奇数）")]
+    public int mazeHeight = 15;
+    [Tooltip("迷路の制限時間（秒）")]
+    public float mazeTimeLimit = 60f;
+    public int mazeKeyCount = 0;// 鍵の数
     [Header("Common Reward")]
     public int soulReward = 25;
 }
@@ -161,7 +168,7 @@ public class TaskMachine : MonoBehaviour, IInteractable
 
             // ★重要：タスクを開始する直前に、今日使ったことを記録する
             dayLastUsed = currentDay;
-            
+            UpdateStatusUI();
             StartCoroutine(StartMiniGameSequence());
         }
         else

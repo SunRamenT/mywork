@@ -1463,6 +1463,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b82e76f4092b7d24aaeecddf36fe8d3b, type: 3}
+--- !u!1 &54293082 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 31102536833780188, guid: c058853254da53547b7626a695f1afca, type: 3}
+  m_PrefabInstance: {fileID: 1425742398}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &54981708
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12139,7 +12144,7 @@ MonoBehaviour:
   statusUIPrefab: {fileID: 8578348210149917390, guid: 3883e78609a6dbd4f8729292fc61a244, type: 3}
   statusUIOffset: {x: 0, y: 1.5, z: 0}
   miniGamePrefabs:
-  - {fileID: 1951038903}
+  - {fileID: 54293082}
   possibleDifficulties:
   - difficultyName: easy
     selectionWeight: 1
@@ -12150,9 +12155,14 @@ MonoBehaviour:
     mashQuota: 10
     survivalTime: 15
     scrollSpeed: 400
+    sparkCount: 1
+    mazeWidth: 15
+    mazeHeight: 15
+    mazeTimeLimit: 60
+    mazeKeyCount: 0
     soulReward: 30
   - difficultyName: Normal
-    selectionWeight: 1
+    selectionWeight: 5
     numberOfButtons: 5
     needleSpeed: 45
     successZoneWidth: 20
@@ -12160,6 +12170,11 @@ MonoBehaviour:
     mashQuota: 7
     survivalTime: 30
     scrollSpeed: 420
+    sparkCount: 2
+    mazeWidth: 23
+    mazeHeight: 23
+    mazeTimeLimit: 60
+    mazeKeyCount: 1
     soulReward: 40
   - difficultyName: Hard
     selectionWeight: 1
@@ -12170,6 +12185,11 @@ MonoBehaviour:
     mashQuota: 15
     survivalTime: 45
     scrollSpeed: 450
+    sparkCount: 3
+    mazeWidth: 33
+    mazeHeight: 25
+    mazeTimeLimit: 60
+    mazeKeyCount: 2
     soulReward: 50
   targetCanvas: {fileID: 377517139}
   introUIPrefab: {fileID: 1211699751}
@@ -22200,7 +22220,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4282881082485288300, guid: 97312d62c2ac3f447a21b20ec005b4f5, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.9720764
+      value: 0.9720459
       objectReference: {fileID: 0}
     - target: {fileID: 5346503408205353912, guid: 97312d62c2ac3f447a21b20ec005b4f5, type: 3}
       propertyPath: m_AnchorMax.y
@@ -22787,6 +22807,11 @@ MonoBehaviour:
     mashQuota: 10
     survivalTime: 15
     scrollSpeed: 400
+    sparkCount: 3
+    mazeWidth: 15
+    mazeHeight: 15
+    mazeTimeLimit: 60
+    mazeKeyCount: 0
     soulReward: 30
   - difficultyName: Normal
     selectionWeight: 1
@@ -22797,6 +22822,11 @@ MonoBehaviour:
     mashQuota: 7
     survivalTime: 15
     scrollSpeed: 400
+    sparkCount: 3
+    mazeWidth: 15
+    mazeHeight: 15
+    mazeTimeLimit: 60
+    mazeKeyCount: 0
     soulReward: 40
   - difficultyName: Hard
     selectionWeight: 1
@@ -22807,6 +22837,11 @@ MonoBehaviour:
     mashQuota: 15
     survivalTime: 15
     scrollSpeed: 400
+    sparkCount: 3
+    mazeWidth: 15
+    mazeHeight: 15
+    mazeTimeLimit: 60
+    mazeKeyCount: 0
     soulReward: 50
   targetCanvas: {fileID: 377517139}
   introUIPrefab: {fileID: 1211699751}
@@ -37640,6 +37675,30 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5188085963154539858, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5188085963154539858, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5188085963154539858, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5188085963154539858, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5188085963154539858, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5188085963154539858, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5694803822118843352, guid: c058853254da53547b7626a695f1afca, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -37718,6 +37777,30 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5694803822118843352, guid: c058853254da53547b7626a695f1afca, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842388540351976925, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842388540351976925, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842388540351976925, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842388540351976925, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842388540351976925, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842388540351976925, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7475745468703381592, guid: c058853254da53547b7626a695f1afca, type: 3}
@@ -50745,11 +50828,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 2dbee28eacba7dd42845e0153c4da642, type: 3}
   m_PrefabInstance: {fileID: 1496775005}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1951038903 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6123449214114865641, guid: c058853254da53547b7626a695f1afca, type: 3}
-  m_PrefabInstance: {fileID: 1425742398}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1951599637 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: e0e851c58997b9c438fae494e3412749, type: 3}
@@ -56454,6 +56532,14 @@ PrefabInstance:
     - target: {fileID: 838183634801077686, guid: 95faaaee57f95734eb14e68b6fbe43c7, type: 3}
       propertyPath: m_UiScaleMode
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1392709098073451296, guid: 95faaaee57f95734eb14e68b6fbe43c7, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1392709098073451296, guid: 95faaaee57f95734eb14e68b6fbe43c7, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 26.199997
       objectReference: {fileID: 0}
     - target: {fileID: 1672512836537158015, guid: 95faaaee57f95734eb14e68b6fbe43c7, type: 3}
       propertyPath: m_Name
