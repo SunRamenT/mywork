@@ -37,9 +37,9 @@ public class TaskDifficulty
     public int mazeWidth = 15;
     [Tooltip("迷路の高さ（奇数）")]
     public int mazeHeight = 15;
-    [Tooltip("迷路の制限時間（秒）")]
     public float mazeTimeLimit = 60f;
     public int mazeKeyCount = 0;// 鍵の数
+    public int mazeEnemyCount = 0;
     [Header("Common Reward")]
     public int soulReward = 25;
 }

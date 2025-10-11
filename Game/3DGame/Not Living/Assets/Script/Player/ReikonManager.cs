@@ -63,7 +63,6 @@ public class ReikonManager : MonoBehaviour
 
     void Start()
     {
-        currentSpirit = maxSpirit;
         UpdateSpiritUI();
 
         if (debuffEffect != null)

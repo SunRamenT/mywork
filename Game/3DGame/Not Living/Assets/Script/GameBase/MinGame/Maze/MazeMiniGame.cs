@@ -37,10 +37,14 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
     [Header("プレハブ")]
     public GameObject wallPrefab, floorPrefab, playerPrefab, goalPrefab;
     public GameObject keyPrefab; // キーのプレハブ
-    [Tooltip("閉じた扉のスプライト")]
+    public GameObject enemyPrefab; // 敵のプレハブ
+    
     public Sprite closedDoorSprite;
-    [Tooltip("開いた扉のスプライト")]
     public Sprite openDoorSprite;
+
+    private AudioSource audioSource;
+    public AudioClip keyClip;
+    public AudioClip openClip;
 
 
     private int _mazeWidth, _mazeHeight; // 難易度から設定されるサイズ
@@ -58,7 +62,13 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
     private List<Vector2Int> _keyPositions = new List<Vector2Int>();
     private Dictionary<Vector2Int, GameObject> _keyInstances = new Dictionary<Vector2Int, GameObject>();
     private Image _goalImage; // ゴールのImageコンポーネント参照
+    private List<MazeEnemy> _enemies = new List<MazeEnemy>(); // ▼▼▼ 追加: 敵リスト
+    private int _enemyCount; // ▼▼▼ 追加: 敵の数
 
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+    }
 
     public void StartTask(TaskMachine machine)
     {
@@ -70,11 +80,13 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
         _timeLimit = machine.SelectedDifficulty.mazeTimeLimit;
         _timer = _timeLimit;
         _keysRequired = machine.SelectedDifficulty.mazeKeyCount;
+        _enemyCount = machine.SelectedDifficulty.mazeEnemyCount; // 難易度から敵の数を取得
+        _enemies.Clear(); // 敵リストをクリア
 
         timerUIPrefab.SetActive(true);
         timerText.text = $" WASD で移動";
         
-        _goalImage = null; // 念のためリセット
+        //_goalImage = null; // 念のためリセット
 
         if (keyStatusText != null) keyStatusText.gameObject.SetActive(false);
 
@@ -151,9 +163,37 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
                 EndGame(false); // 時間切れで失敗
             }
         }
+
+        CheckEnemyCollision(); // 敵との衝突チェック
     }
     private void RenderMaze()
     {
+        // 通路のマスの座標だけを先にリストアップ
+        List<Vector2Int> floorPositions = new List<Vector2Int>();
+        for (int y = _mazeHeight - 1; y >= 0; y--)
+        {
+            for (int x = 0; x < _mazeWidth; x++)
+            {
+                if (_mazeData[x, y] > 0)
+                {
+                    floorPositions.Add(new Vector2Int(x, y));
+                }
+            }
+        }
+        // 敵のスポーン位置を決める
+        List<Vector2Int> enemySpawnPositions = new List<Vector2Int>();
+        // スタートとゴールから遠い通路をスポーン候補地にする
+        var spawnCandidates = floorPositions
+            .Where(p => Vector2Int.Distance(p, _playerGridPos) > 5 && Vector2Int.Distance(p, _goalGridPos) > 5)
+            .OrderBy(p => UnityEngine.Random.value)
+            .ToList();
+        int enemiesToPlace = Mathf.Min(_enemyCount, spawnCandidates.Count);
+        for (int i = 0; i < enemiesToPlace; i++)
+        {
+            enemySpawnPositions.Add(spawnCandidates[i]);
+        }
+        
+
         for (int y = _mazeHeight - 1; y >= 0; y--)
         {
             for (int x = 0; x < _mazeWidth; x++)
@@ -185,11 +225,31 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
                         _keyInstances[currentPos] = keyInstance;
                     }
                     //else if (x == _keyGridPos.x && y == _keyGridPos.y) //
+                    else if (enemySpawnPositions.Contains(new Vector2Int(x,y)))
+                    {
+                        GameObject enemyInstance = Instantiate(enemyPrefab, tile.transform);
+                        MazeEnemy enemyAI = enemyInstance.AddComponent<MazeEnemy>();
+                        enemyAI.Initialize(_mazeData, new Vector2Int(x,y), 1.0f, mazeGridParent.transform);
+                        _enemies.Add(enemyAI);
+                    }
                 }
                 tile.name = $"Tile_{x}_{y}";
             }
         }
     }
+
+    private void CheckEnemyCollision()
+    {
+        foreach (var enemy in _enemies)
+        {
+            if (enemy != null && _playerGridPos == enemy.currentPos)
+            {
+                EndGame(false); // 敵と座標が重なったらゲームオーバー
+                return;
+            }
+        }
+    }
+
     // --- (HandlePlayerInputは変更なし) ---
     private void HandlePlayerInput()
     {
@@ -209,7 +269,7 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
     private void MovePlayer(Vector2Int direction)
     {
         Vector2Int wallPos = _playerGridPos + direction;
-        Vector2Int targetPos = _playerGridPos + direction * 2;
+        Vector2Int targetPos = _playerGridPos + direction * 1;
 
         if (targetPos.x < 0 || targetPos.x >= _mazeWidth || targetPos.y < 0 || targetPos.y >= _mazeHeight)
             return;
@@ -230,11 +290,15 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
             {
                 Destroy(_keyInstances[_playerGridPos]);
                 _keyInstances.Remove(_playerGridPos);
+                if (audioSource != null && keyClip != null)
+                    audioSource.PlayOneShot(keyClip);
                 _keysCollected++;
                 UpdateKeyStatusUI();
                 Debug.Log($"鍵を入手した！ (残り {_keysRequired - _keysCollected} 個)");
                 if (_keysCollected >= _keysRequired)
                 {
+                    if (audioSource != null && openClip != null)
+                        audioSource.PlayOneShot(openClip);
                     OpenGoalDoor();
                 }
             }

@@ -24,10 +24,15 @@ public class PlayerController_Runner : MonoBehaviour
     // 現在のジャンプ回数をカウントする変数
     private int _jumpCount = 0;
 
+    private AudioSource audioSource;
+    public AudioClip jumpClip;
+
+
     private void Awake()
     {
         _rect = GetComponent<RectTransform>();
         _rect.anchoredPosition = new Vector2(-300f, 100f);
+        audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
     }
 
     private void Update()
@@ -92,9 +97,21 @@ public class PlayerController_Runner : MonoBehaviour
             // ジャンプ回数が上限に達していなければジャンプできる
             if (_jumpCount < maxJumps)
             {
+                if (audioSource != null && jumpClip != null)
+                    audioSource.PlayOneShot(jumpClip);
                 _verticalVelocity = jumpForce;
                 _isGrounded = false; // 空中でジャンプするので接地状態をfalseに
                 _jumpCount++; // ジャンプ回数を1増やす
+            }
+        }
+
+        if (Input.GetButtonUp("Fire1") || Input.GetKeyUp(KeyCode.Space))
+        {
+            // 上昇中（速度がプラス）の場合のみ
+            if (_verticalVelocity > 0)
+            {
+                // 上昇速度を弱める（例: 半分にする）
+                _verticalVelocity *= 0.5f;
             }
         }
     }

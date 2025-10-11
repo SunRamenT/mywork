@@ -12160,6 +12160,7 @@ MonoBehaviour:
     mazeHeight: 15
     mazeTimeLimit: 60
     mazeKeyCount: 0
+    mazeEnemyCount: 1
     soulReward: 30
   - difficultyName: Normal
     selectionWeight: 5
@@ -12175,6 +12176,7 @@ MonoBehaviour:
     mazeHeight: 23
     mazeTimeLimit: 60
     mazeKeyCount: 1
+    mazeEnemyCount: 2
     soulReward: 40
   - difficultyName: Hard
     selectionWeight: 1
@@ -12190,6 +12192,7 @@ MonoBehaviour:
     mazeHeight: 25
     mazeTimeLimit: 60
     mazeKeyCount: 2
+    mazeEnemyCount: 3
     soulReward: 50
   targetCanvas: {fileID: 377517139}
   introUIPrefab: {fileID: 1211699751}
@@ -15599,11 +15602,6 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: b74c48c2e73e17c418c9394124b75daf, type: 3}
   m_PrefabInstance: {fileID: 124949740}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &606314272 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 958032846697608173, guid: c058853254da53547b7626a695f1afca, type: 3}
-  m_PrefabInstance: {fileID: 1425742398}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &609802461
 PrefabInstance:
@@ -19419,11 +19417,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 121f662ea65e2cf40a50c66470757a9e, type: 3}
---- !u!1 &781484514 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1181518082045609664, guid: c058853254da53547b7626a695f1afca, type: 3}
-  m_PrefabInstance: {fileID: 1425742398}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &782327803
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22794,54 +22787,55 @@ MonoBehaviour:
   statusUIPrefab: {fileID: 8578348210149917390, guid: 3883e78609a6dbd4f8729292fc61a244, type: 3}
   statusUIOffset: {x: 0, y: 1.5, z: 0}
   miniGamePrefabs:
-  - {fileID: 606314272}
-  - {fileID: 1085294872}
-  - {fileID: 781484514}
+  - {fileID: 1270320851}
   possibleDifficulties:
   - difficultyName: easy
     selectionWeight: 1
     numberOfButtons: 3
-    needleSpeed: 40
+    needleSpeed: 60
     successZoneWidth: 20
     numberOfSuccessZones: 1
-    mashQuota: 10
+    mashQuota: 20
     survivalTime: 15
     scrollSpeed: 400
-    sparkCount: 3
+    sparkCount: 1
     mazeWidth: 15
     mazeHeight: 15
     mazeTimeLimit: 60
     mazeKeyCount: 0
+    mazeEnemyCount: 0
     soulReward: 30
   - difficultyName: Normal
     selectionWeight: 1
     numberOfButtons: 5
-    needleSpeed: 45
+    needleSpeed: 60
     successZoneWidth: 20
     numberOfSuccessZones: 2
-    mashQuota: 7
-    survivalTime: 15
+    mashQuota: 25
+    survivalTime: 20
     scrollSpeed: 400
-    sparkCount: 3
+    sparkCount: 2
     mazeWidth: 15
     mazeHeight: 15
     mazeTimeLimit: 60
     mazeKeyCount: 0
+    mazeEnemyCount: 0
     soulReward: 40
   - difficultyName: Hard
     selectionWeight: 1
     numberOfButtons: 9
-    needleSpeed: 50
+    needleSpeed: 60
     successZoneWidth: 20
     numberOfSuccessZones: 3
-    mashQuota: 15
-    survivalTime: 15
+    mashQuota: 30
+    survivalTime: 25
     scrollSpeed: 400
     sparkCount: 3
     mazeWidth: 15
     mazeHeight: 15
     mazeTimeLimit: 60
     mazeKeyCount: 0
+    mazeEnemyCount: 0
     soulReward: 50
   targetCanvas: {fileID: 377517139}
   introUIPrefab: {fileID: 1211699751}
@@ -27155,11 +27149,6 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
---- !u!1 &1085294872 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5113628582987030347, guid: c058853254da53547b7626a695f1afca, type: 3}
-  m_PrefabInstance: {fileID: 1425742398}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1085444485
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32382,6 +32371,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b680e0f7699a254c84ed6737b7eb53d, type: 3}
+--- !u!1 &1270320851 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6123449214114865641, guid: c058853254da53547b7626a695f1afca, type: 3}
+  m_PrefabInstance: {fileID: 1425742398}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1272319097 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400002, guid: 0b6fafa63b69b174584365f2641586a4, type: 3}
@@ -35588,6 +35582,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -0.09
       objectReference: {fileID: 0}
+    - target: {fileID: 397571735010461587, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: targetCanvas
+      value: 
+      objectReference: {fileID: 2104215757}
+    - target: {fileID: 397571735010461587, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: messageUIPrefab
+      value: 
+      objectReference: {fileID: 1570001172}
     - target: {fileID: 494705349101313075, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: message
       value: "E\u30DC\u30BF\u30F3"
@@ -36014,7 +36016,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9140296273793368723, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: message
-      value: SPACE
+      value: "\u5DE6\u4E0B\u306E\u970A\u9B42\u304C\u306A\u304F\u306A\u308B\u3068\n\u6D88\u6EC5"
       objectReference: {fileID: 0}
     - target: {fileID: 9140296273793368723, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: targetCanvas
@@ -37670,6 +37672,10 @@ PrefabInstance:
     - target: {fileID: 11442985963698619, guid: c058853254da53547b7626a695f1afca, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2123377851303692880, guid: c058853254da53547b7626a695f1afca, type: 3}
+      propertyPath: m_Volume
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 3276425320119324093, guid: c058853254da53547b7626a695f1afca, type: 3}
       propertyPath: m_AnchorMax.y
@@ -44160,79 +44166,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a0bc997d3424474696ad8d2e7d684ab, type: 3}
---- !u!1001 &1701617455
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1484077194739979676, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_Name
-      value: Jumper
-      objectReference: {fileID: 0}
-    - target: {fileID: 1617927830950841673, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: dodgeStopDuration
-      value: 0.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 1617927830950841673, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: dodgeSuccessSound
-      value: 
-      objectReference: {fileID: 8300000, guid: e31849b88c21a5d438610466bbe46694, type: 3}
-    - target: {fileID: 1668548967890822811, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1668548967890822811, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -95.891914
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 20.666567
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 52.007095
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3497826735428271645, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 48e2217a7843c794699607c912cc2fb7, type: 3}
 --- !u!4 &1702171049 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: bc532b78ce09f234ea01da2deecfe035, type: 3}
@@ -54739,7 +54672,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9116713377002223569, guid: 33be3a1098018964b97910f5c572cac6, type: 3}
       propertyPath: reputation
-      value: 16
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 9116713377002223569, guid: 33be3a1098018964b97910f5c572cac6, type: 3}
       propertyPath: dodgeSuccessSound
@@ -56429,6 +56362,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
+      propertyPath: maxSpirit
+      value: 999
+      objectReference: {fileID: 0}
+    - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: amountText
       value: 
       objectReference: {fileID: 1850760332}
@@ -56440,6 +56377,10 @@ PrefabInstance:
       propertyPath: uiPanelImage
       value: 
       objectReference: {fileID: 1682467335}
+    - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
+      propertyPath: currentSpirit
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 3578037317837286858, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: maxDistance
       value: 6
@@ -56458,7 +56399,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7307588860694557479, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -93.338
+      value: -93
       objectReference: {fileID: 0}
     - target: {fileID: 7307588860694557479, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: m_LocalPosition.y
@@ -56511,6 +56452,10 @@ PrefabInstance:
     - target: {fileID: 8859129183208198853, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: dodgeDuration
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859129183208198853, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
+      propertyPath: flinchingTagName
+      value: Damage
       objectReference: {fileID: 0}
     - target: {fileID: 8859129183208198853, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: lowJumpGravityMultiplier
@@ -56663,4 +56608,3 @@ SceneRoots:
   - {fileID: 323619491}
   - {fileID: 975037582}
   - {fileID: 123298477}
-  - {fileID: 1701617455}

@@ -100,6 +100,8 @@ public class NPCMove : MonoBehaviour
     private enum AIState { Patrolling, Retaliating, Greeting, Fleeing }
     private AIState currentState;
 
+    private int combocount = 0;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -497,6 +499,23 @@ public class NPCMove : MonoBehaviour
             alertPanel.SetActive(true); // ← Panelをオン
 
         yield return new WaitForSeconds(attackWarningTime); // 攻撃予兆時間
+
+        if (combocount >= 3) combocount = 0;
+                    
+        if (combocount == 0)
+        {
+            attackTriggerID = "Attack1";
+        }
+        else if (combocount == 1)
+        {
+            attackTriggerID = "Attack2";
+        }
+        else if (combocount == 2)
+        {
+            attackTriggerID = "Kick1";
+        }
+        
+        combocount++;
 
         animator.SetTrigger(attackTriggerID); // 攻撃発動
 

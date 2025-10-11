@@ -14,6 +14,7 @@ public class MiniGameIntroUI : MonoBehaviour
     public TextMeshProUGUI playText;
 
 
+
     /// <summary>
     /// TaskMachineから呼び出され、UIの表示を開始する
     /// </summary>

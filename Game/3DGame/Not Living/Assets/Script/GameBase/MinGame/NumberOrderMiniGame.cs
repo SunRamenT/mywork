@@ -30,6 +30,15 @@ public class NumberOrderMiniGame : MonoBehaviour, ITaskMiniGame
     private int currentIndex;
     private Coroutine timerCoroutine;
 
+    private AudioSource audioSource;
+    [Header("オーディオ")] // ▼▼▼ 変更 ▼▼▼
+    public AudioClip hitClip;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+    }
+
     public void StartTask(TaskMachine machine)
     {
         InitializeGame(machine.SelectedDifficulty);
@@ -87,6 +96,9 @@ public class NumberOrderMiniGame : MonoBehaviour, ITaskMiniGame
         {
             currentIndex++;
             clickedButton.interactable = false;
+
+            if (audioSource != null && hitClip != null)
+                audioSource.PlayOneShot(hitClip);
 
             if (currentIndex >= sortedNumbers.Count)
             {

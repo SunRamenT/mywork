@@ -62,8 +62,15 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
     private bool _isGameActive = false;
     private RectTransform _rightmostGround;
 
+    private AudioSource audioSource;
+    [Header("オーディオ")] // ▼▼▼ 変更 ▼▼▼
+    public AudioClip hitClip;
+    public AudioClip successClip; // 成功時の効果音も追加
+
+
     void Awake()
     {
+        audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
         if (GroundRects == null) GroundRects = new List<RectTransform>();
     }
 
@@ -126,13 +133,13 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
 
     void Update()
     {
-        if (!_isGameActive) return; // この判定はそのまま
+        if (!_isGameActive) return;
 
         _timer -= Time.deltaTime;
-        timerText.text = $"残り: {_timer:F1}秒";
+        timerText.text = $"残り: {_timer:F1}";
         if (_timer <= 0)
         {
-            EndGame(true);
+            StartCoroutine(EndGame(true));
             return;
         }
 
@@ -142,15 +149,71 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
         CheckForFailure();
     }
 
-    private void EndGame(bool success)
+    // RunnerMiniGame.cs の EndGame メソッドを置き換え
+    private IEnumerator EndGame(bool success)
     {
-        if (!_isGameActive) return;
+        //if (!_isGameActive) yield break; // 既に終了処理が始まっていれば何もしない
         _isGameActive = false;
 
-        StopAllCoroutines(); // ▼▼▼ 追加: ゲーム終了時に全てのコルーチンを停止 ▼▼▼
+        if (success)
+        {
+            // --- 成功時の処理 ---
+            timerText.text = "クリア!";
+            if (audioSource != null && successClip != null)
+            {
+                audioSource.PlayOneShot(successClip);
+            }
+        }
+        else
+        {
+            // --- 失敗時の処理 ---
+            messageText.text = "ミス!";
+            if (audioSource != null && hitClip != null)
+            {
+                audioSource.PlayOneShot(hitClip);
+            }
+        }
 
-        timerText.text = success ? "クリア！" : "失敗...";
+        Debug.Log(success ? "クリア！" : "失敗...");
+
+        for (int i = startCountdown; i > 0; i--)
+        {
+            yield return new WaitForSeconds(1.0f);
+        }
+        yield return new WaitForSeconds(0.5f);
         OnTaskCompleted?.Invoke(success);
+    }
+
+    private void CheckForFailure()
+    {
+        if (_playerInstance == null) return;
+        var playerHitbox = _playerInstance.GetComponent<Hitbox>();
+
+        if (_playerInstance.GetComponent<RectTransform>().anchoredPosition.y < fallThresholdY)
+        {
+            StartCoroutine(EndGame(false));
+            return;
+        }
+
+        foreach (var obstacle in _obstacleObjects)
+        {
+            if (playerHitbox.Overlaps(obstacle.GetComponent<Hitbox>()))
+            {
+                StartCoroutine(EndGame(false));
+                return;
+            }
+        }
+        
+        for (int i = _activeSparks.Count - 1; i >= 0; i--)
+        {
+            if (_activeSparks[i] == null) { _activeSparks.RemoveAt(i); continue; }
+            if (playerHitbox.Overlaps(_activeSparks[i].GetComponent<Hitbox>()))
+            {
+                // ▼▼▼ 変更点: EndGameの呼び出し方をコルーチンに変更 ▼▼▼
+                StartCoroutine(EndGame(false));
+                return;
+            }
+        }
     }
 
     // ▼▼▼ 追加: 火の粉を定期的に生成するコルーチン ▼▼▼
@@ -179,7 +242,6 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
                     }
                     else
                     {
-                        // ▼▼▼ ここからが変更点 ▼▼▼
                         // 指定されたUI座標の範囲内でランダムなターゲットを決定
                         float randomX = UnityEngine.Random.Range(-250f, 300f);
                         float randomY = UnityEngine.Random.Range(-150f, 100f);
@@ -189,7 +251,6 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
                         float worldX = (Screen.width / 2f) + randomX;
                         float worldY = (Screen.height / 2f) + randomY;
                         targetPos = new Vector2(worldX, worldY);
-                        // ▲▲▲ ここまでが変更点 ▲▲▲
                     }
 
                     // 4. 火の粉を生成し、ターゲットと速度を設定して発射
@@ -197,6 +258,8 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
                     spark.GetComponent<RectTransform>().anchoredPosition = sparkSpawnPosition;
                     _activeSparks.Add(spark);
                     spark.GetComponent<SparkMover>().Initialize(targetPos, sparkSpeed);
+                    float waitsparkle = UnityEngine.Random.Range(0.05f, 0.3f);
+                    yield return new WaitForSeconds(waitsparkle); // 少し間隔を空けて生成
                 }
             }
             
@@ -205,49 +268,8 @@ public class RunnerMiniGame : MonoBehaviour, ITaskMiniGame
         }
     }
 
-    private void CheckForFailure()
-    {
-        if (_playerInstance == null) return;
-        
-        // ▼▼▼ 変更点: RectTransformではなくHitboxコンポーネントを取得 ▼▼▼
-        var playerHitbox = _playerInstance.GetComponent<Hitbox>();
-
-        // 落下判定はそのまま
-        if (_playerInstance.GetComponent<RectTransform>().anchoredPosition.y < fallThresholdY)
-        {
-            EndGame(false); return;
-        }
-
-        // 障害物との当たり判定
-        foreach (var obstacle in _obstacleObjects)
-        {
-            // ▼▼▼ 変更点: Hitboxを使って判定 ▼▼▼
-            if (playerHitbox.Overlaps(obstacle.GetComponent<Hitbox>()))
-            {
-                EndGame(false); return;
-            }
-        }
-        
-        // 火の粉との当たり判定
-        for (int i = _activeSparks.Count - 1; i >= 0; i--)
-        {
-            if (_activeSparks[i] == null)
-            {
-                _activeSparks.RemoveAt(i);
-                continue;
-            }
-
-            // ▼▼▼ 変更点: Hitboxを使って判定 ▼▼▼
-            if (playerHitbox.Overlaps(_activeSparks[i].GetComponent<Hitbox>()))
-            {
-                EndGame(false);
-                return;
-            }
-        }
-    }
     private void ManageScrollingAndCleanup(float moveAmount)
     {
-        // ... (このメソッドの中身は変更ありません)
         for (int i = _groundObjects.Count - 1; i >= 0; i--)
         {
             var obj = _groundObjects[i];

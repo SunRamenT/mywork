@@ -88,6 +88,7 @@ public class PlayerController : MonoBehaviour
     public bool isDodging = false;
 
     private bool isAttack = false;
+    private int combocount = 0;
 
     // PlayerController.csにGetCurrentAnimator()を追加
     public Animator GetCurrentAnimator()
@@ -237,12 +238,39 @@ public class PlayerController : MonoBehaviour
                 {
                     if (npcStatusManager != null && punchAttackInfo != null) { punchAttackInfo.damage = npcStatusManager.power; }
                     isAttack = true;
-                    currentAnimator.SetTrigger(attackTriggerName);
-                    StartCoroutine(canAttack());
+
+                    if (combocount >= 4) combocount = 0;
+                    
+                    if (combocount == 0)
+                    {
+                        attackTriggerName = "Attack1";
+                        currentAnimator.SetTrigger(attackTriggerName);
+                        StartCoroutine(canAttack(40));
+                    }
+                    else if (combocount == 1)
+                    {
+                        attackTriggerName = "Attack2";
+                        currentAnimator.SetTrigger(attackTriggerName);
+                        StartCoroutine(canAttack(40));
+                    }
+                    else if (combocount == 2)
+                    {
+                        attackTriggerName = "Kick1";
+                        currentAnimator.SetTrigger(attackTriggerName);
+                        StartCoroutine(canAttack(80));
+                    }
+                    else if (combocount == 3)
+                    {
+                        attackTriggerName = "Kick2";
+                        currentAnimator.SetTrigger(attackTriggerName);
+                        StartCoroutine(canAttack(100));
+                    }
+                    combocount++;
                 }
                 // 特殊能力
                 if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
                 {
+                    combocount = 0; // コンボをリセット
                     // 1. まずクールタイムが完了しているかチェック
                     if (currentSpecialAction.CooldownProgress >= 1.0f)
                     {
@@ -263,6 +291,7 @@ public class PlayerController : MonoBehaviour
                 // ▼▼▼ 回避入力の判定を追加 ▼▼▼
                 if (Input.GetButtonDown("Jump") && Time.time >= nextDodgeTime)
                 {
+                    combocount = 0; // コンボをリセット
                     StartCoroutine(Dodge());
                 }
             }   
@@ -431,10 +460,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private IEnumerator canAttack()
+    private IEnumerator canAttack(int waitTime)
     {
-        // 30フレーム待つ
-        for (var i = 0; i < 30; i++)
+        // 指定されたフレーム数待つ
+        for (var i = 0; i < waitTime; i++)
         {
             yield return null;
         }

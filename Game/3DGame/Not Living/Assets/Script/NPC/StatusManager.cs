@@ -532,6 +532,7 @@ public class StatusManager : MonoBehaviour
 
         // 攻撃者が見つからなければ処理を中断
         if (attackerStatus == null) return;
+        Debug.Log($"{this.gameObject.name} は {attacker.name} から攻撃を受けた！");
 
 
         // 2. ヒット音を再生 ▼▼▼ 追加 ▼▼▼
@@ -557,6 +558,7 @@ public class StatusManager : MonoBehaviour
         if (attackInfo != null)
         {
             TakeDamage(attackInfo.damage, attacker);
+            Debug.Log($"{this.gameObject.name} は {attackInfo.damage} のダメージを受けた。残りHP: {currentHp}/{maxHp}");
             if (isDodgeInvincible)
             { 
                 other.enabled = false;// ヒットボックスを無効化して二重ヒットを防止
