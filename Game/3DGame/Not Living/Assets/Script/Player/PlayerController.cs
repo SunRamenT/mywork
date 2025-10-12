@@ -127,7 +127,9 @@ public class PlayerController : MonoBehaviour
                 if (nottoriController != null) nottoriController.ForceRelease(); return;
             }
             HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
-            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0) { punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>(); }
+            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0) {
+                punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>();
+            }
             currentSpecialAction = targetNPC.GetComponent<ISpecialAction>();
             ghostController.enabled = false;
             currentCharacter = targetNPC;

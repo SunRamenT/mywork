@@ -30,7 +30,7 @@ public class StatusManager : MonoBehaviour
     public float invincibilityBlinkInterval = 0.2f;
     private bool isInvincible = false;    
     [Tooltip("このキャラクターに攻撃が当たった時のヒットストップ時間")] // ▼▼▼ 追加 ▼▼▼
-    public float hitStopDuration = 0.3f;
+    private float hitStopDuration = 0.5f;
     [Tooltip("ダメージを受けた際のノックバックの強さ")] // ▼▼▼ 追加 ▼▼▼
     public float knockbackForce = 3f;
     [Tooltip("ダメージを受けた際のノックバックの時間")] // ▼▼▼ 追加 ▼▼▼

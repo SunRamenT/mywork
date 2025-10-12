@@ -17,7 +17,7 @@ public class NPCMove : MonoBehaviour
     public string attackTriggerID = "Attack";
     [Header("攻撃関連")]
     [Tooltip("攻撃を開始する距離")]
-    public float attackRange = 1.5f;
+    private float attackRange = 1.8f;
     
     [Tooltip("攻撃の予兆を出す時間（秒）")]
     public float attackWarningTime = 0.3f;
