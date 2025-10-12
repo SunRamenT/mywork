@@ -960,7 +960,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b9d1d2dc46aad74bbaf5114e051d845, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  warpRadius: 33
+  warpRadius: 50
   cooldownDuration: 180
   abilityName: "\u30EF\u30FC\u30D7"
   maxHeightDifference: 0.5
