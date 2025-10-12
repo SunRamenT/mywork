@@ -50,7 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dayLastUsed: -1
   statusUIPrefab: {fileID: 8578348210149917390, guid: 3883e78609a6dbd4f8729292fc61a244, type: 3}
-  statusUIOffset: {x: 0, y: 1.5, z: 0}
+  statusUIOffset: {x: 0, y: 2.5, z: 0}
   miniGamePrefabs:
   - {fileID: 0}
   - {fileID: 0}

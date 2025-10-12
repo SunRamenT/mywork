@@ -60,7 +60,7 @@ public class TaskMachine : MonoBehaviour, IInteractable
     [Header("ワールド空間UI")]
     public GameObject statusUIPrefab;
     [Tooltip("オブジェクトの基点からのUIのオフセット")]
-    public Vector3 statusUIOffset = new Vector3(0, 1.5f, 0);
+    public Vector3 statusUIOffset = new Vector3(0, 2.5f, 0);
     // ▼▼▼ 変更点 ▼▼▼
     private GameObject _statusUIInstance; // UIのインスタンスを保持
     private TextMeshProUGUI _statusUIText;
