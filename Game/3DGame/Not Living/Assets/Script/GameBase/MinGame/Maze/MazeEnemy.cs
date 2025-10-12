@@ -9,7 +9,7 @@ public class MazeEnemy : MonoBehaviour
     // --- 外部から設定 ---
     public int[,] mazeData;
     public Vector2Int currentPos;
-    public float moveInterval = 1.0f;
+    private float moveInterval = 1.0f;
     public Transform gridParent;
     
     // ▼▼▼ 追加: 確率を調整するための重み ▼▼▼
@@ -41,6 +41,8 @@ public class MazeEnemy : MonoBehaviour
             yield return new WaitForSeconds(moveInterval);
 
             // --- 1. 移動可能な全ての方向をリストアップ ---
+            yield return new WaitForSeconds(moveInterval);
+
             List<Vector2Int> possibleDirections = new List<Vector2Int>();
             foreach (var dir in dirs)
             {
@@ -48,11 +50,13 @@ public class MazeEnemy : MonoBehaviour
                 Vector2Int targetPos = currentPos + dir * 1;
 
                 if (targetPos.x >= 0 && targetPos.x < mazeWidth && targetPos.y >= 0 && targetPos.y < mazeHeight &&
-                    mazeData[wallPos.x, wallPos.y] > 0)
+                    mazeData[wallPos.x, wallPos.y] > 0 &&
+                    targetPos != MazeMiniGame.shieldPosition) // ▼▼▼ 追加: 移動先がシールドではないかチェック
                 {
                     possibleDirections.Add(dir);
                 }
             }
+
 
             // --- 2. 移動方向を重み付けで決定 ---
             if (possibleDirections.Count > 0)

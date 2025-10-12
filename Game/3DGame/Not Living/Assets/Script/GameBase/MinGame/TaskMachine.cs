@@ -40,6 +40,10 @@ public class TaskDifficulty
     public float mazeTimeLimit = 60f;
     public int mazeKeyCount = 0;// 鍵の数
     public int mazeEnemyCount = 0;
+    [Header("Bullet Hell Game")]
+    public float bh_survivalTime = 20f;
+    public int bh_enemyCount = 1;
+
     [Header("Common Reward")]
     public int soulReward = 25;
 }

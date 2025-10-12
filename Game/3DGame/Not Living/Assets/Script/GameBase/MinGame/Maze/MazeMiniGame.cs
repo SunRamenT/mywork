@@ -27,6 +27,7 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
     public TextMeshProUGUI timerText; // 制限時間を表示するUI
 
     public TextMeshProUGUI keyStatusText;   // 「カギ: X / Y」を表示するUIテキスト
+    public TextMeshProUGUI shieldStatusText; // 「シールド: 使用可能/設置中」を表示するUIテキスト
     public Image keyIconUI;
 
     public GameObject timerUIPrefab;
@@ -38,7 +39,8 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
     public GameObject wallPrefab, floorPrefab, playerPrefab, goalPrefab;
     public GameObject keyPrefab; // キーのプレハブ
     public GameObject enemyPrefab; // 敵のプレハブ
-    
+    public GameObject shieldPrefab; // シールドのプレハブ
+
     public Sprite closedDoorSprite;
     public Sprite openDoorSprite;
 
@@ -65,6 +67,12 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
     private List<MazeEnemy> _enemies = new List<MazeEnemy>(); // ▼▼▼ 追加: 敵リスト
     private int _enemyCount; // ▼▼▼ 追加: 敵の数
 
+    
+    private GameObject _shieldInstance; // ▼▼▼ 追加: 現在のシールドオブジェクト
+    public static Vector2Int shieldPosition = new Vector2Int(-1, -1); 
+
+    private bool _canPlaceShield = true; 
+
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
@@ -85,10 +93,19 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
 
         timerUIPrefab.SetActive(true);
         timerText.text = $" WASD で移動";
-        
+
         //_goalImage = null; // 念のためリセット
 
         if (keyStatusText != null) keyStatusText.gameObject.SetActive(false);
+        
+        _enemyCount = machine.SelectedDifficulty.mazeEnemyCount;
+
+
+        //_shieldUsesLeft = 1; // (常に1回に固定)
+        
+        _canPlaceShield = true;
+        if (_shieldInstance != null) Destroy(_shieldInstance);
+        shieldPosition = new Vector2Int(-1, -1);
 
         // MazeGeneratorの静的変数を設定
         MazeGenerator.width = _mazeWidth;
@@ -207,6 +224,7 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
                 {
                     tile = Instantiate(floorPrefab, mazeGridParent.transform);
                     var currentPos = new Vector2Int(x, y);
+                    tile.AddComponent<MazeTile>().Initialize(this, currentPos);
                     if (x == _playerGridPos.x && y == _playerGridPos.y)
                         _playerInstance = Instantiate(playerPrefab, tile.transform);
                     else if (currentPos == _goalGridPos)
@@ -250,7 +268,51 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
         }
     }
 
-    // --- (HandlePlayerInputは変更なし) ---
+    public void HandleTileClick(Vector2Int clickedPosition)
+    {
+        if (!_isGameActive) return;
+
+        // クリックしたのが現在シールドが置かれている場所なら、シールドを「回収」する
+        if (_shieldInstance != null && clickedPosition == shieldPosition)
+        {
+            Destroy(_shieldInstance);
+            _shieldInstance = null;
+            shieldPosition = new Vector2Int(-1, -1);
+            _canPlaceShield = true; // 再び設置可能にする
+            UpdateKeyStatusUI();   // UIを更新
+        }
+        // シールドが設置可能で、かつ何もない床をクリックした場合
+        else if (_canPlaceShield && _shieldInstance == null)
+        {
+            // 他のオブジェクト（プレイヤー、敵、鍵、ゴール）の上には置けないようにする
+            if (clickedPosition == _playerGridPos || 
+                clickedPosition == _goalGridPos || 
+                _keyPositions.Any(k => k == clickedPosition)) // <-- 修正箇所
+            {
+                Debug.Log("その場所にはシールドを置けません。");
+                return;
+            }
+            foreach(var enemy in _enemies)
+            {
+                if (clickedPosition == enemy.currentPos)
+                {
+                    Debug.Log("その場所にはシールドを置けません。");
+                    return;
+                }
+            }
+
+            // 新しい位置にシールドを配置
+            Transform targetTile = mazeGridParent.transform.Find($"Tile_{clickedPosition.x}_{clickedPosition.y}");
+            if (targetTile != null)
+            {
+                _shieldInstance = Instantiate(shieldPrefab, targetTile);
+                shieldPosition = clickedPosition;
+                _canPlaceShield = false; // 設置済みの状態にする
+                UpdateKeyStatusUI();    // UIを更新
+            }
+        }
+    }
+
     private void HandlePlayerInput()
     {
         if (_moveTimer > 0) return;
@@ -323,14 +385,18 @@ public class MazeMiniGame : MonoBehaviour, ITaskMiniGame
     {
         if (keyStatusText != null)
         {
+            string keyText = $"カギ: {_keysCollected} / {_keysRequired}";
+            string shieldText = _canPlaceShield ? "盾:使用可能" : "盾:設置中";
+            
+            keyStatusText.gameObject.SetActive(true);
+
             if (_keysRequired > 0)
             {
-                keyStatusText.gameObject.SetActive(true);
-                keyStatusText.text = $"カギ: {_keysCollected} / {_keysRequired}";
+                keyStatusText.text = $"{keyText} | {shieldText}";
             }
             else
             {
-                keyStatusText.gameObject.SetActive(false);
+                keyStatusText.text = shieldText;
             }
         }
     }

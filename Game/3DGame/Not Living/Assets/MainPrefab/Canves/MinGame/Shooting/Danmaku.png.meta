@@ -1,0 +1,532 @@
+fileFormatVersion: 2
+guid: d70d5cd67df50bc4ea12174bc4ec2409
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: tvOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Danmaku_18
+      rect:
+        serializedVersion: 2
+        x: 537
+        y: 481
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a695607411312664b99642adb4badaee
+      internalID: -2014441961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_19
+      rect:
+        serializedVersion: 2
+        x: 726
+        y: 482
+        width: 29
+        height: 28
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: def1b2c3e3bf7e2478c5a979c09d78d5
+      internalID: -660817712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_20
+      rect:
+        serializedVersion: 2
+        x: 777
+        y: 481
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 82def08fa96796f489cb8068e5bfb881
+      internalID: -161970924
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_27
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 356
+        width: 39
+        height: 39
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ef61727b5a2f5744d81a8ef2a3c6bb12
+      internalID: 1467450712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_31
+      rect:
+        serializedVersion: 2
+        x: 626
+        y: 387
+        width: 54
+        height: 54
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 68f1e07b98337f14aadeeda62019de8e
+      internalID: 394252671
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_32
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 352
+        width: 41
+        height: 42
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa3c99b27f57ba64ca7f6b31c5b19900
+      internalID: 449701460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_35
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 325
+        width: 31
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ee63d2212f89d3c4ba5d4d5e4dab618c
+      internalID: -2006696857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_54
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 197
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c6a60ce7c6745d469fa1fc8efa693a6
+      internalID: -680140352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_64
+      rect:
+        serializedVersion: 2
+        x: 971
+        y: 176
+        width: 19
+        height: 31
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6cfb178da9ab1704da296c7eff263b5b
+      internalID: 47514730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_65
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 126
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 240315cbee1bdfa479f9dcbcf95b9b02
+      internalID: 1989331720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_77
+      rect:
+        serializedVersion: 2
+        x: 494
+        y: 18
+        width: 55
+        height: 55
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ee9cccc74b1dac5448773e7abf8060b3
+      internalID: 220621661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_82
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 9
+        width: 38
+        height: 39
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c414e375ca105d044a861a4d21f92215
+      internalID: 23819286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Danmaku_87
+      rect:
+        serializedVersion: 2
+        x: 397
+        y: 4
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c3fcfc4c66320a143896be60ca56cded
+      internalID: -640240831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: b48b3c7a20c187c45a30cf5f0b491029
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Danmaku_0: -460722902
+      Danmaku_1: -1104854006
+      Danmaku_10: 1512442868
+      Danmaku_11: -325172725
+      Danmaku_12: 133802622
+      Danmaku_13: 19280824
+      Danmaku_14: 916175842
+      Danmaku_15: -1358236212
+      Danmaku_16: -556380012
+      Danmaku_17: 1878890454
+      Danmaku_18: -2014441961
+      Danmaku_19: -660817712
+      Danmaku_2: 748569855
+      Danmaku_20: -161970924
+      Danmaku_21: 1526413605
+      Danmaku_22: 2089390838
+      Danmaku_23: -865893390
+      Danmaku_24: 1427082326
+      Danmaku_25: 1714767448
+      Danmaku_26: -917041567
+      Danmaku_27: 1467450712
+      Danmaku_28: -927948454
+      Danmaku_29: 446722595
+      Danmaku_3: -856388167
+      Danmaku_30: 102809417
+      Danmaku_31: 394252671
+      Danmaku_32: 449701460
+      Danmaku_33: -1549879635
+      Danmaku_34: 76899608
+      Danmaku_35: -2006696857
+      Danmaku_36: -1934613849
+      Danmaku_37: 1434218112
+      Danmaku_38: -1160166903
+      Danmaku_39: 349045970
+      Danmaku_4: 2126281642
+      Danmaku_40: 241614803
+      Danmaku_41: 902460108
+      Danmaku_42: 1326573484
+      Danmaku_43: 217298079
+      Danmaku_44: 380791328
+      Danmaku_45: -1163024073
+      Danmaku_46: 2130083289
+      Danmaku_47: -1468511045
+      Danmaku_48: -1083343889
+      Danmaku_49: -856041715
+      Danmaku_5: -1579449597
+      Danmaku_50: 213848907
+      Danmaku_51: -967030346
+      Danmaku_52: 133055639
+      Danmaku_53: 401715607
+      Danmaku_54: -680140352
+      Danmaku_55: 141168868
+      Danmaku_56: 2102436117
+      Danmaku_57: 352663936
+      Danmaku_58: -905793112
+      Danmaku_59: 281929005
+      Danmaku_6: 57213383
+      Danmaku_60: -1699672
+      Danmaku_61: -467330544
+      Danmaku_62: 181118724
+      Danmaku_63: -87699827
+      Danmaku_64: 47514730
+      Danmaku_65: 1989331720
+      Danmaku_66: 650138119
+      Danmaku_67: 1449778003
+      Danmaku_68: -1275205516
+      Danmaku_69: -1571955395
+      Danmaku_7: 1896149973
+      Danmaku_70: -878337922
+      Danmaku_71: 400640403
+      Danmaku_72: 221955038
+      Danmaku_73: 15962114
+      Danmaku_74: -1641854216
+      Danmaku_75: -176718791
+      Danmaku_76: 852368922
+      Danmaku_77: 220621661
+      Danmaku_78: -1122062878
+      Danmaku_79: -88309679
+      Danmaku_8: -476564655
+      Danmaku_80: 599938330
+      Danmaku_81: 1937050868
+      Danmaku_82: 23819286
+      Danmaku_83: -1707943043
+      Danmaku_84: -1480759875
+      Danmaku_85: -1221733386
+      Danmaku_86: -361418763
+      Danmaku_87: -640240831
+      Danmaku_9: 569896215
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
