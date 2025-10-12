@@ -82,11 +82,12 @@ public class ReikonManager : MonoBehaviour
         if (currentSpirit <= 0) return;
 
         float currentMultiplier = 1.0f;
-        
+
         // 優先順位1: Chaser接近中
         if (nearbyChaserCount > 0)
         {
             currentMultiplier = chaserDrainMultiplier;
+            debuffEffect.SetActive(true); // Chaser接近中ならエフェクトを表示
         }
         // 優先順位2: 憑依中
         else if (isPossessing)
@@ -97,6 +98,15 @@ public class ReikonManager : MonoBehaviour
         else if (isPhasing)
         {
             currentMultiplier = phasingDrainMultiplier;
+            debuffEffect.SetActive(true); // 壁抜け中ならエフェクトを表示
+        }
+        else
+        {
+            // どれにも当てはまらない場合はエフェクトを非表示にする
+            if (debuffEffect != null)
+            {
+                debuffEffect.SetActive(false);
+            }
         }
         
         // デバフエフェクトの表示判定
