@@ -1785,6 +1785,14 @@ PrefabInstance:
       propertyPath: m_fontColor32.rgba
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: 6718998459512241829, guid: 0f5a01e54c996be4fa0758f72df6c1e4, type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 512
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718998459512241829, guid: 0f5a01e54c996be4fa0758f72df6c1e4, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6987574133727210659, guid: 0f5a01e54c996be4fa0758f72df6c1e4, type: 3}
       propertyPath: m_Name
       value: Cooltime

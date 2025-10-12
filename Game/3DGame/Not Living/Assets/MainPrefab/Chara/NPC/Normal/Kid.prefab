@@ -2592,6 +2592,7 @@ GameObject:
   - component: {fileID: 5537275751687627960}
   - component: {fileID: 1626382098670877955}
   - component: {fileID: 2621938928656627634}
+  - component: {fileID: 1088862685586286386}
   m_Layer: 12
   m_Name: Kid
   m_TagString: NPC
@@ -2932,7 +2933,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f9b8655f3963f3468d99163b7ae393e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  specialAbilitySound: {fileID: 0}
+  specialAbilitySound: {fileID: 8300000, guid: 1d1c7396867d6c5409f2a9add78e8652, type: 3}
   specialAbilityVolume: 0
   landingVolume: 2
 --- !u!114 &2621938928656627634
@@ -2960,6 +2961,21 @@ MonoBehaviour:
   - attackName: Kick2
     hitboxes:
     - {fileID: 2208822852667600468}
+--- !u!114 &1088862685586286386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7131902801664149340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f738789df3e1de4692b696ae29e8a9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GuardAction
+  cooldownDuration: 5
+  guardInvincibilityDuration: 3
+  abilityName: "\u30E0\u30C6\u30AD"
 --- !u!1 &7192609643491351364
 GameObject:
   m_ObjectHideFlags: 0

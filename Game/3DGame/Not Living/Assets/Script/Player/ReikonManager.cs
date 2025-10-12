@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class ReikonManager : MonoBehaviour
 {
@@ -125,6 +126,7 @@ public class ReikonManager : MonoBehaviour
             currentSpirit = 0;
             Debug.Log("霊魂が尽きた...ゲームオーバー");
             OnSpiritDepleted?.Invoke();
+            SceneManager.LoadScene("GameOver1"); // ゲームオーバーシーンに遷移
         }
     }
 
