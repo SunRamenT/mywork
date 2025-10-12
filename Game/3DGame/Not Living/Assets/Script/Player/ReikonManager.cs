@@ -178,7 +178,8 @@ public class ReikonManager : MonoBehaviour
 
     private void UpdateSpiritUI()
     {
-        float percentage = currentSpirit / maxSpirit;
+        float maxFlameSizeValue = 100f; // 最大フレームサイズの値を設定
+        float percentage = currentSpirit / maxFlameSizeValue;
 
         if (amountText != null)
         {
