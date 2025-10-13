@@ -20,6 +20,7 @@ import networkx as nx
 import community
 
 from attacker import GraphAttackModel
+
 import networkx as nx
 
 MAX_STEPS = 10000
