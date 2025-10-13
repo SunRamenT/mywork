@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>About Me - Taiyo Hirayama</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    
+    <style>
+        /* 基本レイアウト */
+        #main {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .content-container {
+            max-width: 800px;
+            margin: 3em auto;
+            padding: 2em;
+            background-color: rgba(0, 0, 0, 0.6); /* 内容が読みやすいように半透明の背景を追加 */
+            border-radius: 10px;
+            text-align: left;
+        }
+        .content-container h1, .content-container h2 {
+            text-align: center;
+            border-bottom: 2px solid #ffffff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .content-container p {
+            line-height: 1.8; /* 行間を広げて読みやすく */
+        }
+        .skills-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .skills-list li {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+        a.back-link {
+            display: block; /* ブロック要素にして中央揃えしやすく */
+            width: fit-content;
+            margin: 40px auto 0;
+            color: #ffffff;
+            text-decoration: none;
+            border: 1px solid #ffffff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        a.back-link:hover {
+            background-color: #ffffff;
+            color: #1a1a1a;
+        }
+    </style>
+</head>
+<body class="is-preload">
+    <div id="wrapper">
+        <div id="bg"></div>
+        <div id="overlay"></div>
+        <div id="main">
+            <div class="content-container">
+                <h1>About Me</h1>
+
+                <h2>プロフィール (Profile)</h2>
+                <p>
+                    ここに自己紹介文を自由に追加してください。
+                    関西学院大学大学院で情報工学を専攻しています。特に〇〇の分野に興味があり、研究テーマは△△です。趣味はラーメン屋巡りで、休日は新しい味を探求しています。
+                </p>
+
+                <h2>スキル (Skills)</h2>
+                <ul class="skills-list">
+                    <li>Python</li>
+                    <li>C++</li>
+                    <li>Flutter</li>
+                    <li>Dart</li>
+                    <li>HTML/CSS</li>
+                    <li>JavaScript</li>
+                    <li>GitHub</li>
+                    <li>Unity</li>
+                </ul>
+
+                <h2>趣味・興味 (Interests)</h2>
+                <p>
+                    ゲーム開発、株価予測、AI技術の応用など、幅広い分野に興味があります。新しい技術を学ぶことが好きで、個人開発にも積極的に取り組んでいます。
+                </p>
+
+                <a href="index.html" class="back-link">トップページに戻る</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.onload = function() { document.body.classList.remove('is-preload'); }
+    </script>
+</body>
+</html>
