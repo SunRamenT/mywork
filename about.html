@@ -12,12 +12,13 @@
         #main {
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            align-self: flex-start; /* ← これを追加して上揃えにする */
         }
         .content-container {
             max-width: 800px;
-            margin: 3em auto;
+            margin: 5em auto 3em auto; /* ← 上の余白を調整 */
             padding: 2em;
-            background-color: rgba(0, 0, 0, 0.6); /* 内容が読みやすいように半透明の背景を追加 */
+            background-color: rgba(0, 0, 0, 0.6);
             border-radius: 10px;
             text-align: left;
         }
@@ -28,7 +29,7 @@
             margin-bottom: 20px;
         }
         .content-container p {
-            line-height: 1.8; /* 行間を広げて読みやすく */
+            line-height: 1.8;
         }
         .skills-list {
             list-style: none;
@@ -44,7 +45,7 @@
             border-radius: 5px;
         }
         a.back-link {
-            display: block; /* ブロック要素にして中央揃えしやすく */
+            display: block;
             width: fit-content;
             margin: 40px auto 0;
             color: #ffffff;
@@ -71,7 +72,6 @@
 
                 <h2>プロフィール (Profile)</h2>
                 <p>
-                    ここに自己紹介文を自由に追加してください。
                     関西学院大学大学院で情報工学を専攻しています。特に〇〇の分野に興味があり、研究テーマは△△です。趣味はラーメン屋巡りで、休日は新しい味を探求しています。
                 </p>
 
@@ -80,11 +80,10 @@
                     <li>Python</li>
                     <li>C++</li>
                     <li>Flutter</li>
-                    <li>Dart</li>
-                    <li>HTML/CSS</li>
-                    <li>JavaScript</li>
+                    <li>C#</li>
                     <li>GitHub</li>
                     <li>Unity</li>
+                    <li>Unreal Engine</li>
                 </ul>
 
                 <h2>趣味・興味 (Interests)</h2>
