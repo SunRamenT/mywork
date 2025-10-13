@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>My Works - Taiyo Hirayama</title>
-    <meta charset="utf--8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
@@ -12,10 +12,12 @@
         #main {
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            align-self: flex-start; /* ← これを追加して上揃えにする */
         }
         .works-container {
-            max-width: 900px; /* 少し幅を広げて3列表示に対応 */
-            margin: 3em auto;
+            max-width: 900px;
+            /* ↓↓ 上の余白を少し調整 */
+            margin: 5em auto 3em auto;
             padding: 0 2em;
             text-align: center;
         }
@@ -49,38 +51,34 @@
             width: 100%;
             height: 100%;
         }
-
-        /* ===== ↓ここから新しいレイアウト用のCSS↓ ===== */
         
         /* 3つの動画を横に並べるためのコンテナ */
         .grid-container {
             display: flex;
-            justify-content: space-between; /* 要素間のスペースを均等に配置 */
-            gap: 20px; /* 各動画の間の隙間 */
+            justify-content: space-between;
+            gap: 20px;
             margin-top: 50px;
         }
 
         /* 横並びにする各動画のアイテム */
         .grid-item {
-            flex: 1; /* 親要素の幅に応じて均等に幅を調整 */
-            min-width: 0; /* flexアイテムの縮小問題を回避 */
+            flex: 1;
+            min-width: 0;
         }
 
         /* 横並びの動画のタイトルは中央揃えに */
         .grid-item h2 {
             text-align: center;
-            font-size: 1.1em; /* 少しフォントサイズを調整 */
+            font-size: 1.1em;
             margin-top: 0;
         }
 
         /* スマートフォン用の設定 (画面幅が768px以下の場合) */
         @media screen and (max-width: 768px) {
             .grid-container {
-                flex-direction: column; /* 横並びを解除して縦に並べる */
+                flex-direction: column;
             }
         }
-
-        /* ===== ↑ここまで新しいレイアウト用のCSS↑ ===== */
 
         /* 「戻る」リンクのスタイル */
         a.back-link {
