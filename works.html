@@ -6,7 +6,6 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-GYGHHXJ64S');
     </script>
     <title>My Works - Taiyo Hirayama</title>
@@ -14,27 +13,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-    
+
     <style>
-        #wrapper {
-            align-items: flex-start;
+        /* ← これが余白対策の最重要 */
+        html, body {
+            margin: 0;
+            padding: 0;
         }
 
-        /* 基本レイアウト */
+        /* 背景レイヤーの押し下げ防止 */
+        #bg, #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        #wrapper {
+            align-items: flex-start;
+            padding-top: 0 !important;
+        }
+
         #main {
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            align-self: flex-start; /* ← これを追加して上揃えにする */
+            align-self: flex-start;
+            padding-top: 0 !important;
+            margin-top: 0 !important;
         }
+
+        /* コンテンツ調整 */
         .works-container {
             max-width: 900px;
-            /* ↓↓ 上の余白を少し調整 */
-            margin: 5em auto 3em auto;
+            margin: 2em auto;
             padding: 0 2em;
             text-align: center;
         }
 
-        /* 見出しスタイル */
         h1 {
             border-bottom: 2px solid #ffffff;
             padding-bottom: 10px;
@@ -45,7 +59,6 @@
             text-align: left;
         }
 
-        /* 動画ラッパー */
         .video-wrapper {
             position: relative;
             padding-bottom: 56.25%;
@@ -63,36 +76,29 @@
             width: 100%;
             height: 100%;
         }
-        
-        /* 3つの動画を横に並べるためのコンテナ */
+
         .grid-container {
             display: flex;
             justify-content: space-between;
             gap: 20px;
             margin-top: 50px;
         }
-
-        /* 横並びにする各動画のアイテム */
         .grid-item {
             flex: 1;
             min-width: 0;
         }
-
-        /* 横並びの動画のタイトルは中央揃えに */
         .grid-item h2 {
             text-align: center;
             font-size: 1.1em;
             margin-top: 0;
         }
 
-        /* スマートフォン用の設定 (画面幅が768px以下の場合) */
         @media screen and (max-width: 768px) {
             .grid-container {
                 flex-direction: column;
             }
         }
 
-        /* 「戻る」リンクのスタイル */
         a.back-link {
             display: inline-block;
             margin-top: 50px;
@@ -122,32 +128,30 @@
 
                 <h2>3DGAME: NOT LIVING(制作中)</h2>
                 <div class="video-wrapper">
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/1Nnmz9CssFU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="https://www.youtube.com/embed/1Nnmz9CssFU" allowfullscreen></iframe>
                 </div>
 
                 <div class="grid-container">
-                    
                     <div class="grid-item">
                         <h2>2DGAME: NOT LIVING(リメイク前)</h2>
                         <div class="video-wrapper">
-                            <iframe width="560" height="315" src="https://www.youtube.com/embed/VkCh6uL4mBs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe src="https://www.youtube.com/embed/VkCh6uL4mBs" allowfullscreen></iframe>
                         </div>
                     </div>
 
                     <div class="grid-item">
-                        <h2>c++による直感操作のRPG風バトル</h2>
+                        <h2>c++による直感操作RPGバトル</h2>
                         <div class="video-wrapper">
-                            <iframe width="560" height="315" src="https://www.youtube.com/embed/H92AXY4sJPc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                    
-                    <div class="grid-item">
-                        <h2>pythonの株価予測アプリ</h2>
-                        <div class="video-wrapper">
-                            <iframe width="560" height="315" src="https://www.youtube.com/embed/L09rMfIWqDc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe src="https://www.youtube.com/embed/H92AXY4sJPc" allowfullscreen></iframe>
                         </div>
                     </div>
 
+                    <div class="grid-item">
+                        <h2>Python株価予測アプリ</h2>
+                        <div class="video-wrapper">
+                            <iframe src="https://www.youtube.com/embed/L09rMfIWqDc" allowfullscreen></iframe>
+                        </div>
+                    </div>
                 </div>
 
                 <a href="index.html" class="back-link">トップページに戻る</a>
