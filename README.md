@@ -1,18 +1,26 @@
 # mywork
-App: 株価予測アプリ
+|-App: 
+| |-AITradeDemo
+|   |-StockPred.py (株価予測アプリ)
+|-Game: 2Dゲーム、3Dゲーム
+||-2Dゲーム
+| |-2DGhostGame(Not Living2D)
+| |
+| |-2DMAZEGAME
+| |
+| |-Siv3D
+| |
+| |-spajam(バックエンドは未完成なので通信は動きません)
+|
+|-Not Living3D
 
-Game: 2Dゲーム、3Dゲーム
-2Dゲーム
-2DGhostGame(Not Living2D)
+依存関係
 
 
-2DMAZEGAME
-依存関係()
 
-Siv3D
 
 3Dゲーム
-Not Living3D
+
 
 
 
