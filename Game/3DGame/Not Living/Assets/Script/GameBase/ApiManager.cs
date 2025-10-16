@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text; // JSONをバイト配列に変換するために必要
+using System.Collections.Generic; // Listを使うために必要
+using System; // Actionを使うために必要
 
 //JSONの送受信に使うデータ構造を定義
 [System.Serializable]
@@ -11,9 +13,21 @@ public class RankingEntry
     public int score;
 }
 
+// JSON配列をパースするためのヘルパークラス
+[System.Serializable]
+class RankingListWrapper
+{
+    public List<RankingEntry> items;
+}
+
 public class ApiManager : MonoBehaviour
 {
+    // 全部のシーンで呼び出せるようにシングルトンインスタンス化する
+    public static ApiManager Instance { get; private set; }
+    // APIのベースURL
     private const string ApiBaseUrl = "https://feupsy.com";// ここを実際のAPIのベースURLに置き換える
+
+    public static event Action<List<RankingEntry>> OnRankingDataReceived;
 
     // --- ランキング取得 ---
     public void GetRanking()
@@ -30,10 +44,17 @@ public class ApiManager : MonoBehaviour
             {
                 string jsonResponse = webRequest.downloadHandler.text;
                 Debug.Log("ランキング取得成功:\n" + jsonResponse);
+                // JsonUtilityが配列を直接パースできないため、一手間加える
+                string wrappedJson = "{\"items\":" + jsonResponse + "}";
+                RankingListWrapper wrapper = JsonUtility.FromJson<RankingListWrapper>(wrappedJson);
+                
+                // 成功をイベントで通知
+                OnRankingDataReceived?.Invoke(wrapper.items);
             }
             else
             {
                 Debug.LogError("ランキング取得失敗: " + webRequest.error);
+                OnRankingDataReceived?.Invoke(new List<RankingEntry>());
             }
         }
     }
