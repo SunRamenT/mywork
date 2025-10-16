@@ -16,4 +16,6 @@ public static class GameEvents
 
     public static event Action<float> OnChaosValueChange;
     public static void TriggerChaosValueChange(float amount) => OnChaosValueChange?.Invoke(amount);
+    public static event Action OnGameClear;
+    public static void TriggerGameClear() => OnGameClear?.Invoke();
 }

@@ -12,10 +12,10 @@ EditorBuildSettings:
     path: Assets/Scenes/Default Area.unity
     guid: 7e6d3f4e5d896154ab4438845532ac3e
   - enabled: 1
-    path: Assets/Scenes/GameOver1.unity
+    path: Assets/Scenes/Ending_E.unity
     guid: 3982d56d16b9e1a49bc2361862454a67
   - enabled: 1
-    path: Assets/Scenes/GameClear1.unity
+    path: Assets/Scenes/Ending_A.unity
     guid: 3db02ecf493e0b540ac27ee8c82c0e94
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

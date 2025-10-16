@@ -7,7 +7,9 @@ using System.Collections;
 public class ReikonManager : MonoBehaviour
 {
     [Header("霊魂（体力）設定")]
-    public float maxSpirit = 100f;
+    public float maxSpirit = 999f;
+    [Tooltip("ゲーム開始時の霊魂の初期値")]
+    public float startSpirit = 100f;
     [SerializeField]
     private float currentSpirit;
 
@@ -63,7 +65,10 @@ public class ReikonManager : MonoBehaviour
 
     void Start()
     {
+        currentSpirit = startSpirit;
+
         UpdateSpiritUI();
+
 
         if (debuffEffect != null)
         {

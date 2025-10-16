@@ -9,6 +9,8 @@ public class GameTimeManager : MonoBehaviour
     [Header("時間設定")]
     [Tooltip("1日が経過するのにかかる現実世界の時間（分）")]
     public float minutesPerDay = 5.0f;
+    [Tooltip("この日数に達するとゲームクリア")]
+    public int daysUntilGameClear = 7; 
 
     [Header("現在のゲーム内時間")]
     [Range(0, 23)] public int currentHour;
@@ -67,6 +69,8 @@ public class GameTimeManager : MonoBehaviour
                 currentHour = 0;
                 daysSurvived++;
                 OnDayChanged?.Invoke(daysSurvived);
+
+                CheckForGameClear();
             }
 
             // ▼▼▼ 追加 ▼▼▼
@@ -80,6 +84,14 @@ public class GameTimeManager : MonoBehaviour
         OnTimeChanged?.Invoke(currentHour, currentMinute);
     }
 
+        private void CheckForGameClear()
+    {
+        if (daysSurvived >= daysUntilGameClear)
+        {
+            Debug.Log($"{daysUntilGameClear}日が経過しました。ゲームクリア！");
+            GameEvents.TriggerGameClear(); // ゲームクリアのイベントを発行
+        }
+    }
     public string GetTimeAsString()
     {
         return $"{currentHour:D2}:{currentMinute:D2}";

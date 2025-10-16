@@ -3,7 +3,7 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Text; // JSONをバイト配列に変換するために必要
 
-// ▼▼▼ JSONの送受信に使うデータ構造を定義 ▼▼▼
+//JSONの送受信に使うデータ構造を定義
 [System.Serializable]
 public class RankingEntry
 {
@@ -13,7 +13,7 @@ public class RankingEntry
 
 public class ApiManager : MonoBehaviour
 {
-    private const string ApiBaseUrl = "http://133.167.101.69:5000";
+    private const string ApiBaseUrl = "https://feupsy.com";// ここを実際のAPIのベースURLに置き換える
 
     // --- ランキング取得 ---
     public void GetRanking()

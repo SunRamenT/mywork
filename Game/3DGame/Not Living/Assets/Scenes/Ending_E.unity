@@ -744,7 +744,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "GAME OVER(\u4EEE)"
+  m_text: "Ending_E(\u4EEE)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3547ec84a80356047989b7e54e57a6ed, type: 2}
   m_sharedMaterial: {fileID: -7474487420298402177, guid: 3547ec84a80356047989b7e54e57a6ed, type: 2}
