@@ -29,6 +29,8 @@ public class UIManager : MonoBehaviour
     {
         if (settingsCanvas == null || GameStateManager.Instance == null) return;
 
+        if (GameStateManager.Instance.CurrentState == GameStateManager.GameState.End) return;
+
         isSettingsOpen = isActive;
         settingsCanvas.SetActive(isSettingsOpen);
 

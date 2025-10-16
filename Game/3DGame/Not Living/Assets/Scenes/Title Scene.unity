@@ -255,10 +255,10 @@ RectTransform:
   - {fileID: 1325180136}
   m_Father: {fileID: 1253999076}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.665, y: 0}
+  m_AnchorMax: {x: 1, y: 0.45333338}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 0.000061035, y: -0.000015259}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &91107414
 MonoBehaviour:
@@ -274,6 +274,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RankingDisplayUI
   listContainer: {fileID: 2122783395}
   rankingRowPrefab: {fileID: 2921559261856840738, guid: 923f9ccaa5f544248ba1635646c144d9, type: 3}
+  scrollBar: {fileID: 200803370}
   apiManager: {fileID: 1609452476}
 --- !u!114 &91107415
 MonoBehaviour:
@@ -395,9 +396,9 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1018170782}
   m_HandleRect: {fileID: 1018170781}
   m_Direction: 2
-  m_Value: -0.014397435
-  m_Size: 0.5555556
-  m_NumberOfSteps: 4
+  m_Value: -0.027981117
+  m_Size: 0.5833488
+  m_NumberOfSteps: 5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1678,8 +1679,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 283, y: 4}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 273, y: 4}
+  m_SizeDelta: {x: 240, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1296297954
 MonoBehaviour:
@@ -1701,7 +1702,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u30E9\u30F3\u30AD\u30F3\u30B0"
+  m_text: "\u30B9\u30B3\u30A2\u30E9\u30F3\u30AD\u30F3\u30B0"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3547ec84a80356047989b7e54e57a6ed, type: 2}
   m_sharedMaterial: {fileID: -7474487420298402177, guid: 3547ec84a80356047989b7e54e57a6ed, type: 2}
@@ -1728,8 +1729,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1817,7 +1818,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 260, y: -345}
+  m_AnchoredPosition: {x: 0, y: -100}
   m_SizeDelta: {x: 250, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1325180137
@@ -2480,7 +2481,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -116.49994, y: 100}
+  m_AnchoredPosition: {x: -116.49994, y: 99.999985}
   m_SizeDelta: {x: 232, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1001 &2347535934691269363

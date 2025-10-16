@@ -8,6 +8,8 @@ public class ResultManager : MonoBehaviour
     [Header("UI設定")]
     [Tooltip("表示するリザルト画面のCanvas")]
     public GameObject resultCanvas;
+    [Tooltip("表示するスコア画面のCanvas")]
+    public GameObject scoreCanvas;
     [Tooltip("リザルト画面のタイトルテキスト (「ゲームオーバー」or「ゲームクリア」)")]
     public TextMeshProUGUI titleText;
 
@@ -16,10 +18,12 @@ public class ResultManager : MonoBehaviour
     public TMP_InputField nameInputField;
     public UnityEngine.UI.Button submitButton;
 
-    // --- ▼▼▼ エンディング遷移ボタンを追加 ▼▼▼ ---
-    [Header("エンディング用")]
-    [Tooltip("エンディングへ進むボタン")]
-    public GameObject endingButton;
+    // --- スコア画面遷移ボタンを追加 ---
+    [Header("スコア画面用")]
+    [Tooltip("スコア画面へ進むボタン")]
+    public GameObject scoreButton;
+
+    
 
 
     private void OnEnable()
@@ -40,6 +44,14 @@ public class ResultManager : MonoBehaviour
     private void Start()
     {
         if (resultCanvas != null) resultCanvas.SetActive(false);
+        if (scoreCanvas != null) scoreCanvas.SetActive(false);
+
+        // もしInspectorでApiManagerが設定されていなかったら
+        if (apiManager == null)
+        {
+            // シーンに存在するApiManagerのインスタンスを自動で探してセットする
+            apiManager = ApiManager.Instance; 
+        }
     }
 
     // ゲームオーバー時に呼ばれる
@@ -47,7 +59,6 @@ public class ResultManager : MonoBehaviour
     {
         Debug.Log("ゲームオーバー処理を開始します。");
         if(titleText != null) titleText.text = "ゲームオーバー";
-        if(endingButton != null) endingButton.SetActive(false); // ゲームオーバー時はエンディングボタンを非表示
         ShowResultScreen();
     }
 
@@ -56,7 +67,7 @@ public class ResultManager : MonoBehaviour
     {
         Debug.Log("ゲームクリア処理を開始します。");
         if(titleText != null) titleText.text = "ゲームクリア";
-        if(endingButton != null) endingButton.SetActive(true); // ゲームクリア時だけエンディングボタンを表示
+        
         ShowResultScreen();
     }
 
@@ -64,10 +75,10 @@ public class ResultManager : MonoBehaviour
     private void ShowResultScreen()
     {
         Debug.Log("ShowResultScreenが呼び出されました！");
-        if (resultCanvas != null) {
+        if (resultCanvas != null || GameStateManager.Instance != null) {
             Debug.Log("Canvasをアクティブにします。");
             resultCanvas.SetActive(true); 
-            
+            GameStateManager.Instance.SetState(GameStateManager.GameState.End);
         }
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
@@ -78,33 +89,10 @@ public class ResultManager : MonoBehaviour
     }
 
     /// 「エンディングへ」ボタンから呼び出される
-    public void ProceedToEnding()
+    public void ProceedToScore()
     {
-        // 各Managerから最終的な値を取得
-        int finalScore = ScoreManager.Instance.CurrentScore;
-        Vector3 finalAlignment = AlignmentManager.Instance.CurrentAlignment;
-        float goodEvil = finalAlignment.y;
-        float chaos = finalAlignment.z;
-
-        Debug.Log($"最終スコア: {finalScore}, 最終座標: (Y={goodEvil}, Z={chaos})");
-
-        // --- ここからエンディングの条件分岐 ---
-        if (goodEvil <= -80 && chaos <= -50)
-        {
-            Debug.Log("エンディングA: Very Good End");
-            SceneManager.LoadScene("Ending_A"); // Aのシーンへ
-        }
-        else if (goodEvil <= -50)
-        {
-            Debug.Log("エンディングB: Good End");
-            SceneManager.LoadScene("Ending_B"); // Bのシーンへ
-        }
-        // ... 他のエンディング条件を追加 ...
-        else
-        {
-            Debug.Log("エンディングE: Neutral End");
-            SceneManager.LoadScene("Ending_E"); // Eのシーンへ
-        }
+        resultCanvas.SetActive(false);
+        scoreCanvas.SetActive(true); 
     }
 
     public void SubmitScore()

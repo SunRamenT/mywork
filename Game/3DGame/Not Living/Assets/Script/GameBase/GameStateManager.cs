@@ -10,7 +10,8 @@ public class GameStateManager : MonoBehaviour
     {
         Gameplay,      // 通常のプレイ状態
         MiniGameActive, // ミニゲーム実行中
-        Paused         // ▼▼▼ ポーズ中（設定画面など）を追加 ▼▼▼
+        Paused,         // ポーズ中（設定画面など）を追加
+        End
     }
 
     public GameState CurrentState { get; private set; }

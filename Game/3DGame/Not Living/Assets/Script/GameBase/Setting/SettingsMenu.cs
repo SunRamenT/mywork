@@ -46,7 +46,6 @@ public class SettingsMenu : MonoBehaviour
         UpdateSFXValueText(value);
     }
 
-    // ▼▼▼ メソッド名を変更 ▼▼▼
     private void OnMouseSensitivityXChanged(float value)
     {
         SettingsManager.Instance?.SetMouseSensitivityX(value);
@@ -79,7 +78,6 @@ public class SettingsMenu : MonoBehaviour
     {
         if(bgmSlider != null) bgmSlider.onValueChanged.RemoveListener(OnBGMVolumeChanged);
         if(sfxSlider != null) sfxSlider.onValueChanged.RemoveListener(OnSFXVolumeChanged);
-        // ▼▼▼ 解除するメソッド名を変更 ▼▼▼
         if(mouseSensitivitySlider != null) mouseSensitivitySlider.onValueChanged.RemoveListener(OnMouseSensitivityXChanged);
     }
 }

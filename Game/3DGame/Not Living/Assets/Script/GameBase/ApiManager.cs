@@ -24,6 +24,18 @@ public class ApiManager : MonoBehaviour
 {
     // 全部のシーンで呼び出せるようにシングルトンインスタンス化する
     public static ApiManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // シーンを切り替えても破棄しない
+        }
+        else
+        {
+            Destroy(gameObject); // 既に存在すれば新しい方を破棄
+        }
+    }
     // APIのベースURL
     private const string ApiBaseUrl = "https://feupsy.com";// ここを実際のAPIのベースURLに置き換える
 
