@@ -84,6 +84,9 @@ public class ResultManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
+        // 現在のスコアを取得してハイスコアを更新・保存する
+        HighScoreManager.Instance.SaveHighScore(ScoreManager.Instance.CurrentScore);
+
         // ランキング取得もここで行う
         if (apiManager != null) apiManager.GetRanking();
     }

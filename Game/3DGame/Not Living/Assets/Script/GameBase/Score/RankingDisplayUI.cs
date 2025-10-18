@@ -16,27 +16,35 @@ public class RankingDisplayUI : MonoBehaviour
 
     [Header("API")]
     [Tooltip("ApiManagerがアタッチされたGameObject")]
-    public ApiManager apiManager;
-
-    private void OnEnable()
-    {
-        // ApiManagerからのデータ受信イベントを購読
-        ApiManager.OnRankingDataReceived += UpdateUI;
-    }
-
-    private void OnDisable()
-    {
-        // イベントの購読を解除
-        ApiManager.OnRankingDataReceived -= UpdateUI;
-    }
+    private ApiManager apiManager;
 
     private void Start()
     {
-        // 起動時にランキング取得をリクエスト
+        // StartのタイミングでApiManagerを探す。この時点では必ず存在する。
+        apiManager = ApiManager.Instance;
+    }
+
+    private void OnEnable()
+    {
+        //起動時にApiManagerを自動で探すように変更
+        if (apiManager == null)
+        {
+            apiManager = ApiManager.Instance;
+        }
+
+        // ApiManagerからのデータ受信イベントを購読
+        ApiManager.OnRankingDataReceived += UpdateUI;
+        
+        //UIが表示されるたびに、ランキング取得をリクエスト
         if (apiManager != null)
         {
             apiManager.GetRanking();
         }
+    }
+    private void OnDisable()
+    {
+        // イベントの購読を解除
+        ApiManager.OnRankingDataReceived -= UpdateUI;
     }
 
     private void UpdateUI(List<RankingEntry> rankingList)
