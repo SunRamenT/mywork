@@ -269,6 +269,32 @@ BlendTree:
   m_UseAutomaticThresholds: 1
   m_NormalizedBlendValues: 0
   m_BlendType: 2
+--- !u!1102 &-5131241997935995479
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Silly Dancing
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: f6df95020bc6971459159b70d2b2cf74, type: 2}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!206 &-5058155162533351288
 BlendTree:
   m_ObjectHideFlags: 1
@@ -957,6 +983,9 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: 1930070354154660440}
     m_Position: {x: 460, y: 390, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: -5131241997935995479}
+    m_Position: {x: 923.30615, y: 99.75516, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []

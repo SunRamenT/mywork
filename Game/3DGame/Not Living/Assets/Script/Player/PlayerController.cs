@@ -238,34 +238,42 @@ public class PlayerController : MonoBehaviour
                 // 攻撃
                 if (Input.GetButtonDown("Fire1") && isAttack == false)
                 {
-                    if (npcStatusManager != null && punchAttackInfo != null) { punchAttackInfo.damage = npcStatusManager.power; }
+                    if (npcStatusManager != null && punchAttackInfo != null)
+                    {
+                        punchAttackInfo.damage = npcStatusManager.power; 
+                    }
                     isAttack = true;
+                    int waitAttacktime = 0;
 
                     if (combocount >= 4) combocount = 0;
                     
                     if (combocount == 0)
                     {
+                        waitAttacktime = 40;
                         attackTriggerName = "Attack1";
                         currentAnimator.SetTrigger(attackTriggerName);
-                        StartCoroutine(canAttack(40));
+                        StartCoroutine(canAttack(waitAttacktime));
                     }
                     else if (combocount == 1)
                     {
+                        waitAttacktime = 40;
                         attackTriggerName = "Attack2";
                         currentAnimator.SetTrigger(attackTriggerName);
-                        StartCoroutine(canAttack(40));
+                        StartCoroutine(canAttack(waitAttacktime));
                     }
                     else if (combocount == 2)
                     {
+                        waitAttacktime = 80;
                         attackTriggerName = "Kick1";
                         currentAnimator.SetTrigger(attackTriggerName);
-                        StartCoroutine(canAttack(80));
+                        StartCoroutine(canAttack(waitAttacktime));
                     }
                     else if (combocount == 3)
                     {
+                        waitAttacktime = 100;
                         attackTriggerName = "Kick2";
                         currentAnimator.SetTrigger(attackTriggerName);
-                        StartCoroutine(canAttack(100));
+                        StartCoroutine(canAttack(waitAttacktime));
                     }
                     combocount++;
                 }
@@ -282,7 +290,7 @@ public class PlayerController : MonoBehaviour
                     }
                     else
                     {
-                        // (任意)クールタイム中であることを示す音を鳴らしても良い
+                        //クールタイム中であることを示す音を鳴らす
                         Debug.Log("特殊能力はクールタイム中です。");
                         if (MissSound != null)
                         {
@@ -290,7 +298,7 @@ public class PlayerController : MonoBehaviour
                         }
                     }
                 }
-                // ▼▼▼ 回避入力の判定を追加 ▼▼▼
+                // 回避入力の判定
                 if (Input.GetButtonDown("Jump") && Time.time >= nextDodgeTime)
                 {
                     combocount = 0; // コンボをリセット
@@ -298,7 +306,6 @@ public class PlayerController : MonoBehaviour
                 }
             }   
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
         else
         {
             //幽霊時使えないボタンを押したとき

@@ -471,7 +471,7 @@ public class NPCMove : MonoBehaviour
                 // 一定間隔で攻撃
                 if (Time.time >= nextAttackTime)
                 {
-                    float randomInterval = Random.Range(1f, 5f); // ランダム間隔を決定
+                    float randomInterval = Random.Range(1f, 2f); // ランダム間隔を決定(1~2秒に1回攻撃)
                     nextAttackTime = Time.time + randomInterval;
                     // 攻撃予兆（[!]マークを出す→0.5秒待って攻撃）
                     StartCoroutine(AttackWithWarning());
@@ -555,7 +555,7 @@ public class NPCMove : MonoBehaviour
         pathTimer = 0f; // 追跡開始時にタイマーをリセット
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
-        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))
+        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))//1はエリアマスク(歩行可能エリア)
         {
             if (agent.isOnNavMesh)
             {

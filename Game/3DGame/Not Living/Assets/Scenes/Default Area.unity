@@ -62853,7 +62853,7 @@ PrefabInstance:
       objectReference: {fileID: 1761001647}
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: startSpirit
-      value: 10
+      value: 999
       objectReference: {fileID: 0}
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: uiPanelImage
