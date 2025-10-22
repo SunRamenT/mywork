@@ -31,7 +31,6 @@ public class ScoreManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // --- ▼▼▼ デバッグログを追加 ▼▼▼ ---
         Debug.Log("[ScoreManager] 各種イベントの購読を開始します...");
         GameEvents.OnHalfDayPassed += AddScoreForTime;
         GameEvents.OnTargetDefeatedWithInfo += AddScoreForDefeat;
@@ -49,7 +48,6 @@ public class ScoreManager : MonoBehaviour
     
     private void AddScoreForDefeat(StatusManager defeatedStatus)
     {
-        // --- ▼▼▼ デバッグログを追加 ▼▼▼ ---
         Debug.Log($"<color=green>[ScoreManager] 敵撃破イベントを受信！ {defeatedStatus.gameObject.name} を倒したのでスコアを加算します。</color>");
         AddScore(scoreForDefeatingTarget);
     }

@@ -46,6 +46,8 @@ public class TaskDifficulty
 
     [Header("Common Reward")]
     public int soulReward = 25;
+    [Tooltip("クリア時に、乗っ取っているNPCの評判がどれだけ上がるか")]
+    public int reputationGain = 5;
 }
 
 // IInteractableインターフェースを実装
@@ -72,24 +74,24 @@ public class TaskMachine : MonoBehaviour, IInteractable
     [Header("UI設定")]
     [Tooltip("ミニゲームUIを配置するCanvas")]
     public Canvas targetCanvas;
-    [Tooltip("ゲーム開始前に表示する、名前と難易度告知用のUIプレハブ")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("ゲーム開始前に表示する、名前と難易度告知用のUIプレハブ")]
     public GameObject introUIPrefab;
-    [Tooltip("告知UIを表示する時間（秒）")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("告知UIを表示する時間（秒）")]
     public float introDisplayDuration = 2.0f;
     AudioSource audioSource;
     public AudioClip failClip;
-
+    private PlayerController interactingPlayer;
     private ITaskMiniGame currentMiniGame;
 
-     // ▼▼▼ 選択された難易度を保持するプロパティを追加 ▼▼▼
+     // 選択された難易度を保持するプロパティ
     public TaskDifficulty SelectedDifficulty { get; private set; }
 
-    // ▼▼▼ Start, OnEnable, OnDisable, HandleDayChangeメソッドを追加 ▼▼▼
+    // Start, OnEnable, OnDisable, HandleDayChangeメソッド
     void Start()
     {
         if (statusUIPrefab != null)
         {
-            // ▼▼▼ 変更点: 生成したUIを保持し、最初は非表示にする ▼▼▼
+            // 変更点: 生成したUIを保持し、最初は非表示
             _statusUIInstance = Instantiate(statusUIPrefab, transform);
             _statusUIInstance.transform.localPosition = statusUIOffset;
             _statusUIText = _statusUIInstance.GetComponentInChildren<TextMeshProUGUI>();
@@ -139,7 +141,7 @@ public class TaskMachine : MonoBehaviour, IInteractable
     /// <summary>
     /// PlayerControllerから、プレイヤーが検知範囲に入った時に呼び出される
     /// </summary>
-     // ▼▼▼ OnPlayerEnterRangeメソッドを変更 ▼▼▼
+     //OnPlayerEnterRangeメソッドを変更
     public void OnPlayerEnterRange()
     {
         Debug.Log($"<color=green>[TaskMachine] プレイヤーが {this.gameObject.name} の範囲内に入りました。</color>", this.gameObject);
@@ -149,7 +151,7 @@ public class TaskMachine : MonoBehaviour, IInteractable
         }
     }
 
-    // ▼▼▼ OnPlayerExitRangeメソッドを変更 ▼▼▼
+    //  OnPlayerExitRangeメソッドを変更 
     public void OnPlayerExitRange()
     {
         Debug.Log($"<color=orange>[TaskMachine] プレイヤーが {this.gameObject.name} の範囲外に出ました。</color>", this.gameObject);
@@ -174,6 +176,7 @@ public class TaskMachine : MonoBehaviour, IInteractable
             dayLastUsed = currentDay;
             UpdateStatusUI();
             StartCoroutine(StartMiniGameSequence());
+            this.interactingPlayer = playerController;
         }
         else
         {
@@ -226,9 +229,9 @@ public class TaskMachine : MonoBehaviour, IInteractable
         }
 
         // --- 1. ゲームと難易度を決定 ---
-        SelectedDifficulty = SelectDifficultyByWeight(); 
+        SelectedDifficulty = SelectDifficultyByWeight();
         GameObject selectedMiniGamePrefab = miniGamePrefabs[Random.Range(0, miniGamePrefabs.Count)];
-        
+
         // --- 2. ゲームの状態を切り替え、マウスを表示 ---
         GameStateManager.Instance.SetState(GameStateManager.GameState.MiniGameActive);
         Cursor.lockState = CursorLockMode.None;
@@ -255,7 +258,6 @@ public class TaskMachine : MonoBehaviour, IInteractable
 
         if (currentMiniGame != null)
         {
-            // ▼▼▼ ここからが変更点 ▼▼▼
 
             // 1. ゲームロジックを開始する直前に、ゲームオブジェクトを有効化（表示）する
             miniGameInstance.SetActive(true);
@@ -264,17 +266,54 @@ public class TaskMachine : MonoBehaviour, IInteractable
             currentMiniGame.OnTaskCompleted += HandleTaskCompletion;
             currentMiniGame.StartTask(this);
 
-            // ▲▲▲ ここまでが変更点 ▲▲▲
         }
     }
+
+    private System.Collections.IEnumerator GradualHeal(int totalAmount)
+    {
+        ReikonManager manager = FindFirstObjectByType<ReikonManager>();
+        if (manager == null) yield break;
+
+        int steps = 5;                  // 回復を5回に分ける
+        float interval = 0.5f;          // 各回の間隔（秒）
+        int healPerStep = totalAmount / steps;
+
+        for (int i = 0; i < steps; i++)
+        {
+            manager.Heal(healPerStep);
+            yield return new WaitForSeconds(interval);
+        }
+
+        // もし端数が出るなら最後にまとめて処理
+        int remainder = totalAmount % steps;
+        if (remainder > 0)
+            manager.Heal(remainder);
+    }
+    
     private void HandleTaskCompletion(bool success)
     {
         if (success)
         {
             Debug.Log("タスク成功！ 霊魂を獲得。");
             // 選択された難易度に応じた報酬を与える
-            FindFirstObjectByType<ReikonManager>()?.Heal(SelectedDifficulty.soulReward);
+            StartCoroutine(GradualHeal(SelectedDifficulty.soulReward));
+
+            PlayerController player = FindFirstObjectByType<PlayerController>();
+            if (player != null)
+            {
+                player.moveSpeed += 0.05f;
+            }
             GameEvents.TriggerGoodDeedPerformed();
+
+            // 3. 乗っ取り中のNPCの評判を上げる
+            if (interactingPlayer != null && interactingPlayer.IsPossessing())
+            {
+                StatusManager possessedStatus = interactingPlayer.GetPossessedStatusManager();
+                if (possessedStatus != null)
+                {
+                    possessedStatus.AddReputation(SelectedDifficulty.reputationGain);
+                }
+            }
         }
         else
         {
@@ -291,5 +330,6 @@ public class TaskMachine : MonoBehaviour, IInteractable
         currentMiniGame.OnTaskCompleted -= HandleTaskCompletion;
         Destroy((currentMiniGame as MonoBehaviour).gameObject);
         currentMiniGame = null;
+        interactingPlayer = null;
     }
 }

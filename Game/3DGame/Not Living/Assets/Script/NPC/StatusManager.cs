@@ -347,7 +347,15 @@ public class StatusManager : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// このキャラクターの評判を指定した量だけ変動させ、範囲内に収める
+    /// </summary>
+    public void AddReputation(int amount)
+    {
+        reputation = Mathf.Clamp(reputation + amount, 0, 100);
+        Debug.Log($"<color=cyan>[評判更新] {gameObject.name} の評判が {amount} 変動しました。現在値: {reputation}</color>");
+        UpdatePopularity(); // 評判の文字列も更新
+    }
 
     public void UpdateReputationOnDefeat(StatusManager victimStatus)
     {

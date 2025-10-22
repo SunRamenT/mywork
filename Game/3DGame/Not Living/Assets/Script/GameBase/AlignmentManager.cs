@@ -6,7 +6,7 @@ public class AlignmentManager : MonoBehaviour
     public static AlignmentManager Instance { get; private set; }
 
     [Header("座標の範囲設定")]
-    [Tooltip("悪(-100)から善(100)への値の範囲")] // ▼▼▼ ツールチップを修正 ▼▼▼
+    [Tooltip("悪(-100)から善(100)への値の範囲")] 
     [SerializeField] private Vector2 evilGoodRange = new Vector2(-100, 100);
     [SerializeField] private Vector2 chaosRange = new Vector2(-100, 100);
 
@@ -53,7 +53,6 @@ public class AlignmentManager : MonoBehaviour
     /// </summary>
     private void HandleTargetDefeated(StatusManager defeatedStatus)
     {
-        // ▼▼▼ 悪行として+1する（値は調整可能） ▼▼▼
         AddGoodEvilValue(1f);
     }
     
@@ -62,8 +61,7 @@ public class AlignmentManager : MonoBehaviour
     /// </summary>
     private void HandleGoodDeed()
     {
-        // ▼▼▼ 善行として-3する（値は調整可能） ▼▼▼
-        AddGoodEvilValue(-3f);
+        AddGoodEvilValue(-1f);
     }
     
     public void AddGoodEvilValue(float amount)

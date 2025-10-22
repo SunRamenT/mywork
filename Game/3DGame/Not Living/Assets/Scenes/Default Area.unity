@@ -10271,10 +10271,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   postProcessVolume: {fileID: 351614116}
-  goodTintColor: {r: 1, g: 1, b: 0, a: 0.39215687}
+  goodTintColor: {r: 1, g: 1, b: 0.5803922, a: 0.39215687}
   evilTintColor: {r: 0.39215687, g: 0, b: 1, a: 0.39215687}
-  alignmentThreshold: 40
-  dayThreshold: 3
+  alignmentThreshold: 0
+  dayThreshold: 0
 --- !u!114 &351614116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39344,6 +39344,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.00024414062
       objectReference: {fileID: 0}
+    - target: {fileID: 1326138201236939626, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: targetCanvas
+      value: 
+      objectReference: {fileID: 2104215757}
+    - target: {fileID: 1326138201236939626, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: messageUIPrefab
+      value: 
+      objectReference: {fileID: 1570001172}
     - target: {fileID: 1508484320180784357, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: message
       value: "\u3053\u3044\u3064\u306B\u304D\u3092\u3064\u3051\u3066\n\u8033\u304C\u826F\u3044"
@@ -39692,6 +39700,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 5668487267805113051, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: targetCanvas
+      value: 
+      objectReference: {fileID: 2104215757}
+    - target: {fileID: 5668487267805113051, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+      propertyPath: messageUIPrefab
+      value: 
+      objectReference: {fileID: 1570001172}
     - target: {fileID: 5880645536989542561, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -62853,7 +62869,7 @@ PrefabInstance:
       objectReference: {fileID: 1761001647}
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: startSpirit
-      value: 999
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: uiPanelImage
@@ -63035,7 +63051,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1392709098073451296, guid: 95faaaee57f95734eb14e68b6fbe43c7, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -12
+      value: -12.000015
       objectReference: {fileID: 0}
     - target: {fileID: 1392709098073451296, guid: 95faaaee57f95734eb14e68b6fbe43c7, type: 3}
       propertyPath: m_AnchoredPosition.y

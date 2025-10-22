@@ -216,7 +216,6 @@ public class PlayerController : MonoBehaviour
         //float h = isDodging ? 0f : Input.GetAxis("Horizontal");
         //float v = isDodging ? 0f : Input.GetAxis("Vertical");
 
-        // ▼▼▼ アニメーションパラメータの更新ロジックを修正 ▼▼▼
         // currentAnimatorにパラメータが存在する場合のみ値を設定する
         if (HasParameter(currentAnimator, horizontalFloatName))
         {
@@ -559,7 +558,7 @@ public class PlayerController : MonoBehaviour
         return npcStatusManager;
     }
 
-    // ▼▼▼ 壁抜け状態を検知・通知する新しいメソッドを追加 ▼▼▼
+    //壁抜け状態を検知・通知する
     private void UpdatePhasingState()
     {
         // 憑依中は壁抜け判定を行わない
