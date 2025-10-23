@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
-using UniRx; // ▼▼▼ この一行を追加 ▼▼▼
+using UniRx; 
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class ChaserMove : MonoBehaviour
@@ -65,7 +65,7 @@ public class ChaserMove : MonoBehaviour
         initialAcceleration = agent.acceleration;
         agent.agentTypeID = humanoidAgentTypeID;
         agent.speed = humanoidSpeed;
-        
+
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
         if (playerObject != null)
         {
@@ -106,20 +106,23 @@ public class ChaserMove : MonoBehaviour
         }
     }
 
+    // UniRXでpacketを受け取るための関数
     private void OnSoundHeard(SoundPacket packet)
     {
         if (packet.Type == SoundType.EnemyNoise) return;
-
+        //音の発された場所を入手
         float distanceToSound = Vector3.Distance(transform.position, packet.Position);
+        //聴覚の良さを調整
         float audibleRange = packet.Volume * hearingSensitivity;
+        //音源と聴覚の良さで追跡するか判断
         if (distanceToSound > audibleRange) return;
 
-        if (currentState != AIState.Chasing)
+        if (currentState != AIState.Chasing)//追跡でないとき、音源調査モードに移行する
         {
             currentState = AIState.Investigating;
             agent.speed = investigatingSpeed;
             agent.SetDestination(packet.Position);
-            investigationTimer = 0f; // ▼▼▼ 調査タイマーをリセット ▼▼▼
+            investigationTimer = 0f; //  調査タイマーをリセット
             pathTimer = 0f;
         }
     }

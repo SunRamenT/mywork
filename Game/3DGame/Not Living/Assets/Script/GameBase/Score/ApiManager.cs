@@ -98,6 +98,7 @@ public class ApiManager : MonoBehaviour
             {
                 Debug.Log("スコア送信成功: " + webRequest.downloadHandler.text);
                 // TODO: 送信成功時のUI表示など
+                GetRanking();
             }
             else
             {
