@@ -109,3 +109,6 @@ ehthumbs.db
 # Rider #
 # ==================================== #
 .idea/
+
+# Unity Generated Files
+**/LightingData.asset
