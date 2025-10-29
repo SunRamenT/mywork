@@ -133,7 +133,6 @@ public class ReikonManager : MonoBehaviour
         }
     }
 
-    // ▼▼▼ 新しいコルーチンを追加 ▼▼▼
     private void FlashPanelColor(Color flashColor)
     {
         if (uiPanelImage != null)
@@ -204,7 +203,7 @@ public class ReikonManager : MonoBehaviour
     
     public void Heal(float amount)
     {
-        // ▼▼▼ 回復音を再生する処理を再度追加 ▼▼▼
+        // 回復音を再生する処理
         if (healSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(healSound);
@@ -214,6 +213,15 @@ public class ReikonManager : MonoBehaviour
         currentSpirit = Mathf.Clamp(currentSpirit + amount, 0, maxSpirit);
         UpdateSpiritUI();
         Debug.Log($"{amount} の霊魂を回復！ 現在値: {currentSpirit}");
+        // ScoreManagerが存在するか確認
+        if (ScoreManager.Instance != null)
+        {
+            // 回復量を10倍して、整数に変換
+            int scoreToAdd = Mathf.RoundToInt(amount * 10);
+            
+            // ScoreManagerにスコア加算を依頼
+            ScoreManager.Instance.AddScore(scoreToAdd);
+        }
     }
 
     public void TakeDamage(float amount)
