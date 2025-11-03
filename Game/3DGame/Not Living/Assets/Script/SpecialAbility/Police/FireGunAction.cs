@@ -47,7 +47,7 @@ public class FireGunAction : MonoBehaviour, ISpecialAction
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        mainCamera = Camera.main; // ▼▼▼ 追加 ▼▼▼
+        mainCamera = Camera.main; 
         // AudioSourceを自分自身から取得、またはなければ追加する
         audioSource = GetComponent<AudioSource>();
     }
@@ -75,7 +75,7 @@ public class FireGunAction : MonoBehaviour, ISpecialAction
         nextActionTime = Time.time + cooldownDuration;
     }
 
-    // ▼▼▼ 新しいメソッドを追加 ▼▼▼
+    // 
     /// <summary>
     /// アニメーションイベントからこのメソッドを呼び出す
     /// </summary>
@@ -83,8 +83,6 @@ public class FireGunAction : MonoBehaviour, ISpecialAction
     {
         if (bulletPrefab != null && firePoint != null)
         {
-            // --- ▼▼▼ 弾の発射ロジックを全面的に修正 ▼▼▼ ---
-
             // 1. カメラの中心からレイを飛ばし、着弾点を決定する
             Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             Vector3 targetPoint;
@@ -96,6 +94,8 @@ public class FireGunAction : MonoBehaviour, ISpecialAction
             {
                 targetPoint = ray.GetPoint(100); // 何にも当たらなければ、100m先を狙う
             }
+
+            Debug.Log($"弾を発射！ 着弾点: {targetPoint}");
 
             // 2. 銃口から着弾点への方向を計算する
             Vector3 direction = (targetPoint - firePoint.position).normalized;

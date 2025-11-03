@@ -387,6 +387,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Police
       objectReference: {fileID: 0}
+    - target: {fileID: 6967427910698185206, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: ad472b939cd48144e9521d873c2e3018, type: 3}
+    - target: {fileID: 6967427910698185206, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: fac54571ff27f2b46b28cd6d82cd3c4c, type: 2}
     - target: {fileID: 8113858443949120738, guid: 7af0239fa48dbf741b47db0e2c93011b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -10.610065
@@ -63098,5 +63106,5 @@ SceneRoots:
   - {fileID: 123298477}
   - {fileID: 41260259}
   - {fileID: 632675974}
-  - {fileID: 1016787795}
   - {fileID: 9553452}
+  - {fileID: 1016787795}
