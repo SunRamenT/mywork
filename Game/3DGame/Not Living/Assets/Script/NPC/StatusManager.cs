@@ -157,7 +157,7 @@ public class StatusManager : MonoBehaviour
         if (isDodgeInvincible)
         {
             Debug.Log("ジャスト回避成功！");
-            
+
             if (dodgeSuccessSound != null)
             {
                 audioSource.PlayOneShot(dodgeSuccessSound);
@@ -166,7 +166,9 @@ public class StatusManager : MonoBehaviour
             // (例: 0.1倍速で2秒間)
             if (PlayerTimeManager.Instance != null)
             {
-                PlayerTimeManager.Instance.StartSlowMotion(0.1f, 5f);
+                float dodgeStopMagnitude = 0.1f;
+                float dodgeStopDuration = 3f;
+                PlayerTimeManager.Instance.StartSlowMotion(dodgeStopMagnitude, dodgeStopDuration);
             }
             return; 
         }
