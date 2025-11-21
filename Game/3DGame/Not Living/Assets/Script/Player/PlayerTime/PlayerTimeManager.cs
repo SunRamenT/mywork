@@ -38,6 +38,11 @@ public class PlayerTimeManager : MonoBehaviour
         // (例: 全体が0.1倍速になったら、プレイヤーは10倍速で動けば、結果的に通常速度に見える)
         PlayerTimeScale = 1f / slowTimeScale;
         playerController.isDodging = true;
+        // 現在のアニメーターの再生速度を、プレイヤーの時間倍率に合わせる
+        if (playerController.currentAnimator != null)
+        {
+            playerController.currentAnimator.speed = PlayerTimeScale;
+        }
         // 3. 指定された時間が経過するまで待つ
         // Time.timeScaleの影響を受けないリアルタイム秒数で待機
         yield return new WaitForSecondsRealtime(duration);
@@ -47,5 +52,9 @@ public class PlayerTimeManager : MonoBehaviour
         // 4. 時間の設定を全て元に戻す
         Time.timeScale = 1f;
         PlayerTimeScale = 1f;
+        if (playerController.currentAnimator != null)
+        {
+            playerController.currentAnimator.speed = PlayerTimeScale;
+        }
     }
 }

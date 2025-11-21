@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
 
     // --- Private Variables ---
     private CharacterController currentController;
-    private Animator currentAnimator;
+    public Animator currentAnimator;
     private GameObject currentCharacter;
     private CharacterController ghostController;
     private Animator ghostAnimator;
@@ -109,8 +109,6 @@ public class PlayerController : MonoBehaviour
         // AudioSourceを自分自身から取得、またはなければ追加する
         audioSource = GetComponent<AudioSource>();
         currentSpecialAction = ghost.GetComponent<ISpecialAction>();
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
     }
 
     public void SetTargetNPC(GameObject npc, Animator anim)
@@ -140,11 +138,9 @@ public class PlayerController : MonoBehaviour
         {
             ghostController.enabled = true;
 
-            // ▼▼▼ この行を修正 ▼▼▼
             // currentSpecialAction = null; // ← これが問題の原因だった
             // 正しくは、幽霊自身の特殊能力（ワープなど）を取得する
             currentSpecialAction = ghost.GetComponent<ISpecialAction>();
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
             if (currentInteractable != null) { currentInteractable.OnPlayerExitRange(); currentInteractable = null; }
             currentCharacter = ghost;
@@ -163,10 +159,10 @@ public class PlayerController : MonoBehaviour
         float playerDeltaTime = Time.deltaTime * playerTimeScale;
 
         // 現在のアニメーターの再生速度を、プレイヤーの時間倍率に合わせる
-        if (currentAnimator != null)
-        {
-            currentAnimator.speed = playerTimeScale;
-        }
+        //if (currentAnimator != null)
+        //{
+        //    currentAnimator.speed = playerTimeScale;
+        //}
         
         if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState != GameStateManager.GameState.Gameplay)
         {
@@ -177,7 +173,6 @@ public class PlayerController : MonoBehaviour
             }
             return;
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
         
         if (nottoriController.isPossessing && targetNPC == null)
         {

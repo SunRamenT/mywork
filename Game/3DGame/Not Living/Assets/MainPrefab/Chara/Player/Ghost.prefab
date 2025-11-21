@@ -625,8 +625,8 @@ GameObject:
   - component: {fileID: 1445844872532412293}
   - component: {fileID: 3578037317837286858}
   - component: {fileID: 3146789630195236832}
-  - component: {fileID: 6176694545385950769}
   - component: {fileID: 7194498455032594715}
+  - component: {fileID: 2271670585276377619}
   m_Layer: 3
   m_Name: Ghost
   m_TagString: Player
@@ -709,6 +709,7 @@ MonoBehaviour:
   jumpTriggerName: Jump
   horizontalFloatName: Hor
   verticalFloatName: Vert
+  currentAnimator: {fileID: 0}
   flinchingTagName: Flinching
   MissSound: {fileID: 8300000, guid: ceb7cd9bbf7cdb84d9c7e669e76dc316, type: 3}
   warpSound: {fileID: 8300000, guid: d348c012ecba3044798c0db962d629fa, type: 3}
@@ -783,6 +784,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSpirit: 300
+  startSpirit: 100
   currentSpirit: 0
   baseDrainSpeed: 1
   phasingDrainMultiplier: 3
@@ -851,7 +853,26 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7935929637085686173}
   m_Enabled: 1
---- !u!82 &6176694545385950769
+--- !u!114 &7194498455032594715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7935929637085686173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b9d1d2dc46aad74bbaf5114e051d845, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  warpRadius: 50
+  cooldownDuration: 180
+  abilityName: "\u30EF\u30FC\u30D7"
+  maxHeightDifference: 0.5
+  maxWarpAttempts: 5
+  warpOutEffectPrefab: {fileID: 7275548786892498063, guid: 5bc9a0bf98f67d240a936bf476ba2082, type: 3}
+  warpInEffectPrefab: {fileID: 7275548786892498063, guid: 5bc9a0bf98f67d240a936bf476ba2082, type: 3}
+--- !u!82 &2271670585276377619
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -864,7 +885,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.4
+  m_Volume: 0.36
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -875,7 +896,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 1
+  rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -948,25 +969,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &7194498455032594715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7935929637085686173}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b9d1d2dc46aad74bbaf5114e051d845, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  warpRadius: 50
-  cooldownDuration: 180
-  abilityName: "\u30EF\u30FC\u30D7"
-  maxHeightDifference: 0.5
-  maxWarpAttempts: 5
-  warpOutEffectPrefab: {fileID: 7275548786892498063, guid: 5bc9a0bf98f67d240a936bf476ba2082, type: 3}
-  warpInEffectPrefab: {fileID: 7275548786892498063, guid: 5bc9a0bf98f67d240a936bf476ba2082, type: 3}
 --- !u!1 &8368496820512572993
 GameObject:
   m_ObjectHideFlags: 0
