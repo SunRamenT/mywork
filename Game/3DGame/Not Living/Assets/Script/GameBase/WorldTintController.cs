@@ -12,6 +12,9 @@ public class WorldTintController : MonoBehaviour
     [Tooltip("悪の状態の時の色（例：退廃的な青紫色）")]
     public Color evilTintColor = new Color(0.8f, 0.7f, 1.0f, 1.0f);
 
+    public Color phasingTintColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+    private Color originalTintColor = Color.white;
+
     [Header("色調変更の条件")] // ▼▼▼ 追加 ▼▼▼
     [Tooltip("この善悪値の絶対値を超えたら色調を変化させ始める")]
     [Range(0, 100)]
@@ -20,6 +23,8 @@ public class WorldTintController : MonoBehaviour
     public int dayThreshold = 1;
 
     private ColorAdjustments colorAdjustments;
+    private ReikonManager reikonManager;
+    private bool isOriginalVisual = false;
 
     private void Start()
     {
@@ -34,7 +39,7 @@ public class WorldTintController : MonoBehaviour
             {
                 GameTimeManager.OnDayChanged += HandleDayChange;
             }
-            
+
             // ゲーム開始時の状態で一度、表示を更新
             UpdateVisuals();
         }
@@ -42,6 +47,8 @@ public class WorldTintController : MonoBehaviour
         {
             Debug.LogError("VolumeまたはColorAdjustmentsが見つかりません！", this);
         }
+        
+        reikonManager = GameObject.FindWithTag("Player").GetComponent<ReikonManager>();
     }
 
     private void OnDestroy()
@@ -87,11 +94,16 @@ public class WorldTintController : MonoBehaviour
             //colorAdjustments.active = false;
             //return; // これで通常の色（白）になる
         }
-        
+
+        if(isOriginalVisual == true)
+        {
+            return;
+        }
+
         // --- 色計算 ---
         // 条件を満たした場合、エフェクトをオンにする
         colorAdjustments.active = true;
-        
+
         // 善悪値がプラス（悪）の場合
         if (currentAlignment >= alignmentThreshold)
         {
@@ -106,5 +118,26 @@ public class WorldTintController : MonoBehaviour
             float t = Mathf.InverseLerp(-alignmentThreshold, -100f, currentAlignment);
             colorAdjustments.colorFilter.value = Color.Lerp(Color.white, goodTintColor, t);
         }
+    }
+    
+    private void Update()
+    {
+        if (reikonManager == null)
+        {
+            return;
+        }
+        // プレイヤーの壁ぬけ時に応じて色調を変更
+        if (reikonManager.isPhasing == true && isOriginalVisual == false)
+        {
+            isOriginalVisual = true;
+            originalTintColor = colorAdjustments.colorFilter.value;
+            colorAdjustments.colorFilter.value = Color.Lerp(Color.white, phasingTintColor, 1f);
+        }
+        else if (reikonManager.isPhasing == false && isOriginalVisual == true)
+        {
+            isOriginalVisual = false;
+            colorAdjustments.colorFilter.value = originalTintColor;
+        }
+            
     }
 }

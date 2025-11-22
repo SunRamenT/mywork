@@ -34,7 +34,7 @@ public class ReikonManager : MonoBehaviour
 
     public static event Action OnSpiritDepleted;
 
-    private bool isPhasing = false;
+    public bool isPhasing = false;
     private bool isPossessing = false;
     private int nearbyChaserCount = 0;
     private AudioSource audioSource;
