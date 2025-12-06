@@ -11,7 +11,8 @@ public class AlignmentManager : MonoBehaviour
     [SerializeField] private Vector2 chaosRange = new Vector2(-100, 100);
 
     private float _timeValue;
-    private float _goodEvilValue;
+    [SerializeField] private float _goodEvilValue;
+    public float GoodEvilValue => _goodEvilValue;
     private float _chaosValue;
     public Vector3 CurrentAlignment => new Vector3(_timeValue, _goodEvilValue, _chaosValue);
     public event Action<Vector3> OnAlignmentChanged;

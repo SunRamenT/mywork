@@ -96,15 +96,16 @@ public class StatusManager : MonoBehaviour
     public AudioClip spawnSound;
 
     public bool IsDead { get; private set; } = false;
+    private AlignmentManager Alignment;
 
     private void Awake()
     {
+        Alignment = GetComponent<AlignmentManager>();
         npcMove = GetComponent<NPCMove>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>(); // ▼▼▼ AudioSourceを取得 ▼▼▼
+        audioSource = GetComponent<AudioSource>(); 
     }
-
 
     private void OnEnable()
     {
@@ -118,6 +119,16 @@ public class StatusManager : MonoBehaviour
 
     void Start()
     {
+        //治安システムによる最大HPの調整
+        if (Alignment.GoodEvilValue <= -10f)
+        {
+            maxHp = maxHp + (int)(maxHp * 0.3f); // 善寄りなら30%増加
+        }
+        else if (Alignment.GoodEvilValue >= 10f)
+        {
+            maxHp = maxHp - (int)(maxHp * 0.3f); // 善寄りなら30%減少
+        }
+        
         currentHp = maxHp;
 
         if (healthBarSlider != null)
@@ -125,6 +136,8 @@ public class StatusManager : MonoBehaviour
             healthBarSlider.maxValue = maxHp;
             healthBarSlider.value = currentHp;
         }
+
+
         UpdateHealthBarVisibility();
     }
 

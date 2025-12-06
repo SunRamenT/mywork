@@ -10281,6 +10281,7 @@ MonoBehaviour:
   postProcessVolume: {fileID: 351614116}
   goodTintColor: {r: 1, g: 1, b: 0.5803922, a: 0.39215687}
   evilTintColor: {r: 0.39215687, g: 0, b: 1, a: 0.39215687}
+  phasingTintColor: {r: 0.41509432, g: 0.41509432, b: 0.41509432, a: 1}
   alignmentThreshold: 0
   dayThreshold: 0
 --- !u!114 &351614116
