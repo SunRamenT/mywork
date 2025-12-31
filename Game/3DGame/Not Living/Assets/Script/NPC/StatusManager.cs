@@ -96,11 +96,10 @@ public class StatusManager : MonoBehaviour
     public AudioClip spawnSound;
 
     public bool IsDead { get; private set; } = false;
-    private AlignmentManager Alignment;
+    
 
     private void Awake()
     {
-        Alignment = GetComponent<AlignmentManager>();
         npcMove = GetComponent<NPCMove>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
@@ -119,12 +118,14 @@ public class StatusManager : MonoBehaviour
 
     void Start()
     {
+        float Alignment = AlignmentManager.Instance.GoodEvilValue;
+        
         //治安システムによる最大HPの調整
-        if (Alignment.GoodEvilValue <= -10f)
+        if (Alignment <= -10f)
         {
             maxHp = maxHp + (int)(maxHp * 0.3f); // 善寄りなら30%増加
         }
-        else if (Alignment.GoodEvilValue >= 10f)
+        else if (Alignment >= 10f)
         {
             maxHp = maxHp - (int)(maxHp * 0.3f); // 善寄りなら30%減少
         }

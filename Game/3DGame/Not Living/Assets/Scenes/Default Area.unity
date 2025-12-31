@@ -4074,7 +4074,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400010, guid: d267fbb9e36c6e4458c9a8756d725a79, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 400010, guid: d267fbb9e36c6e4458c9a8756d725a79, type: 3}
       propertyPath: m_LocalPosition.z
@@ -37511,6 +37511,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   evilGoodRange: {x: -100, y: 100}
   chaosRange: {x: -100, y: 100}
+  _goodEvilValue: 0
 --- !u!114 &1329403669
 MonoBehaviour:
   m_ObjectHideFlags: 0
