@@ -257,7 +257,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.665, y: 0.022000002}
   m_AnchorMax: {x: 0.97249997, y: 0.4153247}
-  m_AnchoredPosition: {x: 1.8977966, y: 0.9657898}
+  m_AnchoredPosition: {x: 1.8978271, y: 0.9658203}
   m_SizeDelta: {x: 3.7957, y: 1.1762009}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &91107414
@@ -533,8 +533,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1018170782}
   m_HandleRect: {fileID: 1018170781}
   m_Direction: 2
-  m_Value: -0.07799726
-  m_Size: 0.008333282
+  m_Value: -0.02952818
+  m_Size: 0.008333435
   m_NumberOfSteps: 5
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3380,7 +3380,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -116.49929, y: 170.00002}
+  m_AnchoredPosition: {x: -116.49929, y: 170}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2122783396
@@ -3528,7 +3528,9 @@ PrefabInstance:
       value: 1.84
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 3993614999124072605, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
+    - {fileID: 7259258397760209592, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 700b1af3580232e428d34f4a307d5408, type: 3}
