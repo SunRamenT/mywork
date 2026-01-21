@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c680b59c76de6684fb0d212c7a1d22f6, type: 3}
-  m_Name: Cross
+  m_Name: BuiildingA
   m_EditorClassIdentifier: Assembly-CSharp::MapTileData
-  prefab: {fileID: 100000, guid: 4b975c42a48160b469a46dc15f43c9bc, type: 3}
-  tileType: 3
-  weight: 3
-  top: 1
-  right: 1
-  bottom: 1
-  left: 1
+  prefab: {fileID: 0}
+  tileType: 0
+  weight: 10
+  top: 0
+  right: 0
+  bottom: 0
+  left: 0

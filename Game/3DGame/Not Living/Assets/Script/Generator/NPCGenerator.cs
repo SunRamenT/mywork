@@ -36,10 +36,15 @@ public class NPCGenerator : MonoBehaviour
     public float sampleDistance = 15f;
     public int maxAttempts = 10;
 
+    [Header("Performance")] // ▼▼▼ 追加: 負荷対策 ▼▼▼
+    [Tooltip("生成判定を行う間隔（秒）。毎フレーム処理を防ぐ")]
+    public float checkInterval = 1.0f;
+    private float checkTimer = 0f;
+
     private List<GameObject> npcList = new List<GameObject>();
     private int agentTypeID;
 
-    [Tooltip("壁を検知するためのレイヤー")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("壁を検知するためのレイヤー")]
     public LayerMask wallLayer; 
 
     void Start()
@@ -56,6 +61,14 @@ public class NPCGenerator : MonoBehaviour
     {
         // Destroyされたオブジェクトへの参照をリストから掃除する
         npcList.RemoveAll(item => item == null);
+
+        // ▼▼▼ 追加: タイマー処理 ▼▼▼
+        // NavMeshがまだ生成されていない時に毎フレームSamplePositionすると重いため、
+        // 1秒に1回だけチェックするように制限する。
+        checkTimer += Time.deltaTime;
+        if (checkTimer < checkInterval) return;
+        checkTimer = 0f;
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         if (GameTimeManager.Instance == null) return;
         int currentHour = GameTimeManager.Instance.currentHour;
@@ -101,35 +114,30 @@ public class NPCGenerator : MonoBehaviour
 
             NavMeshQueryFilter filter = new NavMeshQueryFilter { agentTypeID = this.agentTypeID, areaMask = NavMesh.AllAreas };
 
+            // ここが重要：NavMeshがまだビルドされていないエリアでは false が返るため、
+            // 生成されずにループを抜ける。checkIntervalのおかげで、失敗しても負荷にならない。
             if (NavMesh.SamplePosition(randomPos, out NavMeshHit hit, sampleDistance, filter))
             {
                 if (hit.position.y <= maxSpawnHeight)
                 {
-                    // ▼▼▼ 壁の中かどうかを追加でチェック ▼▼▼
-                    // 生成地点の真上から真下に向けてレイキャストを飛ばす
                     if (!Physics.Raycast(hit.position + Vector3.up * 10f, Vector3.down, 20f, wallLayer))
                     {
-                        // レイキャストがWallレイヤーに当たらなければ、そこは壁の中ではない
                         GameObject newNPC = Instantiate(prefabToSpawn, hit.position, Quaternion.identity, transform);
                         npcList.Add(newNPC);
-                        break; // 生成に成功したのでループを抜ける
+                        break; 
                     }
-                    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
                 }
             }
         }
     }
 
+    // (以下のメソッドは変更なし: CountNpcsByTag, DestroyNpcsByTag, IsTimeInRange)
     private int CountNpcsByTag(string tag)
     {
         int count = 0;
         foreach (var npc in npcList)
         {
-            // オブジェクトがnullでないことを確認してからタグを比較
-            if (npc != null && npc.CompareTag(tag))
-            {
-                count++;
-            }
+            if (npc != null && npc.CompareTag(tag)) count++;
         }
         return count;
     }
@@ -139,15 +147,10 @@ public class NPCGenerator : MonoBehaviour
         List<GameObject> candidates = new List<GameObject>();
         foreach (var npc in npcList)
         {
-            // オブジェクトがnullでないことを確認
-            if (npc != null && npc.CompareTag(tag))
-            {
-                candidates.Add(npc);
-            }
+            if (npc != null && npc.CompareTag(tag)) candidates.Add(npc);
         }
 
         int amountToDestroy = candidates.Count - targetCount;
-
         for (int i = 0; i < amountToDestroy; i++)
         {
             GameObject npcToDestroy = candidates[i];
@@ -161,13 +164,7 @@ public class NPCGenerator : MonoBehaviour
 
     private bool IsTimeInRange(int time, int startTime, int endTime)
     {
-        if (startTime > endTime)
-        {
-            return time >= startTime || time < endTime;
-        }
-        else
-        {
-            return time >= startTime && time < endTime;
-        }
+        if (startTime > endTime) return time >= startTime || time < endTime;
+        else return time >= startTime && time < endTime;
     }
 }

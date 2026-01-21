@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Grass
   m_EditorClassIdentifier: Assembly-CSharp::MapTileData
   prefab: {fileID: 100000, guid: f50010d1cc6ce7349939907623b2db74, type: 3}
+  tileType: 5
+  weight: 7
   top: 0
   right: 0
   bottom: 0
