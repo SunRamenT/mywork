@@ -6,30 +6,27 @@ public class MapGenerator : MonoBehaviour
 {
     [Header("設定")]
     public int tileSize = 20;
-    public int viewDistance = 3; // 見える範囲
-    public int destroyDistance = 4; // これ以上離れたら消す（viewDistanceより大きくする）
+    public int viewDistance = 3;
+    public int destroyDistance = 4;
     public Transform player;
 
     [Header("タイルデータ")]
     public List<MapTileData> allTiles;
 
-    // 生成済みのタイルデータ（地図の記憶：これは消さない）
+    // データ管理
     private Dictionary<Vector2Int, MapTileData> spawnedTileData = new Dictionary<Vector2Int, MapTileData>();
-    
-    // 生成済みのゲームオブジェクト（見た目：遠くに行くと消す）
     private Dictionary<Vector2Int, GameObject> spawnedObjects = new Dictionary<Vector2Int, GameObject>();
+    
+    // プール管理
+    private Dictionary<GameObject, Queue<GameObject>> poolDictionary = new Dictionary<GameObject, Queue<GameObject>>();
 
     private Vector2Int currentChunkCoord;
 
-    void Start()
-    {
-        UpdateMap();
-    }
+    void Start() { UpdateMap(); }
 
     void Update()
     {
         if (player == null) return;
-
         Vector2Int playerCoord = new Vector2Int(
             Mathf.RoundToInt(player.position.x / tileSize),
             Mathf.RoundToInt(player.position.z / tileSize)
@@ -44,22 +41,17 @@ public class MapGenerator : MonoBehaviour
 
     void UpdateMap()
     {
-        // 1. 新しいタイルの生成（または再表示）
         for (int x = currentChunkCoord.x - viewDistance; x <= currentChunkCoord.x + viewDistance; x++)
         {
             for (int y = currentChunkCoord.y - viewDistance; y <= currentChunkCoord.y + viewDistance; y++)
             {
                 Vector2Int coord = new Vector2Int(x, y);
-                
-                // オブジェクトがまだ存在しない場合のみ生成処理を行う
                 if (!spawnedObjects.ContainsKey(coord))
                 {
                     SpawnTileAt(coord);
                 }
             }
         }
-
-        // 2. 遠くのタイルの削除
         CleanupTiles();
     }
 
@@ -67,23 +59,19 @@ public class MapGenerator : MonoBehaviour
     {
         MapTileData selectedData;
 
-        // 【重要】既にデータがあるかチェック（戻ってきた場合）
         if (spawnedTileData.ContainsKey(coord))
         {
-            // 以前生成したデータを再利用（これで景色が変わらない）
             selectedData = spawnedTileData[coord];
         }
         else
         {
-            // --- 新規生成ロジック ---
-            
-            // 1. 周囲の接続タイプを取得
+            // --- 1. 接続条件のチェック ---
             int reqTop    = GetNeighborConnection(coord, Vector2Int.up,    "bottom");
             int reqBottom = GetNeighborConnection(coord, Vector2Int.down,  "top");
             int reqLeft   = GetNeighborConnection(coord, Vector2Int.left,  "right");
             int reqRight  = GetNeighborConnection(coord, Vector2Int.right, "left");
 
-            // 2. 条件に合うタイルを絞り込む
+            // 接続的にOKなタイルをリストアップ
             var validTiles = allTiles.Where(t => 
                 (reqTop    == -1 || (int)t.top    == reqTop) &&
                 (reqBottom == -1 || (int)t.bottom == reqBottom) &&
@@ -91,70 +79,180 @@ public class MapGenerator : MonoBehaviour
                 (reqRight  == -1 || (int)t.right  == reqRight)
             ).ToList();
 
-            // 候補がない場合のフォールバック
+            // --- 2. 高度なルールの適用（フィルタリング） ---
+            // 追加ルールに違反するタイルを除外する
+            var strictTiles = validTiles.Where(t => IsPlacementValid(t, coord)).ToList();
+
+            // もしルールが厳しすぎて候補がゼロになったら、緩和して元のリストを使う
+            if (strictTiles.Count > 0)
+            {
+                validTiles = strictTiles;
+            }
+
+            // フォールバック（接続できるものが無い場合）
             if (validTiles.Count == 0)
             {
-                // エラー時はとりあえずリストの最初を使う
                 if (allTiles.Count > 0) validTiles.Add(allTiles[0]);
                 else return;
             }
 
-            // 3. ランダムに選択
-            selectedData = validTiles[Random.Range(0, validTiles.Count)];
+            // --- 3. 重みづけ抽選 ---
+            selectedData = GetWeightedRandomTile(validTiles, coord);
             
-            // データを辞書に保存（記憶する）
             spawnedTileData.Add(coord, selectedData);
         }
 
-        // --- 生成処理 (共通) ---
         Vector3 pos = new Vector3(coord.x * tileSize, 0, coord.y * tileSize);
-        // 回転をPrefabの設定に合わせる修正も適用済み
-        GameObject obj = Instantiate(selectedData.prefab, pos, selectedData.prefab.transform.rotation, transform);
-
+        GameObject obj = GetPooledObject(selectedData.prefab, pos, selectedData.prefab.transform.rotation);
         spawnedObjects.Add(coord, obj);
     }
 
-    // 遠くのオブジェクトを削除
-    void CleanupTiles()
+    // ▼▼▼ ルール判定メソッド ▼▼▼
+    bool IsPlacementValid(MapTileData candidate, Vector2Int coord)
     {
-        // 削除対象を一時リストに保存
-        List<Vector2Int> tilesToRemove = new List<Vector2Int>();
+        // 周囲のタイルデータを取得
+        MapTileData topTile    = GetNeighborTileData(coord + Vector2Int.up);
+        MapTileData bottomTile = GetNeighborTileData(coord + Vector2Int.down);
+        MapTileData leftTile   = GetNeighborTileData(coord + Vector2Int.left);
+        MapTileData rightTile  = GetNeighborTileData(coord + Vector2Int.right);
 
-        foreach (var item in spawnedObjects)
+        // ルールA: 十字路の隣に十字路を置かない（クドいから）
+        if (candidate.tileType == TileType.Cross)
         {
-            // プレイヤーとの距離を計算
-            float dist = Vector2.Distance(item.Key, currentChunkCoord);
-            
-            // 設定した削除距離より遠ければ
-            if (dist > destroyDistance)
+            if (IsType(topTile, TileType.Cross) || IsType(bottomTile, TileType.Cross) ||
+                IsType(leftTile, TileType.Cross) || IsType(rightTile, TileType.Cross))
             {
-                // GameObjectを破壊
-                Destroy(item.Value);
-                // リストに追加
-                tilesToRemove.Add(item.Key);
+                return false;
             }
         }
 
-        // 辞書から削除
-        foreach (var coord in tilesToRemove)
+        // ルールB: 行き止まりの隣に行き止まりを置かない（移動不能になるから）
+        if (candidate.tileType == TileType.DeadEnd)
         {
-            spawnedObjects.Remove(coord);
+             // 接続チェックで弾かれているはずだが、念の為のルール
+             if (IsType(topTile, TileType.DeadEnd) || IsType(bottomTile, TileType.DeadEnd) ||
+                 IsType(leftTile, TileType.DeadEnd) || IsType(rightTile, TileType.DeadEnd))
+             {
+                 return false;
+             }
+        }
+
+        return true;
+    }
+
+    // ヘルパー: タイルタイプが一致するか（nullチェック付き）
+    bool IsType(MapTileData data, TileType type)
+    {
+        return data != null && data.tileType == type;
+    }
+
+    // ▼▼▼ 重みづけ抽選メソッド ▼▼▼
+    MapTileData GetWeightedRandomTile(List<MapTileData> candidates, Vector2Int coord)
+    {
+        // 追加ルールC: 芝生(Ground)の隣は、芝生が出やすくなる（公園のように広がる）
+        // 候補リストをコピーして重みを変動させる
+        List<MapTileData> dynamicCandidates = new List<MapTileData>(candidates);
+
+        int grassNeighbors = 0;
+        if (IsType(GetNeighborTileData(coord + Vector2Int.up), TileType.Ground)) grassNeighbors++;
+        if (IsType(GetNeighborTileData(coord + Vector2Int.down), TileType.Ground)) grassNeighbors++;
+        if (IsType(GetNeighborTileData(coord + Vector2Int.left), TileType.Ground)) grassNeighbors++;
+        if (IsType(GetNeighborTileData(coord + Vector2Int.right), TileType.Ground)) grassNeighbors++;
+
+        // 総重量を計算
+        int totalWeight = 0;
+        foreach (var tile in candidates)
+        {
+            int currentWeight = tile.weight;
+            
+            // 芝生ボーナス: 周囲に芝生が多いほど、このタイルが芝生なら重みを倍増させる
+            if (tile.tileType == TileType.Ground && grassNeighbors > 0)
+            {
+                currentWeight *= (grassNeighbors * 2); 
+            }
+
+            totalWeight += currentWeight;
+        }
+
+        // 抽選
+        int randomValue = Random.Range(0, totalWeight);
+        int currentSum = 0;
+
+        foreach (var tile in candidates)
+        {
+            int currentWeight = tile.weight;
+            // 計算時と同じボーナスを適用
+            if (tile.tileType == TileType.Ground && grassNeighbors > 0)
+            {
+                currentWeight *= (grassNeighbors * 2);
+            }
+
+            currentSum += currentWeight;
+            if (randomValue < currentSum)
+            {
+                return tile;
+            }
+        }
+
+        return candidates[0]; // 万が一のためのフォールバック
+    }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    // --- 以下、既存のヘルパーメソッド ---
+
+    MapTileData GetNeighborTileData(Vector2Int coord)
+    {
+        if (spawnedTileData.ContainsKey(coord)) return spawnedTileData[coord];
+        return null;
+    }
+
+    void CleanupTiles()
+    {
+        List<Vector2Int> tilesToRemove = new List<Vector2Int>();
+        foreach (var item in spawnedObjects)
+        {
+            float dist = Vector2.Distance(item.Key, currentChunkCoord);
+            if (dist > destroyDistance)
+            {
+                GameObject prefabKey = spawnedTileData[item.Key].prefab;
+                ReturnToPool(item.Value, prefabKey);
+                tilesToRemove.Add(item.Key);
+            }
+        }
+        foreach (var coord in tilesToRemove) spawnedObjects.Remove(coord);
+    }
+
+    GameObject GetPooledObject(GameObject prefab, Vector3 position, Quaternion rotation)
+    {
+        if (!poolDictionary.ContainsKey(prefab)) poolDictionary.Add(prefab, new Queue<GameObject>());
+        if (poolDictionary[prefab].Count > 0)
+        {
+            GameObject obj = poolDictionary[prefab].Dequeue();
+            obj.transform.position = position;
+            obj.transform.rotation = rotation;
+            obj.SetActive(true);
+            return obj;
+        }
+        else
+        {
+            GameObject obj = Instantiate(prefab, position, rotation, transform);
+            obj.name = prefab.name + "(Pooled)";
+            return obj;
         }
     }
-    // 
+
+    void ReturnToPool(GameObject obj, GameObject prefabKey)
+    {
+        obj.SetActive(false);
+        if (poolDictionary.ContainsKey(prefabKey)) poolDictionary[prefabKey].Enqueue(obj);
+        else Destroy(obj);
+    }
 
     int GetNeighborConnection(Vector2Int myCoord, Vector2Int direction, string requiredSide)
     {
         Vector2Int targetCoord = myCoord + direction;
-
-        // まだ生成されていない場合は -1
-        if (!spawnedTileData.ContainsKey(targetCoord))
-        {
-            return -1;
-        }
-
+        if (!spawnedTileData.ContainsKey(targetCoord)) return -1;
         MapTileData neighbor = spawnedTileData[targetCoord];
-
         switch (requiredSide)
         {
             case "top":    return (int)neighbor.top;
