@@ -36,11 +36,16 @@ public class ChaserMove : MonoBehaviour
     public float sightAngle = 60f;
     public float patrolRadius = 30f;
     public float losePlayerTime = 5.0f;
-    [Tooltip("音の調査を諦めるまでの時間（秒）")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("音の調査を諦めるまでの時間（秒）")] 
     public float investigationTimeout = 8.0f;
     public float dangerAuraRadius = 10f;
-    [Tooltip("目的地に到達できない場合に、諦めるまでの時間（秒）")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("目的地に到達できない場合に、諦めるまでの時間（秒）")] 
     public float pathfindingTimeout = 10f;
+
+    [Header("Infinite Map Settings")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("この距離以上プレイヤーから離れたら自滅する")]
+    public float despawnDistance = 60f; 
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     [Header("遮蔽物チェック用")]
     public LayerMask obstacleMask;
@@ -50,17 +55,20 @@ public class ChaserMove : MonoBehaviour
     private float timeSinceLastSeenPlayer = 0f;
     private float investigationTimer = 0f;
     private bool isPlayerInAura = false;
-    private float pathTimer = 0f; // ▼▼▼ 目的地到達タイマーを追加 ▼▼▼
+    private float pathTimer = 0f;
 
-    // MessageBrokerの購読を管理するための変数
     private CompositeDisposable disposables = new CompositeDisposable();
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         
-        humanoidAgentTypeID = NavMesh.GetSettingsByIndex(humanoidAgentTypeIndex).agentTypeID;
-        chaserAgentTypeID = NavMesh.GetSettingsByIndex(chaserAgentTypeIndex).agentTypeID;
+        // エラーハンドリング追加：設定がない場合の安全策
+        if (humanoidAgentTypeIndex < NavMesh.GetSettingsCount())
+            humanoidAgentTypeID = NavMesh.GetSettingsByIndex(humanoidAgentTypeIndex).agentTypeID;
+        
+        if (chaserAgentTypeIndex < NavMesh.GetSettingsCount())
+            chaserAgentTypeID = NavMesh.GetSettingsByIndex(chaserAgentTypeIndex).agentTypeID;
 
         initialAcceleration = agent.acceleration;
         agent.agentTypeID = humanoidAgentTypeID;
@@ -74,7 +82,7 @@ public class ChaserMove : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Playerタグが付いたオブジェクトが見つかりません！");
+            // Playerが見つからない場合は動作を止めるが、エラーで止まらないようにする
             enabled = false;
             return;
         }
@@ -97,7 +105,6 @@ public class ChaserMove : MonoBehaviour
 
     private void OnDestroy()
     {
-        // このオブジェクトが破棄される際に、監視を確実に終了させる
         disposables.Dispose();
 
         if (isPlayerInAura && reikonManager != null)
@@ -106,23 +113,19 @@ public class ChaserMove : MonoBehaviour
         }
     }
 
-    // UniRXでpacketを受け取るための関数
     private void OnSoundHeard(SoundPacket packet)
     {
         if (packet.Type == SoundType.EnemyNoise) return;
-        //音の発された場所を入手
         float distanceToSound = Vector3.Distance(transform.position, packet.Position);
-        //聴覚の良さを調整
         float audibleRange = packet.Volume * hearingSensitivity;
-        //音源と聴覚の良さで追跡するか判断
         if (distanceToSound > audibleRange) return;
 
-        if (currentState != AIState.Chasing)//追跡でないとき、音源調査モードに移行する
+        if (currentState != AIState.Chasing)
         {
             currentState = AIState.Investigating;
             agent.speed = investigatingSpeed;
             agent.SetDestination(packet.Position);
-            investigationTimer = 0f; //  調査タイマーをリセット
+            investigationTimer = 0f;
             pathTimer = 0f;
         }
     }
@@ -130,6 +133,17 @@ public class ChaserMove : MonoBehaviour
 
     void Update()
     {
+        if (player == null) return; // Playerがいなければ何もしない
+
+        // ▼▼▼ 追加: 自律的な削除処理 ▼▼▼
+        // Generator管理外でも、NavMeshが消える前に自分で消えるようにする
+        if (Vector3.Distance(transform.position, player.position) > despawnDistance)
+        {
+            Destroy(gameObject);
+            return; // 削除したら以降の処理はしない
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         if (!agent.enabled || !agent.isOnNavMesh) return;
 
         switch (currentState)
@@ -165,33 +179,32 @@ public class ChaserMove : MonoBehaviour
                 }
                 break;
 
-            // ▼▼▼ 調査ステートのロジックを修正 ▼▼▼
             case AIState.Investigating:
-                LookForPlayer(); // 調査中もプレイヤーを探し続ける
-                investigationTimer += Time.deltaTime; // タイマーを進める
+                LookForPlayer();
+                investigationTimer += Time.deltaTime;
 
-                // 目的地に到着した、または調査時間がタイムアウトした場合
                 if ((!agent.pathPending && agent.remainingDistance < 0.5f) || investigationTimer > investigationTimeout)
                 {
-                    // 徘徊モードに戻る
                     currentState = AIState.Patrolling;
                 }
                 break;
         }
         CheckDangerAura();
-        // ▼▼▼ タイムアウト処理を追加 ▼▼▼
+        
         if (agent.hasPath)
         {
             pathTimer += Time.deltaTime;
             if (pathTimer > pathfindingTimeout)
             {
-                Debug.LogWarning($"{gameObject.name} が目的地に到達できなかったため、徘徊に戻ります。");
                 currentState = AIState.Patrolling;
                 SetNewPatrolDestination();
             }
         }
     }
     
+    // ... (以降のメソッドは変更なし: LookForPlayer, UpdateSightLight, CheckDangerAura, IsPlayerInSight, SetNewPatrolDestination, OnDrawGizmosSelected) ...
+    // 下記は省略せずに元のコードをそのまま使ってください。
+
     void LookForPlayer()
     {
         if (IsPlayerInSight())
@@ -201,10 +214,7 @@ public class ChaserMove : MonoBehaviour
             agent.speed = chaserSpeed;
             agent.acceleration = chaserAcceleration;
             timeSinceLastSeenPlayer = 0f;
-            if (sightLight != null)
-            {
-                sightLight.color = chasingLightColor;
-            }
+            if (sightLight != null) sightLight.color = chasingLightColor;
         }
     }
 
@@ -250,7 +260,7 @@ public class ChaserMove : MonoBehaviour
     void SetNewPatrolDestination()
     {
         if (!agent.isOnNavMesh) return;
-        pathTimer = 0f; // 新しい目的地を設定する際にタイマーをリセット
+        pathTimer = 0f;
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))
@@ -271,13 +281,8 @@ public class ChaserMove : MonoBehaviour
         Vector3 leftDir = Quaternion.Euler(0, -sightAngle, 0) * transform.forward;
         Gizmos.DrawRay(transform.position, rightDir * sightRadius);
         Gizmos.DrawRay(transform.position, leftDir * sightRadius);
-        
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, dangerAuraRadius);
-
-        if (Application.isEditor && !Application.isPlaying)
-        {
-            UpdateSightLight();
-        }
+        if (Application.isEditor && !Application.isPlaying) UpdateSightLight();
     }
 }

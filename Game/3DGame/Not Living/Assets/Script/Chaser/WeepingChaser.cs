@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
-using UniRx; // ▼▼▼ この一行を追加 ▼▼▼
+using UniRx; 
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class WeepingChaser : MonoBehaviour
@@ -8,8 +8,8 @@ public class WeepingChaser : MonoBehaviour
     private NavMeshAgent agent;
     private Transform player;
     private ReikonManager reikonManager;
-    private Renderer modelRenderer; // ▼▼▼ 追加 ▼▼▼
-    private Camera mainCamera;      // ▼▼▼ 追加 ▼▼▼
+    private Renderer modelRenderer;
+    private Camera mainCamera;
 
     [Header("コンポーネント参照")]
     public Light sightLight;
@@ -42,6 +42,11 @@ public class WeepingChaser : MonoBehaviour
     public float pathfindingTimeout = 10f;
     public float dangerAuraRadius = 10f;
 
+    [Header("Infinite Map Settings")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("この距離以上プレイヤーから離れたら自滅する")]
+    public float despawnDistance = 60f; 
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
     [Header("遮蔽物チェック用")]
     public LayerMask obstacleMask;
 
@@ -57,11 +62,14 @@ public class WeepingChaser : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        modelRenderer = GetComponentInChildren<Renderer>(); // ▼▼▼ 追加 ▼▼▼
-        mainCamera = Camera.main;                       // ▼▼▼ 追加 ▼▼▼
+        modelRenderer = GetComponentInChildren<Renderer>();
+        mainCamera = Camera.main;
         
-        humanoidAgentTypeID = NavMesh.GetSettingsByIndex(humanoidAgentTypeIndex).agentTypeID;
-        chaserAgentTypeID = NavMesh.GetSettingsByIndex(chaserAgentTypeIndex).agentTypeID;
+        // エラー防止
+        if (humanoidAgentTypeIndex < NavMesh.GetSettingsCount())
+            humanoidAgentTypeID = NavMesh.GetSettingsByIndex(humanoidAgentTypeIndex).agentTypeID;
+        if (chaserAgentTypeIndex < NavMesh.GetSettingsCount())
+            chaserAgentTypeID = NavMesh.GetSettingsByIndex(chaserAgentTypeIndex).agentTypeID;
 
         initialAcceleration = agent.acceleration;
         agent.agentTypeID = humanoidAgentTypeID;
@@ -97,21 +105,29 @@ public class WeepingChaser : MonoBehaviour
 
     void Update()
     {
-        if (player == null || modelRenderer == null || !agent.enabled || !agent.isOnNavMesh) return;
+        if (player == null) return;
 
-        // ▼▼▼ 画面に映っているかどうかの判定を追加 ▼▼▼
+        // ▼▼▼ 追加: 自律的な削除処理 ▼▼▼
+        // プレイヤーから離れすぎたら削除
+        if (Vector3.Distance(transform.position, player.position) > despawnDistance)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+        if (modelRenderer == null || !agent.enabled || !agent.isOnNavMesh) return;
+
+        // 画面に映っているかどうかの判定
         if (IsVisibleByCamera())
         {
-            // 見られている間は、移動を完全に停止する
             agent.isStopped = true;
             return; // このフレームの以降のAI処理は行わない
         }
         else
         {
-            // 見られていない間は、移動を許可する
             agent.isStopped = false;
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         switch (currentState)
         {
@@ -168,26 +184,22 @@ public class WeepingChaser : MonoBehaviour
         }
     }
 
-    // ▼▼▼ 新しいメソッドを追加 ▼▼▼
-    /// <summary>
-    /// オブジェクトがカメラから見えているかを判定する
-    /// </summary>
+    // (以下、変更なしのメソッドは省略せずそのまま使用してください)
+    
     private bool IsVisibleByCamera()
     {
-        // カメラの視野角（Frustum）の外にいるかチェック
+        if (mainCamera == null) return false;
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(mainCamera);
         if (!GeometryUtility.TestPlanesAABB(planes, modelRenderer.bounds))
         {
             return false;
         }
 
-        // カメラからオブジェクトの中心へ向かってレイを飛ばし、障害物がないかチェック
         Vector3 viewPoint = mainCamera.transform.position;
         Vector3 targetPoint = modelRenderer.bounds.center;
         
         if (Physics.Raycast(viewPoint, (targetPoint - viewPoint).normalized, out RaycastHit hit, Vector3.Distance(viewPoint, targetPoint)))
         {
-            // 当たったのが自分自身（または自分の子オブジェクト）でなければ、それは障害物
             if (hit.transform.root != this.transform.root)
             {
                 return false;
@@ -199,7 +211,6 @@ public class WeepingChaser : MonoBehaviour
 
     private void OnDestroy()
     {
-        // このオブジェクトが破棄される際に、監視を確実に終了させる
         disposables.Dispose();
 
         if (isPlayerInAura && reikonManager != null)
@@ -221,10 +232,12 @@ public class WeepingChaser : MonoBehaviour
             currentState = AIState.Investigating;
             agent.speed = investigatingSpeed;
             agent.SetDestination(packet.Position);
-            investigationTimer = 0f; // ▼▼▼ 調査タイマーをリセット ▼▼▼
+            investigationTimer = 0f;
             pathTimer = 0f;
         }
     }
+    
+    // (LookForPlayer, UpdateSightLight, CheckDangerAura, IsPlayerInSight, SetNewPatrolDestination, OnDrawGizmosSelected は元のコードと同じ)
     void LookForPlayer()
     {
         if (IsPlayerInSight())
@@ -234,10 +247,7 @@ public class WeepingChaser : MonoBehaviour
             agent.speed = chaserSpeed;
             agent.acceleration = chaserAcceleration;
             timeSinceLastSeenPlayer = 0f;
-            if (sightLight != null)
-            {
-                sightLight.color = chasingLightColor;
-            }
+            if (sightLight != null) sightLight.color = chasingLightColor;
         }
     }
 
@@ -283,7 +293,7 @@ public class WeepingChaser : MonoBehaviour
     void SetNewPatrolDestination()
     {
         if (!agent.isOnNavMesh) return;
-        pathTimer = 0f; // 新しい目的地を設定する際にタイマーをリセット
+        pathTimer = 0f;
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, 1))
@@ -304,13 +314,8 @@ public class WeepingChaser : MonoBehaviour
         Vector3 leftDir = Quaternion.Euler(0, -sightAngle, 0) * transform.forward;
         Gizmos.DrawRay(transform.position, rightDir * sightRadius);
         Gizmos.DrawRay(transform.position, leftDir * sightRadius);
-        
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, dangerAuraRadius);
-
-        if (Application.isEditor && !Application.isPlaying)
-        {
-            UpdateSightLight();
-        }
+        if (Application.isEditor && !Application.isPlaying) UpdateSightLight();
     }
 }
