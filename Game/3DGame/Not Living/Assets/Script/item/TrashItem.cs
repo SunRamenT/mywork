@@ -52,6 +52,6 @@ public class TrashItem : MonoBehaviour
         col.enabled = true;
         
         // 少し前に投げる力を加えても良い（お好みで）
-        // rb.AddForce(transform.forward * 2f, ForceMode.Impulse);
+        rb.AddForce(transform.forward * 1.1f, ForceMode.Impulse);
     }
 }

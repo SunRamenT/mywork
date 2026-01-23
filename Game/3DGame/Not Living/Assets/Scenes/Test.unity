@@ -874,6 +874,9 @@ MonoBehaviour:
   - prefab: {fileID: 100000, guid: f50010d1cc6ce7349939907623b2db74, type: 3}
     weight: 20
     allowRandomRotation: 0
+  - prefab: {fileID: 324309825491656986, guid: f83666629696fc4449503e48f8165710, type: 3}
+    weight: 5
+    allowRandomRotation: 1
   concreteStructures:
   - prefab: {fileID: 100000, guid: 22106dc63dce41746ad234a91af2d657, type: 3}
     weight: 20
@@ -888,6 +891,18 @@ MonoBehaviour:
     weight: 10
     allowRandomRotation: 1
   - prefab: {fileID: 100000, guid: 5d096e2b76c3e6648ae56a0d087b6000, type: 3}
+    weight: 10
+    allowRandomRotation: 1
+  - prefab: {fileID: 324309825491656986, guid: f83666629696fc4449503e48f8165710, type: 3}
+    weight: 5
+    allowRandomRotation: 1
+  - prefab: {fileID: 100000, guid: 2dbee28eacba7dd42845e0153c4da642, type: 3}
+    weight: 10
+    allowRandomRotation: 1
+  - prefab: {fileID: 100000, guid: 3667b1c4d7f532647b9156782c0c80f0, type: 3}
+    weight: 10
+    allowRandomRotation: 1
+  - prefab: {fileID: 100000, guid: 4c14ffc6a7f79e942885227ac141590c, type: 3}
     weight: 10
     allowRandomRotation: 1
 --- !u!4 &144809231
@@ -4705,7 +4720,7 @@ MonoBehaviour:
   checkInterval: 1
   wallLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
