@@ -12,6 +12,8 @@ public class TrashCan : MonoBehaviour
 
     private AudioSource audioSource;
 
+    private PlayerController interactingPlayer;
+
     void Awake()
     {
         audioSource = GetComponent<AudioSource>();
@@ -49,6 +51,24 @@ public class TrashCan : MonoBehaviour
 
             // 4. 善行イベントを発行（AlignmentManagerが受け取って善悪値を更新）
             GameEvents.TriggerGoodDeedPerformed();
+
+            PlayerController player = FindFirstObjectByType<PlayerController>();
+            if (player != null)
+            {
+                player.moveSpeed += 0.05f;
+                interactingPlayer = player;
+            }
+
+
+            // 3. 乗っ取り中のNPCの評判を上げる
+            if (interactingPlayer != null && interactingPlayer.IsPossessing())
+            {
+                StatusManager possessedStatus = interactingPlayer.GetPossessedStatusManager();
+                if (possessedStatus != null)
+                {
+                    possessedStatus.AddReputation(5);
+                }
+            }
 
             // 5. じんわり回復を開始
             StartCoroutine(GradualHeal(healAmount));
