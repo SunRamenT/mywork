@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c680b59c76de6684fb0d212c7a1d22f6, type: 3}
-  m_Name: DeadEnd
+  m_Name: Corner_CW
   m_EditorClassIdentifier: Assembly-CSharp::MapTileData
-  prefab: {fileID: 100000, guid: 3e048342509342a4c8751d9f8c78bfbc, type: 3}
-  tileType: 4
-  weight: 5
-  top: 0
+  prefab: {fileID: 100000, guid: 0988d20e84b1e4e479ff41a624d20b5b, type: 3}
+  tileType: 1
+  weight: 10
+  top: 1
   right: 0
-  bottom: 1
-  left: 0
+  bottom: 0
+  left: 1

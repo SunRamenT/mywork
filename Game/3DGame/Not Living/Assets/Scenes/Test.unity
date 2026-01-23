@@ -863,6 +863,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a8b67742f7efeca49957037c5052f2f7, type: 2}
   - {fileID: 11400000, guid: 61706a7dfe048a54c8f3533ff3a2d104, type: 2}
   - {fileID: 11400000, guid: 32fd04bf06441d240bed287b12256a1d, type: 2}
+  - {fileID: 11400000, guid: e6ec10fbb54631141b923793a3584215, type: 2}
+  - {fileID: 11400000, guid: 95f5ee638ba9a1946893cccfc3bb12a9, type: 2}
+  - {fileID: 11400000, guid: 08fbe3ab96b67f445b832a9631c06dee, type: 2}
+  - {fileID: 11400000, guid: aa5b8d38cb4e58746befff8bc9d21097, type: 2}
   grassStructures:
   - prefab: {fileID: 1412788416690801258, guid: f3b765bf52c040b47ba8ddacb8fe0cfd, type: 3}
     weight: 10

@@ -13,9 +13,9 @@ public class PlayerController : MonoBehaviour
     //public float jumpPower = 5f;
     [Tooltip("この秒数以上、空中にいた場合のみ着地音を鳴らす")] //
     public float landingThreshold = 0.1f;
-    [Tooltip("ジャンプボタンを離した時の、重力のかかり具合")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("ジャンプボタンを離した時の、重力のかかり具合")] //
     public float lowJumpGravityMultiplier = 2.5f;
-    [Tooltip("落下中の重力のかかり具合")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("落下中の重力のかかり具合")] 
     public float fallGravityMultiplier = 2f;
 
     [Header("Item Detection Settings")]
@@ -90,7 +90,16 @@ public class PlayerController : MonoBehaviour
     private bool isAttack = false;
     private int combocount = 0;
 
-    // PlayerController.csにGetCurrentAnimator()を追加
+    [Header("Pick Up Settings")]
+    [Tooltip("アイテムを拾える範囲")]
+    public float pickupRadius = 2.0f;
+    [Tooltip("拾えるアイテムのレイヤー（Trashなど）")]
+    public LayerMask pickupLayer;
+    [Tooltip("拾ったアイテムを固定する位置（手など）")]
+    public Transform handHoldPosition;
+    
+    private TrashItem currentHeldItem; // 現在持っているアイテム
+
     public Animator GetCurrentAnimator()
     {
         return currentAnimator;
@@ -199,11 +208,6 @@ public class PlayerController : MonoBehaviour
 
         if (!currentController || !currentController.enabled) return;
 
-        if (Input.GetButtonDown("Fire2") && currentInteractable != null)
-        {
-            currentInteractable.OnInteract(this);
-            return;
-        }
         // isDodgingがtrueの場合は、移動入力を無視
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
@@ -271,26 +275,66 @@ public class PlayerController : MonoBehaviour
                     }
                     combocount++;
                 }
+                // ▼▼▼ Fire2 (右クリック) の入力処理を統合・整理 ▼▼▼
+                
+                // 1. ボタンを押した瞬間
+                if (Input.GetButtonDown("Fire2"))
+                {
+                    // A. まずインタラクト（TaskMachineなど）を最優先でチェック
+                    if (currentInteractable != null)
+                    {
+                        currentInteractable.OnInteract(this);
+                        // ここでreturnしない（続けて他の処理が走らないように else if で繋ぐ）
+                    }
+                    // B. インタラクト対象がなく、かつ手に何も持っていないなら、ゴミ拾いをチェック
+                    else if (currentHeldItem == null)
+                    {
+                        TrashItem trash = CheckForTrash();
+                        if (trash != null)
+                        {
+                            // ゴミ拾い実行
+                            currentHeldItem = trash;
+                            currentHeldItem.OnPickUp(handHoldPosition);
+                            // 効果音があればここで鳴らす
+                        }
+                        // C. ゴミもなければ、特殊能力の発動を試みる
+                        else if (currentSpecialAction != null)
+                        {
+                            combocount = 0; // コンボをリセット
+                            // 1. まずクールタイムが完了しているかチェック
+                            if (currentSpecialAction.CooldownProgress >= 1.0f)
+                            {
+                                // 2. 完了していれば、音を鳴らして能力を発動
+                                currentCharacter.GetComponent<CharacterSounds>()?.PlaySpecialAbilitySound();
+                                currentSpecialAction.PerformAction(this);
+                            }
+                            else
+                            {
+                                //クールタイム中であることを示す音を鳴らす
+                                Debug.Log("特殊能力はクールタイム中です。");
+                                if (MissSound != null)
+                                {
+                                    audioSource.PlayOneShot(MissSound);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 2. ボタンを離した瞬間（ゴミを持っていたら離す）
+                if (Input.GetButtonUp("Fire2"))
+                {
+                    if (currentHeldItem != null)
+                    {
+                        currentHeldItem.OnDrop();
+                        currentHeldItem = null;
+                    }
+                }
+                
                 // 特殊能力
                 if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
                 {
-                    combocount = 0; // コンボをリセット
-                    // 1. まずクールタイムが完了しているかチェック
-                    if (currentSpecialAction.CooldownProgress >= 1.0f)
-                    {
-                        // 2. 完了していれば、音を鳴らして能力を発動
-                        currentCharacter.GetComponent<CharacterSounds>()?.PlaySpecialAbilitySound();
-                        currentSpecialAction.PerformAction(this);
-                    }
-                    else
-                    {
-                        //クールタイム中であることを示す音を鳴らす
-                        Debug.Log("特殊能力はクールタイム中です。");
-                        if (MissSound != null)
-                        {
-                            audioSource.PlayOneShot(MissSound);
-                        }
-                    }
+                    
                 }
                 // 回避入力の判定
                 if (Input.GetButtonDown("Jump") && Time.time >= nextDodgeTime)
@@ -615,5 +659,26 @@ public class PlayerController : MonoBehaviour
     public bool IsPossessing()
     {
         return targetNPC != null;
+    }
+
+    
+    private TrashItem CheckForTrash()
+    {
+        // 指定半径内のゴミレイヤーのオブジェクトを探す
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, pickupRadius, pickupLayer);
+        
+        if (hitColliders.Length > 0)
+        {
+            // 一番近いゴミを探す
+            Collider closest = hitColliders
+                .OrderBy(c => (transform.position - c.transform.position).sqrMagnitude)
+                .FirstOrDefault();
+
+            if (closest != null)
+            {
+                return closest.GetComponent<TrashItem>();
+            }
+        }
+        return null;
     }
 }

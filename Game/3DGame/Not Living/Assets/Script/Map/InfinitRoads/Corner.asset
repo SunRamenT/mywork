@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapTileData
   prefab: {fileID: 100000, guid: 35fd496a930594044933a87b239150a9, type: 3}
   tileType: 1
-  weight: 10
+  weight: 3
   top: 1
   right: 0
   bottom: 0
