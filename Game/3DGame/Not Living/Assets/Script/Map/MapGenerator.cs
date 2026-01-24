@@ -43,6 +43,10 @@ public class MapGenerator : MonoBehaviour
 
     private Vector2Int currentChunkCoord;
 
+    [Header("初期エリア設定")]
+    [Tooltip("初期スポーン地点から半径何マスを除外するか（1なら3x3、2なら5x5）")]
+    public int safeZoneRadius = 1;
+
     void Start() 
     { 
         UpdateMap(); 
@@ -71,6 +75,14 @@ public class MapGenerator : MonoBehaviour
             for (int y = currentChunkCoord.y - viewDistance; y <= currentChunkCoord.y + viewDistance; y++)
             {
                 Vector2Int coord = new Vector2Int(x, y);
+
+                // セーフゾーン判定
+                // 原点(0,0)からの距離が safeZoneRadius 以内なら生成しない
+                // これにより、(-1, -1) ～ (1, 1) の範囲（3x3）がスキップされる
+                if (Mathf.Abs(coord.x) <= safeZoneRadius && Mathf.Abs(coord.y) <= safeZoneRadius)
+                {
+                    continue; 
+                }
                 
                 // 地面の生成
                 if (!spawnedObjects.ContainsKey(coord))

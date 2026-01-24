@@ -47,6 +47,9 @@ public class InfNPCGenerator : MonoBehaviour
 
     private Transform playerTransform; // プレイヤー参照
 
+    [Header("初期エリア設定")]
+    public float safeZoneRadiusMeter = 30f; // 3x3マスなら 20m*1.5 = 30m くらい
+
     void Start()
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
@@ -127,6 +130,13 @@ public class InfNPCGenerator : MonoBehaviour
             Vector3 randomPoint = UnityEngine.Random.insideUnitSphere * spawnRadius;
             randomPoint.y = 0;
             Vector3 randomPos = playerTransform.position + randomPoint;
+
+            // 原点付近なら生成キャンセル
+            // XとZの距離が一定以内なら、そこは初期エリアなので生成しない
+            if (Mathf.Abs(randomPos.x) < safeZoneRadiusMeter && Mathf.Abs(randomPos.z) < safeZoneRadiusMeter)
+            {
+                continue;
+            }
 
             NavMeshQueryFilter filter = new NavMeshQueryFilter { agentTypeID = this.agentTypeID, areaMask = NavMesh.AllAreas };
 

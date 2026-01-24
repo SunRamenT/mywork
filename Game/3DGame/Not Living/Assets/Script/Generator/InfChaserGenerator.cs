@@ -52,6 +52,9 @@ public class InfChaserGenerator : MonoBehaviour
     // プレイヤーの参照をキャッシュ
     private Transform playerTransform;
 
+    [Header("初期エリア設定")]
+    public float safeZoneRadiusMeter = 30f; // 3x3マスなら 20m*1.5 = 30m くらい
+
     private void Start()
     {
         // プレイヤーを探す
@@ -73,7 +76,7 @@ public class InfChaserGenerator : MonoBehaviour
         if (playerTransform == null) return;
         if (AlignmentManager.Instance == null || GameTimeManager.Instance == null) return;
 
-        // ▼ 距離による削除とリスト掃除 ▼
+        //  距離による削除とリスト掃除 
         // リストを逆順に回して、遠いものを削除する
         for (int i = chaserList.Count - 1; i >= 0; i--)
         {
@@ -130,6 +133,12 @@ public class InfChaserGenerator : MonoBehaviour
             Vector3 randomPoint = UnityEngine.Random.insideUnitSphere * spawnRadius;
             randomPoint.y = 0; 
             Vector3 randomPos = playerTransform.position + randomPoint;
+
+            // XとZの距離が一定以内なら、そこは初期エリアなので生成しない
+            if (Mathf.Abs(randomPos.x) < safeZoneRadiusMeter && Mathf.Abs(randomPos.z) < safeZoneRadiusMeter)
+            {
+                continue;
+            }
             
             NavMeshQueryFilter filter = new NavMeshQueryFilter { agentTypeID = this.agentTypeID, areaMask = NavMesh.AllAreas };
 
