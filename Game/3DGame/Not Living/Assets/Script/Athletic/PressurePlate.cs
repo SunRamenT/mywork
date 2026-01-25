@@ -1,20 +1,25 @@
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PressurePlate : MonoBehaviour
 {
     [Header("設定")]
     [Tooltip("踏んだ時に沈み込む深さ")]
     public float pressDepth = 0.1f;
-    [Tooltip("反応する対象のタグ（空なら何でも反応）")]
-    public string targetTag = ""; // "Player", "Trash" など
+    [Tooltip("スイッチの有効半径（この範囲外に出たら強制的にOFFにする）")] // ▼▼▼ 追加 ▼▼▼
+    public float checkRadius = 1.5f; // スイッチの大きさより少し大きめに設定
+    
+    [Header("フィルタ設定")]
+    public List<string> targetTags; 
 
     [Header("イベント")]
     public UnityEvent onPressed;
     public UnityEvent onReleased;
 
-    private int objectCount = 0; // 乗っている物体の数
+    private List<GameObject> overlappingObjects = new List<GameObject>();
+    
     private Vector3 initialPos;
     private Vector3 pressedPos;
     private bool isPressed = false;
@@ -27,43 +32,114 @@ public class PressurePlate : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // 1. タグ指定がある場合、違うタグなら無視
-        if (!string.IsNullOrEmpty(targetTag) && !other.CompareTag(targetTag)) return;
-        // 2. Trigger（判定用コライダー）は無視（足場用コライダーのみ反応）
+        if (other.isTrigger) return;
+        if (!IsValidObject(other)) return;
+
+        GameObject rootObj = other.attachedRigidbody ? other.attachedRigidbody.gameObject : other.gameObject;
+        if (!overlappingObjects.Contains(rootObj))
+        {
+            overlappingObjects.Add(rootObj);
+        }
+
+        CheckState();
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
         if (other.isTrigger) return;
 
-        objectCount++;
+        GameObject rootObj = other.attachedRigidbody ? other.attachedRigidbody.gameObject : other.gameObject;
+        RemoveObject(rootObj);
+    }
 
-        // 0個から1個になった瞬間だけ ON
-        if (objectCount == 1 && !isPressed)
+    // ▼▼▼ Updateロジックを強化 ▼▼▼
+    void Update()
+    {
+        if (overlappingObjects.Count > 0)
+        {
+            // 削除リストを作成（ループ中にリストを変更できないため）
+            List<GameObject> toRemove = new List<GameObject>();
+
+            foreach (var obj in overlappingObjects)
+            {
+                // 1. オブジェクトが消滅している(null)場合
+                if (obj == null)
+                {
+                    toRemove.Add(obj);
+                    continue;
+                }
+
+                // 2. オブジェクトが非アクティブになっている場合（プールに戻されたなど）
+                if (!obj.activeInHierarchy)
+                {
+                    toRemove.Add(obj);
+                    continue;
+                }
+
+                // 3. オブジェクトがスイッチから遠く離れている場合
+                // （TriggerExitが呼ばれずにワープや高速移動した場合の対策）
+                float dist = Vector3.Distance(transform.position, obj.transform.position);
+                if (dist > checkRadius)
+                {
+                    toRemove.Add(obj);
+                }
+            }
+
+            // 削除対象を一括でリストから外す
+            if (toRemove.Count > 0)
+            {
+                foreach (var removeObj in toRemove)
+                {
+                    overlappingObjects.Remove(removeObj);
+                }
+                CheckState();
+            }
+        }
+    }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    private void RemoveObject(GameObject obj)
+    {
+        if (overlappingObjects.Contains(obj))
+        {
+            overlappingObjects.Remove(obj);
+            CheckState();
+        }
+    }
+
+    private void CheckState()
+    {
+        bool shouldBePressed = overlappingObjects.Count > 0;
+
+        if (shouldBePressed && !isPressed)
         {
             isPressed = true;
             StopAllCoroutines();
             StartCoroutine(MovePlate(pressedPos));
             onPressed.Invoke();
-            Debug.Log("プレート ON");
+            // Debug.Log("プレート ON");
         }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (!string.IsNullOrEmpty(targetTag) && !other.CompareTag(targetTag)) return;
-        if (other.isTrigger) return;
-
-        objectCount--;
-
-        // カウントがマイナスにならないように安全策
-        if (objectCount < 0) objectCount = 0;
-
-        // 全ての物体がいなくなったら OFF
-        if (objectCount == 0 && isPressed)
+        else if (!shouldBePressed && isPressed)
         {
             isPressed = false;
             StopAllCoroutines();
             StartCoroutine(MovePlate(initialPos));
             onReleased.Invoke();
-            Debug.Log("プレート OFF");
+            // Debug.Log("プレート OFF");
         }
+    }
+
+    private bool IsValidObject(Collider col)
+    {
+        if (col.GetComponent<CharacterController>() != null) return IsTagValid(col.tag);
+        if (col.attachedRigidbody != null) return IsTagValid(col.tag);
+        return false;
+    }
+
+    private bool IsTagValid(string tag)
+    {
+        if (targetTags == null || targetTags.Count == 0) return true;
+        return targetTags.Contains(tag);
     }
 
     private IEnumerator MovePlate(Vector3 target)
@@ -75,5 +151,12 @@ public class PressurePlate : MonoBehaviour
             yield return null;
         }
         transform.localPosition = target;
+    }
+
+    // デバッグ用：検知範囲を可視化
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, checkRadius);
     }
 }

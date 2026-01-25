@@ -4,61 +4,105 @@ using System.Collections.Generic;
 public class StickyPlatform : MonoBehaviour
 {
     private Vector3 lastPosition;
-    private List<CharacterController> passengers = new List<CharacterController>();
+    
+    // キャラクター（人）用リスト
+    private List<CharacterController> characterPassengers = new List<CharacterController>();
+    // 物理オブジェクト（ゴミなど）用リスト
+    private List<Rigidbody> rbPassengers = new List<Rigidbody>();
 
     void Start()
     {
         lastPosition = transform.position;
     }
 
-    // すべての移動処理（FixedUpdateやUpdate）が終わった後に位置を補正する
     void LateUpdate()
     {
-        // 1. 今回のフレームでの床の移動量を計算
+        // 床の移動量を計算
         Vector3 platformMovement = transform.position - lastPosition;
 
-        // 2. 乗っているキャラクター全員を、床と同じだけ動かす
         if (platformMovement != Vector3.zero)
         {
-            foreach (var controller in passengers)
+            // 1. キャラクターを動かす
+            for (int i = characterPassengers.Count - 1; i >= 0; i--)
             {
-                // キャラクターが生きていて有効な場合のみ
-                if (controller != null && controller.enabled)
+                var cc = characterPassengers[i];
+                if (cc != null && cc.enabled)
                 {
-                    // CharacterController.Moveを使うことで、壁のめり込みも防ぎつつ移動できる
-                    controller.Move(platformMovement);
+                    cc.Move(platformMovement);
+                }
+                else
+                {
+                    characterPassengers.RemoveAt(i); // 無効なものはリストから削除
+                }
+            }
+
+            // 2. 物理オブジェクト（Rigidbody）を動かす
+            for (int i = rbPassengers.Count - 1; i >= 0; i--)
+            {
+                var rb = rbPassengers[i];
+                if (rb != null && !rb.isKinematic)
+                {
+                    // 物理演算を壊さないように、Transformを直接足す
+                    // （Rigidbody.MovePositionを使うと慣性がリセットされることがあるため、単純な追従ならこれが安定します）
+                    rb.transform.position += platformMovement;
+                }
+                else
+                {
+                    rbPassengers.RemoveAt(i);
                 }
             }
         }
 
-        // 次のフレームのために位置を更新
         lastPosition = transform.position;
     }
 
-    // --- 乗っている判定 ---
-
     private void OnTriggerEnter(Collider other)
     {
-        // CharacterControllerを持っている相手ならリストに追加
+        // 判定用コライダー自体は無視
+        if (other.isTrigger) return;
+
+        // A. キャラクターの場合
         CharacterController cc = other.GetComponent<CharacterController>();
         if (cc != null)
         {
-            if (!passengers.Contains(cc))
+            if (!characterPassengers.Contains(cc))
             {
-                passengers.Add(cc);
+                characterPassengers.Add(cc);
+            }
+            return; // キャラクターならここで終了
+        }
+
+        // B. 物理オブジェクト（ゴミなど）の場合
+        Rigidbody rb = other.attachedRigidbody;
+        if (rb != null)
+        {
+            if (!rbPassengers.Contains(rb))
+            {
+                rbPassengers.Add(rb);
             }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        // エリアから出たらリストから削除
+        // A. キャラクターの解除
         CharacterController cc = other.GetComponent<CharacterController>();
         if (cc != null)
         {
-            if (passengers.Contains(cc))
+            if (characterPassengers.Contains(cc))
             {
-                passengers.Remove(cc);
+                characterPassengers.Remove(cc);
+            }
+            return;
+        }
+
+        // B. 物理オブジェクトの解除
+        Rigidbody rb = other.attachedRigidbody;
+        if (rb != null)
+        {
+            if (rbPassengers.Contains(rb))
+            {
+                rbPassengers.Remove(rb);
             }
         }
     }
