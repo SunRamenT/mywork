@@ -920,9 +920,21 @@ MonoBehaviour:
     weight: 10
     allowRandomRotation: 0
   - prefab: {fileID: 100000, guid: f50010d1cc6ce7349939907623b2db74, type: 3}
-    weight: 20
+    weight: 10
     allowRandomRotation: 0
   - prefab: {fileID: 324309825491656986, guid: f83666629696fc4449503e48f8165710, type: 3}
+    weight: 5
+    allowRandomRotation: 1
+  - prefab: {fileID: 539995699966997850, guid: 7e7c897c067c757458fa75df236d2530, type: 3}
+    weight: 3
+    allowRandomRotation: 1
+  - prefab: {fileID: 3323733144287836406, guid: 296bd7850f9db48418fb29875da35916, type: 3}
+    weight: 4
+    allowRandomRotation: 1
+  - prefab: {fileID: 1366011156866087728, guid: ffed4784688dcb842a2c057b45c6d0a6, type: 3}
+    weight: 4
+    allowRandomRotation: 1
+  - prefab: {fileID: 8575635989608893153, guid: f52b00c2ed406b84592304258a17fb24, type: 3}
     weight: 5
     allowRandomRotation: 1
   concreteStructures:
@@ -953,6 +965,9 @@ MonoBehaviour:
   - prefab: {fileID: 100000, guid: 4c14ffc6a7f79e942885227ac141590c, type: 3}
     weight: 10
     allowRandomRotation: 1
+  - prefab: {fileID: 100000, guid: 4c14ffc6a7f79e942885227ac141590c, type: 3}
+    weight: 2
+    allowRandomRotation: 1
   safeZoneRadius: 1
 --- !u!4 &144809231
 Transform:
@@ -977,6 +992,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 147720772605343942, guid: 83f221c8bfb1c29479469626a01fa697, type: 3}
+      propertyPath: m_Speed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 421126278461854665, guid: 83f221c8bfb1c29479469626a01fa697, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -987,7 +1006,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1482905198278132983, guid: 83f221c8bfb1c29479469626a01fa697, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.8244675
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1482905198278132983, guid: 83f221c8bfb1c29479469626a01fa697, type: 3}
       propertyPath: m_LocalPosition.y
@@ -995,7 +1014,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1482905198278132983, guid: 83f221c8bfb1c29479469626a01fa697, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.7216985
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1482905198278132983, guid: 83f221c8bfb1c29479469626a01fa697, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1782,7 +1801,8 @@ GameObject:
   - component: {fileID: 448385771}
   - component: {fileID: 448385770}
   - component: {fileID: 448385774}
-  m_Layer: 0
+  - component: {fileID: 448385775}
+  m_Layer: 9
   m_Name: Pswitch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1893,11 +1913,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a305c8f101632cd4cbc5d67ea0ba1ca1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PressurePlate
-  pressDepth: 0.1
-  targetTag: 
+  pressDepth: 0.3
+  checkRadius: 0.8
+  targetTags: []
   onPressed:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2019118672}
+        m_TargetAssemblyTypeName: AthleticDoor, Assembly-CSharp
+        m_MethodName: Open
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onReleased:
     m_PersistentCalls:
       m_Calls:
@@ -1913,6 +1946,27 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!65 &448385775
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448385769}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 2, z: 1}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &596506873
 GameObject:
   m_ObjectHideFlags: 0
@@ -2212,7 +2266,7 @@ GameObject:
   - component: {fileID: 884201369}
   - component: {fileID: 884201368}
   - component: {fileID: 884201367}
-  m_Layer: 9
+  m_Layer: 20
   m_Name: Reber
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2250,7 +2304,19 @@ MonoBehaviour:
         m_CallState: 2
   onDeactivate:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2019118672}
+        m_TargetAssemblyTypeName: AthleticDoor, Assembly-CSharp
+        m_MethodName: Close
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!65 &884201368
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2266,7 +2332,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -2841,6 +2907,14 @@ PrefabInstance:
     - target: {fileID: 8859129183208198853, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: flinchingTagName
       value: Damage
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859129183208198853, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
+      propertyPath: reikonLayer.m_Bits
+      value: 1024
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859129183208198853, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
+      propertyPath: interactableLayer.m_Bits
+      value: 1064960
       objectReference: {fileID: 0}
     - target: {fileID: 8859129183208198853, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: lowJumpGravityMultiplier

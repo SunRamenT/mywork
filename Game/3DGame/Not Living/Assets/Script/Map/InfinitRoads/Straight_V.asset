@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Straight_V
   m_EditorClassIdentifier: Assembly-CSharp::MapTileData
   prefab: {fileID: 100000, guid: ce754ea1d01175e429aa211f6972d6bd, type: 3}
+  tileType: 0
+  weight: 5
   top: 1
   right: 0
   bottom: 1
