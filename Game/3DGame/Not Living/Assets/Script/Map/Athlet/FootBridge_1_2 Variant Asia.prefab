@@ -1,5 +1,58 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2565290130239886191
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1990189669786508279}
+  - component: {fileID: 8661384426580832724}
+  m_Layer: 7
+  m_Name: Ground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1990189669786508279
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2565290130239886191}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5924798819965833560}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8661384426580832724
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2565290130239886191}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 8.532316, y: 1, z: 2.2002046}
+  m_Center: {x: -4.2214108, y: 3.3, z: 0.020693421}
 --- !u!1001 &6175460245121988275
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -73,17 +126,21 @@ PrefabInstance:
       value: FootBridge_1_2 Variant Asia
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3451118302482216456, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2893627147527914071}
+      addedObject: {fileID: 1990189669786508279}
+    m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5740253265353779401}
@@ -109,32 +166,16 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 4738894151874818959}
   m_SourcePrefab: {fileID: 100100000, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
+--- !u!4 &5924798819965833560 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
+  m_PrefabInstance: {fileID: 6175460245121988275}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6445440028083997666 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a3717a4a4cc32d4fb6040ec3c4b530d, type: 3}
   m_PrefabInstance: {fileID: 6175460245121988275}
   m_PrefabAsset: {fileID: 0}
---- !u!65 &2893627147527914071
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6445440028083997666}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 8.461275, y: 1.5911431, z: 2.068512}
-  m_Center: {x: -4.1950045, y: 2.93949, z: 0.012840271}
 --- !u!65 &5740253265353779401
 BoxCollider:
   m_ObjectHideFlags: 0

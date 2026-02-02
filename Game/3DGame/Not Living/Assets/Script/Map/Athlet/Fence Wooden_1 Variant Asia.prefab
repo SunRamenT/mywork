@@ -68,6 +68,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fence Wooden_1 Variant Asia
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a26bf69b4439c7f48ac88d819c5aff96, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3451118302482216456, guid: a26bf69b4439c7f48ac88d819c5aff96, type: 3}
     m_RemovedGameObjects: []

@@ -100,6 +100,8 @@ public class PlayerController : MonoBehaviour
     
     private TrashItem currentHeldItem; // 現在持っているアイテム
 
+    public Transform respawnPoint;
+
     public Animator GetCurrentAnimator()
     {
         return currentAnimator;
@@ -442,6 +444,24 @@ public class PlayerController : MonoBehaviour
             ghost.transform.position = targetNPC.transform.position;
             ghost.transform.rotation = targetNPC.transform.rotation;
         }
+
+        // Y座標が-5以下になったら自動的にリスポーン
+        if (currentCharacter.transform.position.y < -5f)
+        {
+            // もし respawnPoint が設定されていればそこへ、なければ原点(0,0,0)などへ
+            Vector3 targetPos = (respawnPoint != null) ? respawnPoint.position : Vector3.zero;
+            
+            // 前述の Teleport メソッド（あるいは同様の処理）を呼び出す
+            Teleport(targetPos);
+            
+            // 落下ダメージが必要な場合
+            if (IsPossessing() && npcStatusManager != null)
+            {
+                npcStatusManager.TakeDamage(10, null); // ダメージ値は適宜調整
+            }
+
+            Debug.Log("落下検知：リスポーン地点へワープしました。");
+        }
     }
 
     /// <summary>
@@ -589,9 +609,34 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    /// <summary>
+    public void Teleport(Vector3 targetPosition)
+    {
+        // 1. 垂直速度をリセット（これをしないとワープ先でも落下し続ける）
+        velocity = Vector3.zero;
+        timeInAir = 0f;
+
+        // 2. CharacterControllerを一時的に無効化
+        if (currentController != null) currentController.enabled = false;
+
+        // 3. 座標の更新
+        if (targetNPC != null)
+        {
+            targetNPC.transform.position = targetPosition;
+            this.transform.position = targetPosition; // 幽霊も同期
+        }
+        else
+        {
+            this.transform.position = targetPosition;
+        }
+
+        // 4. 物理演算の同期
+        Physics.SyncTransforms();
+
+        // 5. 再有効化
+        if (currentController != null) currentController.enabled = true;
+    }
+
     /// 現在乗っ取っているNPCのStatusManagerを取得する
-    /// </summary>
     public StatusManager GetPossessedStatusManager()
     {
         return npcStatusManager;

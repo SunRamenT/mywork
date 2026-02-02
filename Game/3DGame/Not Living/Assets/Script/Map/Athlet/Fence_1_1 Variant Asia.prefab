@@ -65,6 +65,10 @@ PrefabInstance:
       value: Fence_1_1 Variant Asia
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 1d89405e8db5a06499aefb0c2e87c761, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1d89405e8db5a06499aefb0c2e87c761, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
