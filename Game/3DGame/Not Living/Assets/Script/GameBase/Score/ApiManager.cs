@@ -65,7 +65,7 @@ public class ApiManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError("ランキング取得失敗: " + webRequest.error);
+                Debug.Log("ランキング取得失敗: " + webRequest.error);
                 OnRankingDataReceived?.Invoke(new List<RankingEntry>());
             }
         }

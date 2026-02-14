@@ -4,6 +4,9 @@ using Unity.AI.Navigation;
 using System.Collections;
 using System.Collections.Generic;
 
+// NavMeshComponents がインストールされている前提
+// (Package Manager > AI Navigation)
+
 public class InfiniteNavMeshBuilder : MonoBehaviour
 {
     [Header("設定")]
@@ -11,16 +14,17 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
     public Transform trackedTarget;
     
     [Tooltip("NavMeshを生成する範囲（X, Y, Z）")]
-    public Vector3 size = new Vector3(80.0f, 30.0f, 80.0f);
+    // ViewDistance=3 (約60m) なら、余裕を持って 160x40x160 くらいが安全
+    public Vector3 size = new Vector3(160.0f, 40.0f, 160.0f);
 
-    [Tooltip("NavMeshの対象にするレイヤー")]
+    [Tooltip("NavMeshの対象にするレイヤー（Ground, Obstacle, Wallなど）")]
     public LayerMask layerMask;
 
-    [Tooltip("更新を行う移動距離の閾値（メートル）")] // ▼▼▼ 追加 ▼▼▼
-    public float updateDistanceThreshold = 5.0f;
+    [Tooltip("更新を行う移動距離の閾値（メートル）")] 
+    // あまり頻繁すぎると負荷になるため、10m〜15m 程度推奨
+    public float updateDistanceThreshold = 10.0f;
 
     [Header("Agent設定")]
-    [Tooltip("このビルダーが担当するAgentの名前")]
     public string agentTypeName = "Humanoid";
 
     // 内部変数
@@ -30,7 +34,7 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
     private AsyncOperation m_Operation;
     private NavMeshBuildSettings m_BuildSettings;
     
-    private Vector3 lastUpdatePosition = new Vector3(-9999, -9999, -9999); // 前回の更新位置
+    private Vector3 lastUpdatePosition = new Vector3(-9999, -9999, -9999);
 
     void OnEnable()
     {
@@ -58,31 +62,31 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
     {
         while (true)
         {
-            // 1. プレイヤーが十分に移動したかチェック
+            // プレイヤーが閾値以上移動したかチェック
             if (Vector3.Distance(trackedTarget.position, lastUpdatePosition) > updateDistanceThreshold)
             {
                 lastUpdatePosition = trackedTarget.position;
                 
-                // 2. NavMeshの更新処理を実行（ここを分割して軽くする）
+                // 非同期更新を開始
                 yield return StartCoroutine(UpdateNavMeshAsync());
             }
 
-            // 更新が終わったら、または移動していなければ、少し待機して再チェック
-            // 頻繁すぎるとチェック自体が無駄になるので0.2秒くらい空ける
-            yield return new WaitForSeconds(0.2f);
+            // 更新チェック頻度（0.5秒に1回など、少し間引く）
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
-    // 重い処理をフレーム分割して実行するコルーチン
+    // ★最適化の要：非同期ビルドプロセス
     IEnumerator UpdateNavMeshAsync()
     {
-        // --- ステップ1: データの収集 (CollectSources) ---
-        // ここが重いので、メインスレッドで行うが、終わったら一旦休憩する
-        
-        m_Sources.Clear(); // リストを使い回す
+        // もし前の更新が終わっていなければスキップ（二重実行防止）
+        if (m_Operation != null && !m_Operation.isDone) yield break;
+
+        m_Sources.Clear();
         var bounds = new Bounds(trackedTarget.position, size);
 
-        // A. 地面や障害物の収集
+        // --- A. 地面や壁（物理コライダー）の収集 ---
+        // これはUnity標準機能で範囲内を高速に収集できる
         NavMeshBuilder.CollectSources(
             bounds, 
             layerMask, 
@@ -92,13 +96,23 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
             m_Sources
         );
 
-        // B. ModifierVolumeの収集
-        // FindObjectsByTypeは重いので、キャッシュするか、頻度を落としたいが
-        // 動的な生成に対応するため毎回呼ぶ。ただしSortMode.Noneで最速にする。
-        var modifiers = FindObjectsByType<NavMeshModifierVolume>(FindObjectsSortMode.None);
+        // --- B. NavMeshModifierの収集（ここが劇的に高速化） ---
+        // 以前: FindObjectsByType でシーン全検索 (O(N)) -> 重い
+        // 今回: Registry からアクティブなものだけ取得 (O(k)) -> 速い
         
-        foreach (var mod in modifiers)
+        foreach (var mod in NavMeshModifierRegistry.ActiveModifiers)
         {
+            if (mod == null) continue;
+
+            // 簡易的な範囲チェック：ベイク範囲に入っているものだけ対象にする
+            // (Modifierの中心座標が bounds に含まれているか、あるいは距離で判定)
+            if (!bounds.Contains(mod.transform.position)) 
+            {
+                // 正確にはBounds同士の交差判定(Intersects)が良いが、
+                // 計算コスト削減のため「中心点が含まれるか」程度でも十分実用的
+                continue; 
+            }
+            
             if (!mod.isActiveAndEnabled) continue;
             if (((1 << mod.gameObject.layer) & layerMask) == 0) continue;
             if (!mod.AffectsAgentType(m_BuildSettings.agentTypeID)) continue;
@@ -111,15 +125,16 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
             m_Sources.Add(src);
         }
 
-        // ★ここで1フレーム待つ！
-        // これにより「収集」と「ビルド開始」の負荷が別々のフレームに分散される
+        // 収集が終わったら、ビルド処理の前に1フレーム休んでメインスレッドを解放
         yield return null; 
 
-        // --- ステップ2: 非同期ビルドの開始 ---
+        // --- 非同期ビルド実行 ---
         m_Operation = NavMeshBuilder.UpdateNavMeshDataAsync(m_NavMesh, m_BuildSettings, m_Sources, bounds);
         
-        // --- ステップ3: 完了待ち ---
         yield return m_Operation;
+        
+        // デバッグ用: 更新完了ログ
+        // Debug.Log($"NavMesh Updated at {trackedTarget.position}");
     }
 
     bool GetBuildSettings(string agentName, out NavMeshBuildSettings settings)

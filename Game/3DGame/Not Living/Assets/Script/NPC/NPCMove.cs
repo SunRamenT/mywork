@@ -46,24 +46,28 @@ public class NPCMove : MonoBehaviour
             _isNottoried = value;
             if (_isNottoried)
             {
-                // 実行中の処理をすべて停止
+                // 憑依された時：思考停止・Agent停止
                 StopAllCoroutines();
-
-                // 反撃などのターゲット情報をリセット
                 target = null;
-                if (alertPanel != null)
-                    alertPanel.SetActive(false);
-
-                // 状態を強制的にPatrollingに戻す
-                currentState = AIState.Patrolling;
-
-                // NavMeshAgentを安全に再開
-                if (agent != null && agent.enabled && agent.isOnNavMesh)
+                if (alertPanel != null) alertPanel.SetActive(false);
+                
+                // Agentを止めるだけでなく、本来は enabled = false にすべき
+                if (agent != null && agent.isOnNavMesh) 
                 {
-                    agent.isStopped = false;
-                    agent.speed = 1f;
-                    SetNewPatrolDestination();
+                    agent.isStopped = true; 
+                    agent.enabled = false; // ★ここ重要
                 }
+            }
+            else
+            {
+                // 憑依解除された時：再起動
+                if (agent != null) 
+                {
+                    agent.enabled = true; // ★再有効化
+                    if(agent.isOnNavMesh) agent.isStopped = false;
+                }
+                currentState = AIState.Patrolling;
+                SetNewPatrolDestination();
             }
         }
     }
