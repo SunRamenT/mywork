@@ -3827,7 +3827,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc4dd4dbdd2428a43a93bff2fb2995ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AINewsCaster
-  modelName: gemini-2.5-flash-preview-09-2025
+  modelName: gemini-2.5-flash
   apiKey: AIzaSyBeSC3h5kxBQk0sEcZxyArIholdKzRi0LY
 --- !u!114 &1339944066
 MonoBehaviour:
@@ -3845,7 +3845,7 @@ MonoBehaviour:
   newsText: {fileID: 1344828850}
   newsPanel: {fileID: 1837778896}
   pageDisplayDuration: 2.5
-  maxCharsPerPage: 20
+  maxCharsPerPage: 50
 --- !u!4 &1339944067
 Transform:
   m_ObjectHideFlags: 0
