@@ -116,3 +116,4 @@ ehthumbs.db
 # Security - Ignore API Keys
 **/Assets/Script/GameBase/api_key.txt
 api_key.txt
+api_key.txt.meta

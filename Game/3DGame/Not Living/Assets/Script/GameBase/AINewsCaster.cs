@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.IO; // 【重要】System.IOを追加してファイル操作を可能にする
 
 public class AINewsCaster : MonoBehaviour
 {
@@ -29,10 +30,39 @@ public class AINewsCaster : MonoBehaviour
     // 実際にアクセス可能なモデル名に変更してください
     [SerializeField] private string modelName = "gemini-2.5-flash"; 
     
-    [SerializeField] private string apiKey = ""; 
+    private string apiKey = ""; 
 
     private bool isGenerating = false;
 
+    private void Awake()
+    {
+        LoadApiKey();
+    }
+
+    /// <summary>
+    /// 外部のテキストファイルからAPIキーを読み込む
+    /// </summary>
+    private void LoadApiKey()
+    {
+        // プロジェクト内の api_key.txt のパスを構築
+        string keyPath = Path.Combine(Application.dataPath, "Script/GameBase/api_key.txt");
+
+        try
+        {
+            if (File.Exists(keyPath))
+            {
+                apiKey = File.ReadAllText(keyPath).Trim();
+            }
+            else
+            {
+                Debug.LogError($"[Security] APIキーファイルが見つかりません。パス: {keyPath}");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[Security] APIキーの読み込みに失敗しました: {e.Message}");
+        }
+    }
     public void GenerateNews(Action<string> onSuccess, Action<string> onError)
     {
         if (isGenerating) return;
