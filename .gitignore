@@ -112,3 +112,7 @@ ehthumbs.db
 
 # Unity Generated Files
 **/LightingData.asset
+
+# Security - Ignore API Keys
+**/Assets/Script/GameBase/api_key.txt
+api_key.txt

@@ -29,7 +29,6 @@ public class AINewsCaster : MonoBehaviour
     // 実際にアクセス可能なモデル名に変更してください
     [SerializeField] private string modelName = "gemini-2.5-flash"; 
     
-    // 【警告】テスト時はここに直接キーを入れて確認し、本番では必ずサーバー経由等の安全な方法に変更すること
     [SerializeField] private string apiKey = ""; 
 
     private bool isGenerating = false;
