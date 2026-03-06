@@ -7,7 +7,7 @@ using System.Text;
 
 public class AINewsCaster : MonoBehaviour
 {
-    // API仕様に合わせたクラス定義（C#の命名規則には反しますが、JsonUtilityの仕様上変数名を一致させる必要があります）
+    // API仕様に合わせたクラス定義（v1betaのリクエストフォーマットに基づく）
     [System.Serializable]
     public class GeminiRequest
     {
