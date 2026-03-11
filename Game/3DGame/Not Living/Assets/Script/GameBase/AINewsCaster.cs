@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.IO; // 【重要】System.IOを追加してファイル操作を可能にする
+using System.IO; //System.IOを追加してファイル操作を可能にする
 
 public class AINewsCaster : MonoBehaviour
 {
@@ -83,9 +83,8 @@ public class AINewsCaster : MonoBehaviour
 
         string url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={apiKey}";
         string prompt = BuildPrompt();
-        // 修正する箇所：AINewsCaster.cs の PostNewsRequest メソッド内
+        // AINewsCaster.cs の PostNewsRequest メソッド内
 
-        // 修正案：@ を用いて改行を含む文字列をスッキリと記述し、指示を構造化（Markdown風）する
         string systemPrompt = @"You are a professional and cheerful news anchor in a ghost-themed survival game.
                         Generate a short, immersive news script (within 15 seconds) based on the provided world status.
 
@@ -181,7 +180,6 @@ public class AINewsCaster : MonoBehaviour
         int days = tm.daysSurvived;
         string timeStr = tm.GetTimeAsString();
 
-        // 【修正箇所】AlignmentManagerがまだVector3を返しているため、x,y,zで取得します
         // x: 時間, y: 善悪, z: カオス (AlignmentManagerの定義に基づく)
         Vector3 alignment = am.CurrentAlignment; 
         float goodEvil = alignment.y;

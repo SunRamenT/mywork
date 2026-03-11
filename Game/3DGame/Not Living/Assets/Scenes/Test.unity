@@ -3209,7 +3209,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: maxSpirit
-      value: 999
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: amountText
@@ -3221,7 +3221,7 @@ PrefabInstance:
       objectReference: {fileID: 1762065135}
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: startSpirit
-      value: 999
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2762602703825521644, guid: 0c44d7f7da2656c4d8fd4ef1183d60fb, type: 3}
       propertyPath: uiPanelImage
@@ -3828,7 +3828,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AINewsCaster
   modelName: gemini-2.5-flash
-  apiKey: AIzaSyBeSC3h5kxBQk0sEcZxyArIholdKzRi0LY
 --- !u!114 &1339944066
 MonoBehaviour:
   m_ObjectHideFlags: 0
