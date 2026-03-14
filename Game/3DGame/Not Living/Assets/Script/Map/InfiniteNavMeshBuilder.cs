@@ -36,6 +36,9 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
     
     private Vector3 lastUpdatePosition = new Vector3(-9999, -9999, -9999);
 
+private WaitForSeconds m_NavUpdateWait; // キャッシュ用
+private List<NavMeshBuildMarkup> m_EmptyMarkups = new List<NavMeshBuildMarkup>(); // 使い回し用
+
     void OnEnable()
     {
         if (!GetBuildSettings(agentTypeName, out m_BuildSettings))
@@ -49,7 +52,7 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
         m_Instance = NavMesh.AddNavMeshData(m_NavMesh);
         
         if (trackedTarget == null) trackedTarget = transform;
-        
+        m_NavUpdateWait = new WaitForSeconds(0.5f); // 最初に1回だけnew
         StartCoroutine(UpdateNavMeshCoroutine());
     }
 
@@ -57,7 +60,7 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
     {
         m_Instance.Remove();
     }
-
+    
     IEnumerator UpdateNavMeshCoroutine()
     {
         while (true)
@@ -65,14 +68,12 @@ public class InfiniteNavMeshBuilder : MonoBehaviour
             // プレイヤーが閾値以上移動したかチェック
             if (Vector3.Distance(trackedTarget.position, lastUpdatePosition) > updateDistanceThreshold)
             {
+                // 移動があった場合のみ更新を行う
                 lastUpdatePosition = trackedTarget.position;
-                
-                // 非同期更新を開始
                 yield return StartCoroutine(UpdateNavMeshAsync());
             }
-
-            // 更新チェック頻度（0.5秒に1回など、少し間引く）
-            yield return new WaitForSeconds(0.5f);
+            // キャッシュした変数を使うことで GC Alloc を 0 にする
+            yield return m_NavUpdateWait; 
         }
     }
 
