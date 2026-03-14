@@ -204,7 +204,7 @@ public class MapGenerator : MonoBehaviour
             int reqLeft   = GetNeighborConnection(coord, Vector2Int.left,  "right");
             int reqRight  = GetNeighborConnection(coord, Vector2Int.right, "left");
 
-            // ★最適化: LINQ (Where, ToList) を完全排除。キャッシュしたリストを使い回す。
+            // キャッシュしたリストを使い回す。
             m_CachedValidTiles.Clear();
             m_CachedStrictTiles.Clear();
 
@@ -285,7 +285,7 @@ public class MapGenerator : MonoBehaviour
 
     void CleanupChunks()
     {
-        // ★最適化: 毎回 new List せずキャッシュを使い回す
+        // 毎回 new List せずキャッシュを使い回す
         m_CachedChunksToRemove.Clear();
         int keepThreshold = viewDistance + 1;
 
@@ -400,7 +400,9 @@ public class MapGenerator : MonoBehaviour
         MapTileData bottom = GetNeighborTileData(coord + Vector2Int.down);
         MapTileData left   = GetNeighborTileData(coord + Vector2Int.left);
         MapTileData right  = GetNeighborTileData(coord + Vector2Int.right);
-        if (candidate.tileType == TileType.Cross || candidate.tileType == TileType.T_Junction) { if (IsBusyJunction(top) || IsBusyJunction(bottom) || IsBusyJunction(left) || IsBusyJunction(right)) return false; }
+        if (candidate.tileType == TileType.Cross || candidate.tileType == TileType.T_Junction) { 
+            if (IsBusyJunction(top) || IsBusyJunction(bottom) || IsBusyJunction(left) || IsBusyJunction(right)) return false;
+         }
         if (candidate.tileType == TileType.DeadEnd) { if (IsType(top, TileType.DeadEnd) || IsType(bottom, TileType.DeadEnd) || IsType(left, TileType.DeadEnd) || IsType(right, TileType.DeadEnd)) return false; }
         return true;
     }
@@ -426,8 +428,16 @@ public class MapGenerator : MonoBehaviour
             int currentWeight = tile.weight;
             if (tile.tileType == TileType.Grass && grassNeighbors > 0) currentWeight *= (grassNeighbors * 4);
             else if (tile.tileType == TileType.Concrete && concreteNeighbors > 0) currentWeight *= (concreteNeighbors * 4);
-            if (tile.tileType == TileType.Grass && concreteNeighbors > grassNeighbors) { currentWeight /= 2; if (currentWeight < 1) currentWeight = 1; }
-            if (tile.tileType == TileType.Concrete && grassNeighbors > concreteNeighbors) { currentWeight /= 2; if (currentWeight < 1) currentWeight = 1; }
+            if (tile.tileType == TileType.Grass && concreteNeighbors > grassNeighbors) 
+            { 
+                currentWeight /= 2;
+                if (currentWeight < 1) currentWeight = 1;
+             }
+            if (tile.tileType == TileType.Concrete && grassNeighbors > concreteNeighbors) 
+            { 
+                currentWeight /= 2; 
+                if (currentWeight < 1) currentWeight = 1;
+            }
             
             m_CachedTileWeights.Add(currentWeight); 
             totalWeight += currentWeight;
@@ -453,7 +463,7 @@ public class MapGenerator : MonoBehaviour
 
     StructureItem GetWeightedRandomStructure(List<StructureItem> candidates, System.Random rng)
     {
-        // ★最適化: LINQのSum ( GC Alloc ) を単純な for ループに変更
+        // LINQのSum ( GC Alloc ) を単純な for ループに変更
         int totalWeight = 0;
         for (int i = 0; i < candidates.Count; i++)
         {
@@ -475,6 +485,13 @@ public class MapGenerator : MonoBehaviour
         Vector2Int targetCoord = myCoord + direction;
         if (!spawnedTileData.ContainsKey(targetCoord)) return -1;
         MapTileData neighbor = spawnedTileData[targetCoord];
-        switch (requiredSide) { case "top": return (int)neighbor.top; case "bottom": return (int)neighbor.bottom; case "left": return (int)neighbor.left; case "right": return (int)neighbor.right; default: return -1; }
+        switch (requiredSide) 
+        { 
+            case "top": return (int)neighbor.top;
+            case "bottom": return (int)neighbor.bottom;
+            case "left": return (int)neighbor.left;
+            case "right": return (int)neighbor.right;
+            default: return -1; 
+        }
     }
 }
