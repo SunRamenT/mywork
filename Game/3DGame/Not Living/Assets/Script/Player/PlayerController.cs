@@ -1,7 +1,6 @@
 using UnityEngine;
-using System.Linq; // OrderByを使うために必要
 using System.Collections;
-using NUnit.Framework;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Animator))]
@@ -10,12 +9,11 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
-    //public float jumpPower = 5f;
-    [Tooltip("この秒数以上、空中にいた場合のみ着地音を鳴らす")] //
+    [Tooltip("この秒数以上、空中にいた場合のみ着地音を鳴らす")]
     public float landingThreshold = 0.1f;
-    [Tooltip("ジャンプボタンを離した時の、重力のかかり具合")] //
+    [Tooltip("ジャンプボタンを離した時の、重力のかかり具合")]
     public float lowJumpGravityMultiplier = 2.5f;
-    [Tooltip("落下中の重力のかかり具合")] 
+    [Tooltip("落下中の重力のかかり具合")]
     public float fallGravityMultiplier = 2f;
 
     [Header("Item Detection Settings")]
@@ -32,7 +30,6 @@ public class PlayerController : MonoBehaviour
     [Header("Animator Settings")]
     public string attackTriggerName = "Attack";
     public string jumpTriggerName = "Jump";
-    // ▼▼▼ Animatorのパラメータ名をInspectorで設定できるように変更 ▼▼▼
     public string horizontalFloatName = "Hor";
     public string verticalFloatName = "Vert";
 
@@ -56,24 +53,22 @@ public class PlayerController : MonoBehaviour
 
     public Transform CurrentCharacterTransform => currentCharacter != null ? currentCharacter.transform : this.transform;
     public ISpecialAction CurrentSpecialAction => currentSpecialAction;
-    [Tooltip("ダメージモーションのステートに設定したタグ名")] // ▼▼▼ 追加 ▼▼▼
+    [Tooltip("ダメージモーションのステートに設定したタグ名")]
     public string flinchingTagName = "Flinching";
-    /// 現在乗っ取っているキャラクターのTagを外部に公開する
     public string PossessedCharacterTag => IsPossessing() ? targetNPC.tag : null;
 
-    private bool wasGrounded; 
-    private float timeInAir = 0f; // ▼▼▼ 追加 ▼▼▼
+    private bool wasGrounded;
+    private float timeInAir = 0f;
 
     private AudioSource audioSource;
     [Tooltip("アクションができないときに再生する音")]
     public AudioClip MissSound;
-    [Tooltip("アクションができないときに再生する音")]
+    [Tooltip("ワープ時に再生する音")]
     public AudioClip warpSound;
     public AudioClip dodgeSound;
 
     [Header("回避設定")]
     [Tooltip("回避アニメーションのトリガー名")]
-    
     public string stateID = "State";
     [Tooltip("回避のクールタイム（秒）")]
     public float dodgeCooldown = 1.5f;
@@ -83,7 +78,7 @@ public class PlayerController : MonoBehaviour
     public float dodgeDuration = 0.3f;
     [Tooltip("回避開始時の無敵時間（秒）")]
     public float dodgeInvincibilityTime = 0.1f;
-    
+
     private float nextDodgeTime = 0f;
     public bool isDodging = false;
 
@@ -97,10 +92,28 @@ public class PlayerController : MonoBehaviour
     public LayerMask pickupLayer;
     [Tooltip("拾ったアイテムを固定する位置（手など）")]
     public Transform handHoldPosition;
-    
-    private TrashItem currentHeldItem; // 現在持っているアイテム
+
+    private TrashItem currentHeldItem;
 
     public Transform respawnPoint;
+
+    // ★修正: Camera.mainを毎フレーム検索しないようにAwakeでキャッシュする
+    private Camera m_MainCamera;
+
+    // ★修正: OverlapSphereNonAlloc用の事前確保バッファ
+    //   3つのOverlapSphere呼び出しが同一フレーム内で順番に実行されるため、バッファを共有できる
+    private const int OVERLAP_BUFFER_SIZE = 16;
+    private Collider[] m_OverlapBuffer = new Collider[OVERLAP_BUFFER_SIZE];
+
+    // ★修正: animatorのパラメータ名をHashSetにキャッシュし、HasParameterの毎フレームコピーを回避する
+    //   animatorが切り替わるタイミング（SetTargetNPC）でキャッシュを更新する
+    private HashSet<string> m_AnimatorParamCache = new HashSet<string>();
+    private Animator m_CachedParamAnimator = null;
+
+    // ★修正: canAttackコルーチンのWaitForSeconds再利用キャッシュ
+    private WaitForSeconds m_WaitAttack40 = new WaitForSeconds(40f / 60f);
+    private WaitForSeconds m_WaitAttack80 = new WaitForSeconds(80f / 60f);
+    private WaitForSeconds m_WaitAttack100 = new WaitForSeconds(100f / 60f);
 
     public Animator GetCurrentAnimator()
     {
@@ -117,9 +130,26 @@ public class PlayerController : MonoBehaviour
         currentCharacter = ghost;
         currentController = ghostController;
         currentAnimator = ghostAnimator;
-        // AudioSourceを自分自身から取得、またはなければ追加する
         audioSource = GetComponent<AudioSource>();
         currentSpecialAction = ghost.GetComponent<ISpecialAction>();
+
+        // ★修正: Camera.mainをキャッシュ
+        m_MainCamera = Camera.main;
+
+        // 初期animatorのパラメータをキャッシュ
+        RebuildAnimatorParamCache(ghostAnimator);
+    }
+
+    // ★修正: animatorが切り替わるたびにパラメータキャッシュを再構築するメソッド
+    private void RebuildAnimatorParamCache(Animator animator)
+    {
+        m_AnimatorParamCache.Clear();
+        m_CachedParamAnimator = animator;
+        if (animator == null) return;
+        foreach (AnimatorControllerParameter param in animator.parameters)
+        {
+            m_AnimatorParamCache.Add(param.name);
+        }
     }
 
     public void SetTargetNPC(GameObject npc, Animator anim)
@@ -136,7 +166,8 @@ public class PlayerController : MonoBehaviour
                 if (nottoriController != null) nottoriController.ForceRelease(); return;
             }
             HitboxController hitboxCtrl = targetNPC.GetComponentInChildren<HitboxController>();
-            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0) {
+            if (hitboxCtrl != null && hitboxCtrl.attackHitboxes.Length > 0)
+            {
                 punchAttackInfo = hitboxCtrl.attackHitboxes[0].GetComponent<AttackInfo>();
             }
             currentSpecialAction = targetNPC.GetComponent<ISpecialAction>();
@@ -148,11 +179,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             ghostController.enabled = true;
-
-            // currentSpecialAction = null; // ← これが問題の原因だった
-            // 正しくは、幽霊自身の特殊能力（ワープなど）を取得する
             currentSpecialAction = ghost.GetComponent<ISpecialAction>();
-
             if (currentInteractable != null) { currentInteractable.OnPlayerExitRange(); currentInteractable = null; }
             currentCharacter = ghost;
             currentController = ghostController;
@@ -162,6 +189,9 @@ public class PlayerController : MonoBehaviour
             npcStatusManager = null;
             punchAttackInfo = null;
         }
+
+        // ★修正: animator切り替え時にパラメータキャッシュを更新
+        RebuildAnimatorParamCache(currentAnimator);
     }
 
     private void Update()
@@ -169,12 +199,6 @@ public class PlayerController : MonoBehaviour
         float playerTimeScale = PlayerTimeManager.Instance?.PlayerTimeScale ?? 1f;
         float playerDeltaTime = Time.deltaTime * playerTimeScale;
 
-        // 現在のアニメーターの再生速度を、プレイヤーの時間倍率に合わせる
-        //if (currentAnimator != null)
-        //{
-        //    currentAnimator.speed = playerTimeScale;
-        //}
-        
         if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState != GameStateManager.GameState.Gameplay)
         {
             if (targetNPC != null && currentAnimator != null)
@@ -184,40 +208,32 @@ public class PlayerController : MonoBehaviour
             }
             return;
         }
-        
+
         if (nottoriController.isPossessing && targetNPC == null)
         {
             Debug.LogWarning("乗っ取り対象が消滅したため、強制的に憑依解除します。");
-            // 憑依解除処理を呼び出す
             nottoriController.ForceRelease();
             return;
         }
         if (targetNPC != null && npcStatusManager.IsDead)
         {
-            // 霊魂ダメージなどのペナルティ処理
             if (reikonManager != null && nottoriController != null)
             {
                 reikonManager.TakeDamage(nottoriController.deathPenaltyAmount);
             }
-            // 憑依解除
             nottoriController.ForceRelease();
             return;
         }
-        
+
         CheckForRecoveryItems();
         CheckForInteractables();
         UpdatePhasingState();
 
         if (!currentController || !currentController.enabled) return;
 
-        // isDodgingがtrueの場合は、移動入力を無視
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        //float h = isDodging ? 0f : Input.GetAxis("Horizontal");
-        //float v = isDodging ? 0f : Input.GetAxis("Vertical");
-
-        // currentAnimatorにパラメータが存在する場合のみ値を設定する
         if (HasParameter(currentAnimator, horizontalFloatName))
         {
             currentAnimator.SetFloat(horizontalFloatName, h);
@@ -229,101 +245,83 @@ public class PlayerController : MonoBehaviour
 
         if (IsPossessing())
         {
-            AnimatorStateInfo stateInfo = currentAnimator.GetCurrentAnimatorStateInfo(0); // 0はベースレイヤー
+            AnimatorStateInfo stateInfo = currentAnimator.GetCurrentAnimatorStateInfo(0);
             bool isFlinching = stateInfo.IsTag(flinchingTagName);
 
-            // isFlinchingがfalseの時（＝ダメージ中でない時）だけ、以下の入力が可能
             if (!isFlinching)
             {
-                // 攻撃
                 if (Input.GetButtonDown("Fire1") && isAttack == false)
                 {
                     if (npcStatusManager != null && punchAttackInfo != null)
                     {
-                        punchAttackInfo.damage = npcStatusManager.power; 
+                        punchAttackInfo.damage = npcStatusManager.power;
                     }
                     isAttack = true;
-                    int waitAttacktime = 0;
 
                     if (combocount >= 4) combocount = 0;
-                    
+
+                    // ★修正: attackTriggerNameフィールドを上書きせず、ローカル変数で管理する
+                    //   フィールドを直接書き換えるとInspectorの設定値が失われる
+                    string triggerToFire;
+                    WaitForSeconds waitTime;
+
                     if (combocount == 0)
                     {
-                        waitAttacktime = 40;
-                        attackTriggerName = "Attack1";
-                        currentAnimator.SetTrigger(attackTriggerName);
-                        StartCoroutine(canAttack(waitAttacktime));
+                        triggerToFire = "Attack1";
+                        waitTime = m_WaitAttack40;
                     }
                     else if (combocount == 1)
                     {
-                        waitAttacktime = 40;
-                        attackTriggerName = "Attack2";
-                        currentAnimator.SetTrigger(attackTriggerName);
-                        StartCoroutine(canAttack(waitAttacktime));
+                        triggerToFire = "Attack2";
+                        waitTime = m_WaitAttack40;
                     }
                     else if (combocount == 2)
                     {
-                        waitAttacktime = 80;
-                        attackTriggerName = "Kick1";
-                        currentAnimator.SetTrigger(attackTriggerName);
-                        StartCoroutine(canAttack(waitAttacktime));
+                        triggerToFire = "Kick1";
+                        waitTime = m_WaitAttack80;
                     }
-                    else if (combocount == 3)
+                    else
                     {
-                        waitAttacktime = 100;
-                        attackTriggerName = "Kick2";
-                        currentAnimator.SetTrigger(attackTriggerName);
-                        StartCoroutine(canAttack(waitAttacktime));
+                        triggerToFire = "Kick2";
+                        waitTime = m_WaitAttack100;
                     }
+
+                    currentAnimator.SetTrigger(triggerToFire);
+                    StartCoroutine(canAttack(waitTime));
                     combocount++;
                 }
-                // ▼▼▼ Fire2 (右クリック) の入力処理を統合・整理 ▼▼▼
-                
-                // 1. ボタンを押した瞬間
+
                 if (Input.GetButtonDown("Fire2"))
                 {
-                    // A. まずインタラクト（TaskMachineなど）を最優先でチェック
                     if (currentInteractable != null)
                     {
                         currentInteractable.OnInteract(this);
-                        // ここでreturnしない（続けて他の処理が走らないように else if で繋ぐ）
                     }
-                    // B. インタラクト対象がなく、かつ手に何も持っていないなら、ゴミ拾いをチェック
                     else if (currentHeldItem == null)
                     {
                         TrashItem trash = CheckForTrash();
                         if (trash != null)
                         {
-                            // ゴミ拾い実行
                             currentHeldItem = trash;
                             currentHeldItem.OnPickUp(handHoldPosition);
-                            // 効果音があればここで鳴らす
                         }
-                        // C. ゴミもなければ、特殊能力の発動を試みる
                         else if (currentSpecialAction != null)
                         {
-                            combocount = 0; // コンボをリセット
-                            // 1. まずクールタイムが完了しているかチェック
+                            combocount = 0;
                             if (currentSpecialAction.CooldownProgress >= 1.0f)
                             {
-                                // 2. 完了していれば、音を鳴らして能力を発動
                                 currentCharacter.GetComponent<CharacterSounds>()?.PlaySpecialAbilitySound();
                                 currentSpecialAction.PerformAction(this);
                             }
                             else
                             {
-                                //クールタイム中であることを示す音を鳴らす
                                 Debug.Log("特殊能力はクールタイム中です。");
-                                if (MissSound != null)
-                                {
-                                    audioSource.PlayOneShot(MissSound);
-                                }
+                                if (MissSound != null) audioSource.PlayOneShot(MissSound);
                             }
                         }
                     }
                 }
 
-                // 2. ボタンを離した瞬間（ゴミを持っていたら離す）
                 if (Input.GetButtonUp("Fire2"))
                 {
                     if (currentHeldItem != null)
@@ -332,233 +330,171 @@ public class PlayerController : MonoBehaviour
                         currentHeldItem = null;
                     }
                 }
-                
-                // 特殊能力
-                if (Input.GetButtonDown("Fire2") && currentSpecialAction != null)
-                {
-                    
-                }
-                // 回避入力の判定
+
                 if (Input.GetButtonDown("Jump") && Time.time >= nextDodgeTime)
                 {
-                    combocount = 0; // コンボをリセット
+                    combocount = 0;
                     StartCoroutine(Dodge());
                 }
-            }   
+            }
         }
         else
         {
-            //幽霊時使えないボタンを押したとき
             if (Input.GetButtonDown("Fire1"))
             {
-                if (MissSound != null)
-                {
-                    audioSource.PlayOneShot(MissSound);
-                }
+                if (MissSound != null) audioSource.PlayOneShot(MissSound);
             }
-            // 特殊能力
             if (Input.GetButtonDown("Fire2"))
             {
-                // 1. まずクールタイムが完了しているかチェック
                 if (currentSpecialAction.CooldownProgress >= 1.0f)
                 {
-                    // 2. 完了していれば、音を鳴らして能力を発動
                     currentSpecialAction.PerformAction(this);
-                    if (warpSound != null)
-                    {
-                        audioSource.PlayOneShot(warpSound);
-                    }
+                    if (warpSound != null) audioSource.PlayOneShot(warpSound);
                 }
                 else
                 {
-                    // (任意)クールタイム中であることを示す音を鳴らしても良い
                     Debug.Log("特殊能力はクールタイム中です。");
-                    if (MissSound != null)
-                    {
-                        audioSource.PlayOneShot(MissSound);
-                    }
+                    if (MissSound != null) audioSource.PlayOneShot(MissSound);
                 }
-                
             }
             if (Input.GetButtonDown("Jump"))
             {
-                if (MissSound != null)
-                {
-                    audioSource.PlayOneShot(MissSound);
-                }
+                if (MissSound != null) audioSource.PlayOneShot(MissSound);
             }
         }
 
-        // ▼▼▼ 時間の取得方法を変更 ▼▼▼
-        float deltaTime = Time.deltaTime * (PlayerTimeManager.Instance?.PlayerTimeScale ?? 1f);
-
-        Vector3 lookDir = Camera.main.transform.forward;
-        lookDir.y = 0;
-        if (lookDir.sqrMagnitude > 0.001f)
+        // ★修正: 上で定義済みの playerDeltaTime を使い、重複定義していた deltaTime を削除
+        if (m_MainCamera != null)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(lookDir);
-            currentCharacter.transform.rotation = Quaternion.Slerp(currentCharacter.transform.rotation, targetRotation, rotationSpeed * playerDeltaTime);
+            Vector3 lookDir = m_MainCamera.transform.forward;
+            lookDir.y = 0;
+            if (lookDir.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(lookDir);
+                currentCharacter.transform.rotation = Quaternion.Slerp(currentCharacter.transform.rotation, targetRotation, rotationSpeed * playerDeltaTime);
+            }
         }
 
         float currentSpeed = IsPossessing() && npcStatusManager != null ? npcStatusManager.speed : this.moveSpeed;
         Vector3 move = (currentCharacter.transform.forward * v + currentCharacter.transform.right * h).normalized * currentSpeed;
 
-        // ▼▼▼ ジャンプと重力のロジックを修正 ▼▼▼
         bool isGrounded = currentController.isGrounded;
 
         if (isGrounded)
         {
             if (!wasGrounded && timeInAir > landingThreshold) { /* 着地音 */ }
             timeInAir = 0f;
-            // 地面にいる間、Y速度がマイナスに溜まり続けないようにする
-            if (velocity.y < 0) velocity.y = -2f; 
+            if (velocity.y < 0) velocity.y = -2f;
         }
-        else 
+        else
         {
             timeInAir += Time.deltaTime;
-            // --- ここからが可変ジャンプの核 ---
-            // 上昇中（velocity.y > 0）にジャンプボタン(Fire2)が離されたら
             if (velocity.y > 0 && Input.GetButtonUp("Fire2"))
             {
-                // 上昇の勢いを弱める
-                velocity.y *= 0.5f; 
+                velocity.y *= 0.5f;
             }
-            // 落下中（velocity.y < 0）は、少し強い重力をかけてスピーディーに落とす
             else if (velocity.y < 0)
             {
                 velocity.y += Physics.gravity.y * fallGravityMultiplier * playerDeltaTime;
             }
-            // それ以外（上昇中にボタンを押し続けている場合など）
             else
             {
-                velocity.y += Physics.gravity.y * playerDeltaTime; // 通常の重力
+                velocity.y += Physics.gravity.y * playerDeltaTime;
             }
         }
-        
+
         Vector3 finalMove = move + new Vector3(0, velocity.y, 0);
         currentController.Move(finalMove * playerDeltaTime);
         wasGrounded = isGrounded;
-        
+
         if (targetNPC != null)
         {
             ghost.transform.position = targetNPC.transform.position;
             ghost.transform.rotation = targetNPC.transform.rotation;
         }
 
-        // Y座標が-5以下になったら自動的にリスポーン
         if (currentCharacter.transform.position.y < -5f)
         {
-            // もし respawnPoint が設定されていればそこへ、なければ原点(0,0,0)などへ
             Vector3 targetPos = (respawnPoint != null) ? respawnPoint.position : Vector3.zero;
-            
-            // 前述の Teleport メソッド（あるいは同様の処理）を呼び出す
             Teleport(targetPos);
-            
-            // 落下ダメージが必要な場合
             if (IsPossessing() && npcStatusManager != null)
             {
-                npcStatusManager.TakeDamage(10, null); // ダメージ値は適宜調整
+                npcStatusManager.TakeDamage(10, null);
             }
-
             Debug.Log("落下検知：リスポーン地点へワープしました。");
         }
     }
 
-    /// <summary>
-    /// ジャンプ能力から呼び出され、上方向の初速を設定する
-    /// </summary>
     public void ApplyJumpForce(float force)
     {
         if (currentController.isGrounded)
         {
             velocity.y = force;
         }
-        
     }
-    
+
     private void CheckForInteractables()
     {
-        // 自分の現在位置を中心に、指定した半径・レイヤー内の全てのコライダーを見つけ出し、配列に格納する
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactionRadius, interactableLayer);
+        // ★修正: OverlapSphereNonAllocで事前確保バッファを使い、毎フレームのheapアロケーションを回避
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactionRadius, m_OverlapBuffer, interactableLayer);
 
-        // 見つけた「操作可能な対象」を一時的に保持するための変数を準備する
         IInteractable closestInteractable = null;
 
-        // もしコライダーが1つ以上見つかった場合
-        if (hitColliders.Length > 0)
+        if (hitCount > 0)
         {
-            // 見つかった全てのコライダーを、自分との距離が近い順に並び替える
-            Collider closestCollider = hitColliders
-                .OrderBy(c => (transform.position - c.transform.position).sqrMagnitude)
-                .FirstOrDefault(); // 並び替えた後、リストの先頭（＝最も近いもの）を1つだけ取り出す
+            // ★修正: LINQのOrderBy+FirstOrDefaultをforループに置き換え、EnumeratorのGCAllocを回避
+            Collider closestCollider = null;
+            float minSqrDist = float.MaxValue;
+            for (int i = 0; i < hitCount; i++)
+            {
+                float sqrDist = (transform.position - m_OverlapBuffer[i].transform.position).sqrMagnitude;
+                if (sqrDist < minSqrDist)
+                {
+                    minSqrDist = sqrDist;
+                    closestCollider = m_OverlapBuffer[i];
+                }
+            }
 
-            // 最も近いコライダーが確實に存在する場合
             if (closestCollider != null)
             {
-                // そのコライダーがアタッチされているGameObjectから、IInteractableインターフェースを持つコンポーネントを探す
                 closestInteractable = closestCollider.GetComponent<IInteractable>();
             }
         }
 
-        // --- ここから、前のフレームの状態と比較して、イベントを通知する ---
-
-        // 「今フレームで見つけた最も近い対象」が存在し、かつ「前のフレームでフォーカスしていた対象」と違う場合
-        // つまり、新しく何かの範囲に入ったか、別の対象にフォーカスを乗り換えた瞬間
         if (closestInteractable != null && closestInteractable != currentInteractable)
         {
-            // もし「前のフレームでフォーカスしていた対象」が存在するなら、まずその対象に「範囲外に出たよ」と通知する
-            if (currentInteractable != null)
-            {
-                currentInteractable.OnPlayerExitRange();
-            }
-            // 「現在のフォーカス対象」を、新しく見つけた対象に更新する
+            if (currentInteractable != null) currentInteractable.OnPlayerExitRange();
             currentInteractable = closestInteractable;
-            // 新しい対象に「範囲内に入ったよ」と通知する
             currentInteractable.OnPlayerEnterRange();
         }
-        //  今フレームで見つけた最も近い対象が存在せず、かつ前のフレームではフォーカスしていた対象がいた場合
-        //  何かの範囲から完全に出た瞬間
         else if (closestInteractable == null && currentInteractable != null)
         {
-            // 「前のフレームでフォーカスしていた対象」に「範囲外に出たよ」と通知する
             currentInteractable.OnPlayerExitRange();
-            // 「現在のフォーカス対象」を空にする
             currentInteractable = null;
         }
     }
 
-    private IEnumerator canAttack(int waitTime)
+    // ★修正: WaitForSecondsをキャッシュ済みのものを受け取ることで毎回のnewを回避
+    private IEnumerator canAttack(WaitForSeconds waitTime)
     {
-        // 指定されたフレーム数待つ
-        for (var i = 0; i < waitTime; i++)
-        {
-            yield return null;
-        }
+        yield return waitTime;
         Debug.Log("Attack OK");
         isAttack = false;
     }
 
     private IEnumerator Dodge()
     {
-        //isDodging = true;
         nextDodgeTime = Time.time + dodgeCooldown;
-        // Dodgeフラグをセット（Animatorに伝える）
         if (HasParameter(currentAnimator, "Dodge"))
             currentAnimator.SetTrigger("Dodge");
 
-        if (dodgeSound != null)
-        {
-            audioSource.PlayOneShot(dodgeSound);
-        }
+        if (dodgeSound != null) audioSource.PlayOneShot(dodgeSound);
 
-        // --- 無敵処理 ---
-        // StatusManagerの回避専用無敵化メソッドを呼び出す
         if (npcStatusManager != null)
         {
             npcStatusManager.StartCoroutine(npcStatusManager.BecomeDodgeInvincible(dodgeInvincibilityTime));
         }
 
-        // --- 回避の方向を決定 ---
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -576,21 +512,16 @@ public class PlayerController : MonoBehaviour
         if (HasParameter(currentAnimator, verticalFloatName))
             currentAnimator.SetFloat(verticalFloatName, v);
 
-        // --- 移動処理 ---
         float elapsedTime = 0f;
         while (elapsedTime < dodgeDuration)
         {
             float deltaTime = Time.deltaTime * (PlayerTimeManager.Instance?.PlayerTimeScale ?? 1f);
-            // CharacterController.Moveを使うことで、壁との衝突判定が行われる
             currentController.Move(dodgeDirection * dodgeSpeed * deltaTime);
             elapsedTime += deltaTime;
             yield return null;
         }
-
-        //isDodging = false;
     }
 
-    /// 指定された力でジャンプを実行する
     public void PerformJump(float customJumpPower)
     {
         if (currentController != null && currentController.isGrounded)
@@ -599,86 +530,81 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // ★修正: animator.parametersの毎フレームコピーをやめ、キャッシュ済みHashSetで参照する
+    //   animatorが切り替わった場合はRebuildAnimatorParamCacheで更新される
     public bool HasParameter(Animator animator, string paramName)
     {
         if (animator == null || string.IsNullOrEmpty(paramName)) return false;
-        foreach (AnimatorControllerParameter param in animator.parameters)
+
+        // animatorが切り替わっていたらキャッシュを再構築する
+        if (animator != m_CachedParamAnimator)
         {
-            if (param.name == paramName) return true;
+            RebuildAnimatorParamCache(animator);
         }
-        return false;
+
+        return m_AnimatorParamCache.Contains(paramName);
     }
 
     public void Teleport(Vector3 targetPosition)
     {
-        // 1. 垂直速度をリセット（これをしないとワープ先でも落下し続ける）
         velocity = Vector3.zero;
         timeInAir = 0f;
 
-        // 2. CharacterControllerを一時的に無効化
         if (currentController != null) currentController.enabled = false;
 
-        // 3. 座標の更新
         if (targetNPC != null)
         {
             targetNPC.transform.position = targetPosition;
-            this.transform.position = targetPosition; // 幽霊も同期
+            this.transform.position = targetPosition;
         }
         else
         {
             this.transform.position = targetPosition;
         }
 
-        // 4. 物理演算の同期
         Physics.SyncTransforms();
 
-        // 5. 再有効化
         if (currentController != null) currentController.enabled = true;
     }
 
-    /// 現在乗っ取っているNPCのStatusManagerを取得する
     public StatusManager GetPossessedStatusManager()
     {
         return npcStatusManager;
     }
 
-    //壁抜け状態を検知・通知する
     private void UpdatePhasingState()
     {
-        // 憑依中は壁抜け判定を行わない
         if (IsPossessing())
         {
-            // ReikonManagerの状態を「憑依中」として更新
             reikonManager.UpdateState(false, true);
             return;
         }
 
-        // --- 幽霊状態の時の処理 ---
-
-        // CharacterControllerのサイズと位置を使って、仮想的なチェックボックスを作成
         Vector3 boxCenter = transform.position + currentController.center;
         Vector3 halfExtents = new Vector3(currentController.radius, currentController.height / 2, currentController.radius);
-
-        // チェックボックスが "wallLayer" と重なっているか判定
         bool isInsideWall = Physics.CheckBox(boxCenter, halfExtents, transform.rotation, wallLayer);
-
-        // ReikonManagerに現在の状態を通知
-        // isPhasing: 壁の中にいるか？ / isPossessing: 憑依中か？(ここではfalse)
         reikonManager.UpdateState(isInsideWall, false);
     }
 
-    /// <summary>
-    /// 物理判定に頼らず、キャラクターの周囲にある回復アイテムを検知して取得する
-    /// </summary>
     private void CheckForRecoveryItems()
     {
-        // キャラクターの位置を中心に、指定した半径内のコライダーを全て取得する
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, itemDetectionRadius, reikonLayer);
+        // ★修正: OverlapSphereNonAllocで共有バッファを使いheapアロケーションを回避
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, itemDetectionRadius, m_OverlapBuffer, reikonLayer);
 
-        if (hitColliders.Length > 0)
+        if (hitCount > 0)
         {
-            // 複数のアイテムを同時に検知した場合、一番近いものを取得する
-            Collider closest = hitColliders.OrderBy(c => (transform.position - c.transform.position).sqrMagnitude).FirstOrDefault();
+            // ★修正: LINQをforループに置き換え
+            Collider closest = null;
+            float minSqrDist = float.MaxValue;
+            for (int i = 0; i < hitCount; i++)
+            {
+                float sqrDist = (transform.position - m_OverlapBuffer[i].transform.position).sqrMagnitude;
+                if (sqrDist < minSqrDist)
+                {
+                    minSqrDist = sqrDist;
+                    closest = m_OverlapBuffer[i];
+                }
+            }
 
             if (closest != null && closest.TryGetComponent<ReikonItem>(out ReikonItem item))
             {
@@ -686,7 +612,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    
+
     private void HealAndDestroyItem(ReikonItem item)
     {
         if (reikonManager != null)
@@ -695,29 +621,36 @@ public class PlayerController : MonoBehaviour
         }
         Destroy(item.gameObject);
     }
-    
+
     public bool IsCollisionsEnabled()
     {
         return currentController != null ? currentController.detectCollisions : false;
     }
-    
+
     public bool IsPossessing()
     {
         return targetNPC != null;
     }
 
-    
     private TrashItem CheckForTrash()
     {
-        // 指定半径内のゴミレイヤーのオブジェクトを探す
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, pickupRadius, pickupLayer);
-        
-        if (hitColliders.Length > 0)
+        // ★修正: OverlapSphereNonAllocで共有バッファを使いheapアロケーションを回避
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, pickupRadius, m_OverlapBuffer, pickupLayer);
+
+        if (hitCount > 0)
         {
-            // 一番近いゴミを探す
-            Collider closest = hitColliders
-                .OrderBy(c => (transform.position - c.transform.position).sqrMagnitude)
-                .FirstOrDefault();
+            // ★修正: LINQをforループに置き換え
+            Collider closest = null;
+            float minSqrDist = float.MaxValue;
+            for (int i = 0; i < hitCount; i++)
+            {
+                float sqrDist = (transform.position - m_OverlapBuffer[i].transform.position).sqrMagnitude;
+                if (sqrDist < minSqrDist)
+                {
+                    minSqrDist = sqrDist;
+                    closest = m_OverlapBuffer[i];
+                }
+            }
 
             if (closest != null)
             {

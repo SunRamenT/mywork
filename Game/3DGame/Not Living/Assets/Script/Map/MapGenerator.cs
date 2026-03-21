@@ -12,15 +12,27 @@ public class StructureItem
     public bool allowRandomRotation = true; 
 }
 
+// : _modifiersをHashSet→Listに変更。
+// HashSetはforeach時にEnumeratorがインターフェース経由でボックス化されGCAllocが発生する。
+// Listはforeach・インデックスアクセスともにボックス化が起きないため、
+// InfiniteNavMeshBuilder側でのコピーが不要になる。
+// トレードオフ: Register/UnregisterがO(n)になるが、
+// 登録・解除の頻度はチャンクの切り替え時のみであり実用上問題ない。
 public static class NavMeshModifierRegistry
 {
-    private static readonly HashSet<NavMeshModifierVolume> _modifiers = new HashSet<NavMeshModifierVolume>();
+    private static readonly List<NavMeshModifierVolume> _modifiers = new List<NavMeshModifierVolume>();
     
-    // ★最適化: IEnumerableでの公開をやめ、HashSetを直接公開してボックス化（GC Alloc）を回避
-    public static HashSet<NavMeshModifierVolume> ActiveModifiers => _modifiers;
+    public static List<NavMeshModifierVolume> ActiveModifiers => _modifiers;
 
-    public static void Register(NavMeshModifierVolume mod) { if (mod != null) _modifiers.Add(mod); }
-    public static void Unregister(NavMeshModifierVolume mod) { if (mod != null) _modifiers.Remove(mod); }
+    public static void Register(NavMeshModifierVolume mod)
+    {
+        if (mod != null && !_modifiers.Contains(mod)) _modifiers.Add(mod);
+    }
+
+    public static void Unregister(NavMeshModifierVolume mod)
+    {
+        if (mod != null) _modifiers.Remove(mod);
+    }
 }
 
 public class MapGenerator : MonoBehaviour
@@ -54,6 +66,9 @@ public class MapGenerator : MonoBehaviour
     private Dictionary<Vector2Int, List<GameObject>> chunkObjects = new Dictionary<Vector2Int, List<GameObject>>();
     private Dictionary<GameObject, Queue<GameObject>> poolDictionary = new Dictionary<GameObject, Queue<GameObject>>();
     private Dictionary<GameObject, GameObject> instanceToPrefabMap = new Dictionary<GameObject, GameObject>();
+
+    // ★修正: プールの最大容量。これを超えた返却分はDestroyする
+    private const int MAX_POOL_SIZE = 50;
 
     private Vector2Int currentChunkCoord;
     private bool isUpdatingMap = false;
@@ -127,7 +142,6 @@ public class MapGenerator : MonoBehaviour
     {
         isUpdatingMap = true;
 
-        // ★最適化: 毎回 new List せず、キャッシュをクリアして再利用
         m_CachedChunksToSpawn.Clear();
         int safeViewDistance = Mathf.Min(viewDistance, 5);
 
@@ -204,7 +218,6 @@ public class MapGenerator : MonoBehaviour
             int reqLeft   = GetNeighborConnection(coord, Vector2Int.left,  "right");
             int reqRight  = GetNeighborConnection(coord, Vector2Int.right, "left");
 
-            // キャッシュしたリストを使い回す。
             m_CachedValidTiles.Clear();
             m_CachedStrictTiles.Clear();
 
@@ -285,7 +298,6 @@ public class MapGenerator : MonoBehaviour
 
     void CleanupChunks()
     {
-        // 毎回 new List せずキャッシュを使い回す
         m_CachedChunksToRemove.Clear();
         int keepThreshold = viewDistance + 1;
 
@@ -377,15 +389,17 @@ public class MapGenerator : MonoBehaviour
         if (instanceToPrefabMap.ContainsKey(obj))
         {
             GameObject prefabKey = instanceToPrefabMap[obj];
-            obj.SetActive(false); 
-            
-            if (poolDictionary.ContainsKey(prefabKey)) 
+            obj.SetActive(false);
+
+            if (poolDictionary.ContainsKey(prefabKey) && poolDictionary[prefabKey].Count < MAX_POOL_SIZE)
             {
-                poolDictionary[prefabKey].Enqueue(obj); 
+                poolDictionary[prefabKey].Enqueue(obj);
             }
-            else 
+            else
             {
-                Destroy(obj); 
+                instanceToPrefabMap.Remove(obj);
+                Destroy(obj);
+                return;
             }
         }
         else
@@ -418,7 +432,6 @@ public class MapGenerator : MonoBehaviour
         CheckNeighborType(coord + Vector2Int.left,  ref grassNeighbors, ref concreteNeighbors);
         CheckNeighborType(coord + Vector2Int.right, ref grassNeighbors, ref concreteNeighbors);
         
-        // ★最適化: Dictionaryとforeachを排除し、並列リストを使用して重みを計算
         m_CachedTileWeights.Clear();
         int totalWeight = 0;
 
@@ -463,7 +476,6 @@ public class MapGenerator : MonoBehaviour
 
     StructureItem GetWeightedRandomStructure(List<StructureItem> candidates, System.Random rng)
     {
-        // LINQのSum ( GC Alloc ) を単純な for ループに変更
         int totalWeight = 0;
         for (int i = 0; i < candidates.Count; i++)
         {

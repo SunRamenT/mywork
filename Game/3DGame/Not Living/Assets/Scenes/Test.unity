@@ -920,7 +920,7 @@ MonoBehaviour:
     weight: 2
     allowRandomRotation: 1
   safeZoneRadius: 1
-  chunkSize: 5
+  chunkSize: 3
 --- !u!4 &144809231
 Transform:
   m_ObjectHideFlags: 0
