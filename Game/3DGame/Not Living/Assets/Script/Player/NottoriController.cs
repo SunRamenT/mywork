@@ -81,7 +81,7 @@ public class NottoriController : MonoBehaviour
         
         if (possessEffectPrefab != null)
         {
-            // ▼▼▼ 乗っ取り時は「乗っ取る対象のNPCの位置」を基準にする ▼▼▼
+            //  乗っ取り時は「乗っ取る対象のNPCの位置」を基準にする
             Vector3 spawnPosition = npc.transform.position + new Vector3(0, effectYOffset, 0);
             Instantiate(possessEffectPrefab, spawnPosition, Quaternion.identity);
         }
@@ -113,7 +113,7 @@ public class NottoriController : MonoBehaviour
 
         if(currentNPC != null)
         {
-            // ▼▼▼ 乗っ取り解除時は「幽霊が出現する位置」を基準にする ▼▼▼
+            // 乗っ取り解除時は「幽霊が出現する位置」を基準にする
             // 先に幽霊の出現位置を計算する
             Vector3 releasePosition = currentNPC.transform.position + (currentNPC.transform.forward * releaseForwardDistance);
 
